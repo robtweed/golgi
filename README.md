@@ -32,8 +32,44 @@ application are dynamically loaded, on demand, as ES6 Modules.  Avoiding a separ
 step speeds up application development considerably, and doesn't require the creation and configuration
 of a complex build chain.  All you need to get up and running is the tiny Golgi JavaScript file, and everything else is done by the Web Technology built into modern browsers.
 
+# Why Is It Named Golgi?
 
-# Documentation to follow
+The Golgi Apparatus (or Golgi Body) exists in every living cell, 
+and its purpose is to package proteins into membrane-bound vesicles inside the cell, before the vesicles are sent to their destination.  Proteins are constructed from simpler building blocks called Amino Acids.
+
+The analogy is that WebComponents provide the basic building-blocks for what we call Assemblies, 
+and the Golgi framework allows you to fetch, configure and send these Assemblies to their 
+correct destination within the UI layout.
+
+It's very much an atomic design methodology:
+
+- Golgi Components are WebComponents that you package as ES6 Modules.  They can be as simple or as
+complex as you like, but typically they are simple and small.  Many may represent just a 
+single HTML tag.  By being defined as WebComponents, you can define methods and properties 
+that are relevant to the purpose of the tag or set of tags within the Component.
+
+- Golgi Assemblies are built from Golgi Components, and are visualised by the develper as nested 
+XML/XHTML tags.  Assemblies can optionally configure each instance of its constituent Golgi 
+Components, adding state values and optional methods that are invoked when each constituent 
+Golgi Component is rendered.  Golgi Assemblies are also packaged as ES6 Modules, allowing
+Golgi to dynamically import and load them on demand.  When a Golgi Assembly is loaded, its
+constituent Golgi Component modules are dynamically imported and loaded.
+
+- Within Golgi Assemblies, you can optionally define mappings for data binding, automatically 
+invoking Golgi Component *setState()* methods when specified paths within Golgi's *state* object
+are set or changed.
+
+- You can optionally specify Mutation Observers within Golgi Components, allowing dynamic
+behaviour to be defined in response to specified changes in the rendered Component.
+
+In Golgi Components, you can decide whether or not to make use of the ShadowDOM that WebComponents
+provide.  For most of the time you'll find that you won't actually use ShadowDOM, for reasons that
+will become clear later.  This may surprise a lot of people, since the general impression is
+that ShadowDOM is an essential part of WebComponents: it's actually not.  ShadowDOM is entirely optional,
+and understanding that makes all sorts of things possible with WebComponents, as Golgi demonstrates.
+
+
+# Further Documentation to follow
 ....
 
 
