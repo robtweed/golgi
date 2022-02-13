@@ -206,9 +206,9 @@ let golgi = {
     //if (log) console.log('*** load ' + componentName);
     let _this = this;
 
-    //console.log('namespace = ' + namespace);
-    //console.log('context: ');
-    //console.log(context);
+    console.log('namespace = ' + namespace);
+    console.log('context: ');
+    console.log(context);
     let jsPath = context.componentPath || './';
     if (context.componentPaths && context.componentPaths[namespace]) {
       jsPath = context.componentPaths[namespace];
@@ -240,6 +240,7 @@ let golgi = {
       return element;
     }
     else {
+      console.log('** jsPath = ' + jsPath);
       let _module = await import(jsPath + componentName + '.js');
       // check again in case loaded in the meantime by another async loop
       let elementClass = customElements.get(componentName);
