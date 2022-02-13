@@ -63,15 +63,55 @@ let golgi = {
     log = state;
   },
 
+  loadResources: async function(resourceObj) {
+    let _this = this;
+    let styles = resourceObj.css;
+    if (styles) {
+      if (!Array.isArray(styles)) styles = [styles];
+      let style;
+      for (let style of styles) {
+        if (typeof style !== 'object') {
+          _this.loadCSS(style);
+        }
+        else {
+          if (style.await) {
+            await _this.loadCSSAsync(style.path, style.args);
+          }
+          else {
+            _this.loadCSS(style.path, style.args);
+          }
+        }
+      }
+    }
+    let scripts = resourceObj.js;
+    if (scripts) {
+      if (!Array.isArray(scripts)) scripts = [scripts];
+      let script;
+      for (let script of scripts) {
+        if (typeof script !== 'object') {
+          _this.loadJS(script);
+        }
+        else {
+          if (script.await) {
+            let src = await _this.loadJSAsync(script.path, script.args);
+          }
+          else {
+            _this.loadJS(script.path, script.args);
+          }
+        }
+      }
+    }
+  },
+
   loadJSAsync: async function(src, attrs) {
-    await golgi.loadJSFilePromise(src, attrs);
+    return await golgi.loadJSFilePromise(src, attrs);
   },
 
   loadJSFilePromise: async function(src, attrs) {
     let _this = this;
     return new Promise((resolve) => {
-      _this.loadJS(src, attrs, function() {
-        resolve();
+      _this.loadJS(src, attrs, function(src) {
+        resolve(src);
       });
     });
   },
@@ -96,6 +136,8 @@ let golgi = {
 	if (crossorigin) {
       script.setAttribute('crossorigin', crossorigin);;
     }
+    console.log('js callback:');
+    console.log(callback);
     document.body.appendChild(script);
   },
 
@@ -322,6 +364,7 @@ let golgi = {
           element.getComponentByName = _this.getComponentByName.bind(_this); 
           element.addHandler = _this.addHandler.bind(element);
           element.addMetaTag = _this.addMetaTag;
+          element.loadResources = _this.loadResources;
           element.loadJSAsync = _this.loadJSAsync;
           element.loadJS = _this.loadJS;
           element.loadCSSAsync = _this.loadCSSAsync;

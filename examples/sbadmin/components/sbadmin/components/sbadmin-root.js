@@ -84,43 +84,7 @@ export function load() {
       document.getElementsByTagName('body')[0].classList.add('sb-nav-fixed');
 
       if (this.context.resourcePaths && this.context.resourcePaths.sbadmin) {
-        let _this = this;
-        const styles = this.context.resourcePaths.sbadmin.css;
-        if (styles) {
-          if (!Array.isArray(styles)) styles = [styles];
-
-          styles.forEach(async function(style) {
-            if (typeof style !== 'object') {
-              _this.loadCSS(style);
-            }
-            else {
-              if (style.await) {
-                await _this.loadCSSAsync(style.path, style.args);
-              }
-              else {
-                _this.loadCSS(style.path, style.args);
-              }
-            }
-          });
-        }
-        const scripts = this.context.resourcePaths.sbadmin.js;
-        if (scripts) {
-          if (!Array.isArray(scripts)) scripts = [scripts];
-
-          scripts.forEach(async function(script) {
-            if (typeof script !== 'object') {
-              _this.loadJS(script);
-            }
-            else {
-              if (script.await) {
-                await _this.loadJSAsync(script.path, script.args);
-              }
-              else {
-                _this.loadJS(script.path, script.args);
-              }
-            }
-          });
-        }
+        await this.loadResources(this.context.resourcePaths.sbadmin);
       }
       else {
         /*

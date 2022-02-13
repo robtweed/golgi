@@ -18,6 +18,12 @@ let context = {
           await: true
         },
       ]
+    },
+    chart: {
+      js: {
+        path: '/golgi/components/chart/js/chart-2.8.0.min.js',
+        await: true
+      }
     }
     
   }
@@ -40,6 +46,16 @@ If using CDN sources, change the JS resource paths above to:
           },
           await: true
         },
+
+For chart set js resource path to:
+
+         {
+           path: 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js',
+           args: {
+            'cross-origin': 'anonymous'
+           },
+           await: true
+         }
 
 */
 
