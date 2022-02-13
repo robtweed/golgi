@@ -17,8 +17,9 @@ MutuationObserver.
 This means that Golgi can only be used where you know that the very latest browsers
 are in use, but if they are, then it provides one of the fastest and leanest frameworks
 for UI development, since it makes use of the built-in capabilities of the browser,
-avoiding the need to download large JavaScript framework files.  Golgi itself a mere 25Kb 
-in size in its uncompressed source version, and just 10Kb if you use the minimised version!
+avoiding the need to download large bundled JavaScript framework files.  Golgi itself a mere 25Kb 
+in size in its uncompressed source version, and just 10Kb if you use the minimised version,
+and is literally all that is needed to make everything work!
 
 Golgi can be used with many other standard UI frameworks such as Bootstrap 5, Chart.js etc. Of
 course, if you make use of these, their JavaScript and CSS resource files must be downloaded
@@ -26,11 +27,10 @@ into your application.  However, Golgi allows such resources to be downloaded on
 only when needed, resulting in very short application load and start times.
 
 Unlike many of the UI frameworks that are currently in vogue, Golgi does not require or make use
-of bundling (eg using WebPack etc).  The JavaScript files and WebComponents used by a Golgi
+of bundling (eg using WebPack etc).  Your JavaScript files and WebComponents that define a Golgi
 application are dynamically loaded, on demand, as ES6 Modules.  Avoiding a separate compilation/bundling
 step speeds up application development considerably, and doesn't require the creation and configuration
-of a complex build chain.  All you need is the Golgi JavaScript file, and everything else is done
-by the Web Technology built into modern browsers.
+of a complex build chain.  All you need to get up and running is the tiny Golgi JavaScript file, and everything else is done by the Web Technology built into modern browsers.
 
 
 # Documentation to follow

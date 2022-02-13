@@ -247,8 +247,7 @@ let golgi = {
       let targetEl = targetElement;
       // optional target override
       if (config.targetElement) {
-        let parent = _this.getParentComponent.call(targetEl, 
-config.targetElement.componentName);
+        let parent = _this.getParentComponent.call(targetEl, config.targetElement.componentName);
         if (parent[config.targetElement.target]) {
           targetEl = parent[config.targetElement.target];
         }
@@ -392,8 +391,7 @@ config.targetElement.componentName);
                   }
                   catch(err) {
                     if (log) {
-                      console.log('Unable to execute hook ' + name + ' for ' + 
-config.componentName);
+                      console.log('Unable to execute hook ' + name + ' for ' + config.componentName);
                       console.log(err);
                     }
                   }
@@ -423,7 +421,6 @@ config.componentName);
     }
     await loadComponent(0);
   },
-
   renderAssembly: async function(args, targetElement, context, load_args) {
     let name;
     if (!targetElement && !context && typeof args === 'object') {
@@ -747,20 +744,17 @@ config.componentName);
             getProps(key, value);
             jpath.pop();
           }
-
         });
       }
 
       golgi.dataStore[prop] = value;
 
-      
       if (typeof value === 'object') {
         getProps(prop, value);
       }
       if (typeof value === 'string') {
         applyState(prop, value);
       }      
-
 
       return true;
     }
