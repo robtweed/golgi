@@ -363,6 +363,18 @@ HTML document's DOM is being correctly updated by your *Golgi Component*s and *A
 I'd recommend that you refer to it throughout the rest of this tutorial when you load/reload
 each new version of the demonstration application.
 
+# Using *Golgi*'s Log
+
+A further means of seeing and checking what *Golgi* is doing is to enable its log (by 
+default it is disabled).  When enabled, *Golgi* reports various key steps to the browser's
+console.  During development and debugging, it's a good idea to turn *Golgi*'s logging on.
+
+To turn logging on, add this line to your root application module:
+
+      golgi.setLog(true);
+
+To inspect its log, use the *Console* tab in the browser's Developer Tools panel.
+
 
 # Adding and Using A SetState Method
 
@@ -434,6 +446,8 @@ In summary, the */golgi/demo.js* file should now look like this:
           demo: './components/'
         }
       };
+
+      golgi.setLog(true);
       
       let demoComponent = await golgi.renderComponent('demo-div', 'body', context);
       demoComponent.setState({text: 'Hello World'});
@@ -531,7 +545,7 @@ WebComponent:
         this.addHandler(fn);
       }
 
-Save the file and reload the *index.html* file in the browser, and now whenevr you click
+Save the file and reload the *index.html* file in the browser, and now whenever you click
 the text, you'll see it updating the *span* tag's text content.
 
 Let's examine why this happened.
@@ -593,60 +607,15 @@ Let's deal with these in reverse sequence.  As you saw in the previous example, 
 *addHandler()* method rather than the raw *addEventListener()* DOM method.  The *addHandler()* method
 registers the handler in a Map that is maintained within the WebComponent.
 
-However, there's an important proviso.  For this to work, you **must** add the following
-*disconnectedCallback()* WebComponent lifecycle method to any *Golgi Component* to which you've
-added handlers:
-
-      disconnectedCallback() {
-        this.onUnload();
-      }
-
 Dealing with the first issue, by using *Golgi*'s *remove()* method, it will recurse down through any
 lower-level nested *Golgi Component*s, starting at the lowest-level leaf Components, first removing 
-any handlers and then deleting the WebComponent before moving up to its parent and repeating the
+any registered handlers and then deleting the WebComponent before moving up to its parent and repeating the
 process.  The *remove()* method, together with the *addHandler()* method, therefore ensure that memory leaks
 are avoided when deleting a *Golgi Component*.
  
 So, let's put all these together into our example.
 
-Edit the */golgi/components/demo-div.js* file and add the *disconnectedCallback()* method shown above.
-Just to make sure, here's what your amended version of this file should now look like.
-
-      export function load() {
-        let componentName = 'demo-div';
-        let count = -1;
-        customElements.define(componentName, class demo_div extends HTMLElement {
-          constructor() {
-            super();
-            count++;
-            const html = `
-      <div>
-        <span golgi-prop="spanTag">Click Me!</span>
-      </div>
-            `;
-            this.html = `${html}`;
-            this.name = componentName + '-' + count;
-          }
-          setState(state) {
-            if (state.text) {
-              this.spanTag.textContent = state.text;
-            }
-          }
-          onBeforeState() {
-            const fn = () => {
-              this.setState({text: 'You clicked the div at ' + Date.now()});
-            };
-            this.addHandler(fn, this.spanTag);
-          }
-
-          disconnectedCallback() {
-            this.onUnload();
-          }
-        });
-      };
-
-
-Next, edit your root Module (*/golgi/demo.js*), and add a *setTimeout* function that 
+Edit your root Module (*/golgi/demo.js*), and add a *setTimeout* function that 
 will remove the *demo-div* Component from the DOM after 5 seconds:
 
       const {golgi} = await import('./golgi.min.js');
@@ -655,6 +624,7 @@ will remove the *demo-div* Component from the DOM after 5 seconds:
           demo: './components/'
         }
       };
+      golgi.setLog(true);
       let demoComponent = await golgi.renderComponent('demo-div', 'body', context);
 
       setTimeout(function() {
@@ -664,5 +634,9 @@ will remove the *demo-div* Component from the DOM after 5 seconds:
 Now reload the *index.html* page.  After 5 seconds, the text will disappear, and if you examine
 the DOM using the browser's Developer Tools *elements* tab, you'll see confirmation that the
 *&lt;demo-div&gt;* tag no longer exists.
+
+Try it again, and this time watch the *Golgi* log being reported to the browser's *Console*.
+
+You'll see it reporting the removal of the *demo-div* element and its *click* handler.
 
 

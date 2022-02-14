@@ -136,8 +136,6 @@ let golgi = {
 	if (crossorigin) {
       script.setAttribute('crossorigin', crossorigin);;
     }
-    console.log('js callback:');
-    console.log(callback);
     document.body.appendChild(script);
   },
 
@@ -206,9 +204,9 @@ let golgi = {
     //if (log) console.log('*** load ' + componentName);
     let _this = this;
 
-    console.log('namespace = ' + namespace);
-    console.log('context: ');
-    console.log(context);
+    //console.log('namespace = ' + namespace);
+    //console.log('context: ');
+    //console.log(context);
     let jsPath = context.componentPath || './';
     if (context.componentPaths && context.componentPaths[namespace]) {
       jsPath = context.componentPaths[namespace];
@@ -235,19 +233,18 @@ let golgi = {
 
     let elementClass = customElements.get(componentName);
     if (elementClass) {
-      if (log) console.log('** component ' + componentName + ' already loaded');
+      if (log) console.log('** component ' + componentName + ' already imported');
       let element = invokeComponent(elementClass);
       return element;
     }
     else {
-      console.log('** jsPath = ' + jsPath);
       let _module = await import(jsPath + componentName + '.js');
       // check again in case loaded in the meantime by another async loop
       let elementClass = customElements.get(componentName);
       if (!elementClass) {
         _module.load.call(this);
         elementClass = customElements.get(componentName);
-        if (log) console.log('** component ' + componentName + ' had to be loaded');
+        if (log) console.log('** component ' + componentName + ' had to be imported');
       }
       else {
         //if (log) console.log('** component ' + componentName + ' loaded by another loop');
@@ -377,6 +374,11 @@ let golgi = {
           element.importAssemblyModule = _this.importAssemblyModule;
           element.methodsToRemove = [];
           element.assemblies = _this.assemblies;
+
+          if (log) {
+            console.log('Golgi Component instantiated and ready for use:');
+            console.log(element);
+          }
 
           if (element.onBeforeState) {
             if (element.onBeforeState.constructor.name === 'AsyncFunction') {
@@ -581,7 +583,7 @@ let golgi = {
 
   onUnload: function() {
     if (log) {
-      console.log('onUnload ' + this.name);
+      console.log('removing Golgi COmponent:');
       console.log(this);
     }
     if (this.listeners) {
@@ -610,12 +612,14 @@ let golgi = {
         if (child.nodeType === 1) {
           getChildren(child);
           if (child.isComponent) {
+            child.onUnload();
             child.parentNode.removeChild(child);
           }
         }
       });
     }
     getChildren(this);
+    this.onUnload();
     this.parentNode.removeChild(this);
   },
   parse: function(input) {
