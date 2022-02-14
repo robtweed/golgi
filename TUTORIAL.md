@@ -265,7 +265,7 @@ with underscores, ie:
 What follows defines the Web Component in a fairly standard way.  I recommend you
 adhere to the pattern and conventions shown here:
 
-      customElements.define(componentName, class demo_div_1 extends HTMLElement {
+      customElements.define(componentName, class demo_div extends HTMLElement {
 
           // standard WebComponent boilerplate stuff:
 
@@ -312,7 +312,7 @@ The net result is that the *div* tag appears in the browser with its text displa
       This is Golgi!
 
 
-By now you're probably thinking: "That's an awfully complicated way to just display a *div* tag!
+By now you're probably thinking: "That's an awfully complicated way to just display a *div* tag!"
 
 If that's all we wanted to do, then yes, of course, you'd be right.  But this simple example has
 hopefully explained the basic mechanics of *Golgi* and the patterns you should adopt, without 
@@ -322,7 +322,83 @@ We're now going to start building on top of this very simple demonstration examp
 gradually begin to see how *Golgi* can be used for UI development.
 
 
+# Adding and Using A SetState Method
+
+One of the things you'll want to be able to do with your *Golgi Component*s is to manipulate
+their state.  The convention I use is to add a method named *setState()* to your
+*Golgi Component*.
+
+To see this in operation, edit your */demo/components/demo-div.js* file, adding this method to the
+WebComponent definition:
+
+      setState(state) {
+        if (state.text) {
+          this.rootElement.textContent = state.text;
+        }
+      }
+
+Within a WebComponent, *this* refers to the Component itself.  When processed by *Golgi*, 
+the root HTML element in the HTML you specified is automatically referenced via a property
+named *rootElement*.  In our example, that's the *div* tag.
+
+So this *setState()* method will replace the *div* tag's *textContent* with whatever you specify
+in the *state* object's *text* property.
+
+The new version of your *demo-div* *Golgi Component* should now therefore look like this:
+
+      export function load() {
+        let componentName = 'demo-div';
+        let count = -1;
+        customElements.define(componentName, class demo_div extends HTMLElement {
+          constructor() {
+            super();
+            count++;
+            const html = `
+      <div>This is Golgi!</div>
+            `;
+            this.html = `${html}`;
+            this.name = componentName + '-' + count;
+          }
+      
+          setState(state) {
+            if (state.text) {
+              this.rootElement.textContent = state.text;
+            }
+          }
+        });
+      };
 
 
+Let's now edit your root application module (*/demo/demo.js*)
 
+First we'll change the invocation of the *golgi.renderComponent()* method to the following:
+
+      let demoComponent = await golgi.renderComponent('demo-div', 'body', context);
+
+So we *await* completion of the asynchronous *renderComponent()* method, and what it
+then returns to us is the actual instance of the *demo-div* WebComponent that was rendered.
+
+We can now access any of that WebComponent's methods and properties.
+
+So let's add this:
+
+      demoComponent.setState({text: 'Hello World'});
+
+In summary, the */demo/demo.js* file should now look like this:
+
+      const {golgi} = await import('./golgi.min.js');
+      let context = {
+        componentPaths: {
+          demo: './components/'
+        }
+      };
+      
+      let demoComponent = await golgi.renderComponent('demo-div', 'body', context);
+      demoComponent.setState({text: 'Hello World'});
+
+Save the file and reload the *index.html* page in the browser.
+
+Instead of the text "This is Golgi!", you should now see the text:
+
+      Hello World
 
