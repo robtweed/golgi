@@ -322,13 +322,47 @@ We're now going to start building on top of this very simple demonstration examp
 gradually begin to see how *Golgi* can be used for UI development.
 
 
+# Check The Browser's Developer Tools
+
+If you're using a browser such as Chrome, you can open the Developer Tools panel, and, if you
+select the *Network* tab, you'll be able to see the sequence of events that occur when you
+load/reload the *index.html* page.  You should see in sequence:
+
+- *index.html* is loaded
+- *demo.js* is then loaded by *index.html*
+- *golgi-min.js* is then loaded, and once it's finished loading:
+- *demo-div.js* is loaded by the *renderComponent()* method in *demo.js*
+
+
+If you select the *Elements* tab, you'll be able to see what your *index.html* page now looks like in the browser:
+
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <title>Golgi Demo</title>
+          <style>...</style>
+        </head>
+        <body>
+          <script type="module" src="./demo-1a.js"></script>
+          <demo-div>
+            <div>This is Golgi!</div>
+          </demo-div>
+        </body>
+      </html>
+
+We can ignore the *style* tag that's been added by your browser to the *head* section.
+
+The important thing to notice is the &lt;demo-div&gt; tag that has been added, inside of
+which is the *div* tag we defined in its WebComponent.
+
+
 # Adding and Using A SetState Method
 
 One of the things you'll want to be able to do with your *Golgi Component*s is to manipulate
 their state.  The convention I use is to add a method named *setState()* to your
 *Golgi Component*.
 
-To see this in operation, edit your */demo/components/demo-div.js* file, adding this method to the
+To see this in operation, edit your */golgi/components/demo-div.js* file, adding this method to the
 WebComponent definition:
 
       setState(state) {
@@ -369,7 +403,7 @@ The new version of your *demo-div* *Golgi Component* should now therefore look l
       };
 
 
-Let's now edit your root application module (*/demo/demo.js*)
+Let's now edit your root application module (*/golgi/demo.js*)
 
 First we'll change the invocation of the *golgi.renderComponent()* method to the following:
 
@@ -384,7 +418,7 @@ So let's add this:
 
       demoComponent.setState({text: 'Hello World'});
 
-In summary, the */demo/demo.js* file should now look like this:
+In summary, the */golgi/demo.js* file should now look like this:
 
       const {golgi} = await import('./golgi.min.js');
       let context = {
