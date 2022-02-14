@@ -243,19 +243,19 @@ So now we need to examine our *demo-div Golgi Component*.
         // define the WebComponent
       };
 
-In other words, the are simple ES6 Modules that wrap a single WebComponent within a *load()* method.
+In other words, they are simple ES6 Modules that wrap a single WebComponent within a *load()* method.
 
 I recommend the following pattern for defining the WebComponent:
 
 - define the component's name and an instance counter (initialised at -1).  
 The component's name must match that of the filename in which the Module resides, ie in our example
 
-  let componentName = 'demo-div';
-  let count = -1;
+      let componentName = 'demo-div';
+      let count = -1;
 
 Now define the WebComponent:
 
-  customElements.define(componentName, class demo_div extends HTMLElement {
+      customElements.define(componentName, class demo_div extends HTMLElement {
 
 The class name must be unique.  By convention, I simply replace the hyphens in the component name
 with underscores, ie:
@@ -292,7 +292,7 @@ adhere to the pattern and conventions shown here:
             this.name = componentName + '-' + count;
           }
 
-  });
+      });
 
 
 So, in summary, this will create a WebComponent named *demo-div* that represents a simple
