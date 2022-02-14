@@ -324,7 +324,8 @@ gradually begin to see how *Golgi* can be used for UI development.
 
 # Check The Browser's Developer Tools
 
-If you're using a browser such as Chrome, you can open the Developer Tools panel, and, if you
+Before we move on, if you're using a browser such as Chrome, you can open the Developer 
+Tools panel, and, if you
 select the *Network* tab, you'll be able to see the sequence of events that occur when you
 load/reload the *index.html* page.  You should see in sequence:
 
@@ -352,8 +353,15 @@ If you select the *Elements* tab, you'll be able to see what your *index.html* p
 
 We can ignore the *style* tag that's been added by your browser to the *head* section.
 
-The important thing to notice is the &lt;demo-div&gt; tag that has been added, inside of
+The important thing to notice is the *&lt;demo-div&gt;* tag that has been added, inside of
 which is the *div* tag we defined in its WebComponent.
+
+The Developer Tools panel is a very useful and powerful tool to use when developing with *Golgi*,
+allowing you to check that the correct things have loaded as you'd expected, and that the
+HTML document's DOM is being correctly updated by your *Golgi Component*s and *Assemblies*.
+
+I'd recommend that you refer to it throughout the rest of this tutorial when you load/reload
+each new version of the demonstration application.
 
 
 # Adding and Using A SetState Method
@@ -435,4 +443,226 @@ Save the file and reload the *index.html* page in the browser.
 Instead of the text "This is Golgi!", you should now see the text:
 
       Hello World
+
+
+# Assigning WebComponent HTML Tags To Properties
+
+Thus far, the WebComponent within our demonstration *Golgi Component* consists of a single
+*div* tag.  However, the WebComponent can define as much and as complex a chunk of nested
+HTML tags as you wish.  When you do this, you'll often want to be able to access specific
+tags within the WebComponent so that you can later manipulate them.
+
+Whilst you could achieve this using the standard HTML DOM APIs, this would end up being very
+laborious during development, and not particularly easy to follow and maintain at a later date.
+
+*Golgi* provides a very simple alternative way to make these assignments by allowing you to
+add a special reserved attribute name - *golgi-prop* - to any tag you define within a
+WebComponent.  The value of this attribute is used as a property name, that property being
+automatically added to the WebComponent, and that property value provides the DOM pointer to
+that tag.  
+
+Let's try it out and it will become much clearer.
+
+First, we're going to modify the *demo-div* *Golgi Component*.  So edit the
+*/golgi/components/demo-div.js* file, and change the HTML assignment to the following:
+
+      <div>
+        <span golgi-prop="spanTag"></span>
+      </div>
+
+If you remember from earlier, the outer *div* tag is already automatically referenceable via
+*Golgi* as *this.rootElement*.  By adding the *golgi-prop* attribute to its new child *span*
+tag, we'll now be able to reference and access that *span* tag as *this.spanTag*.
+
+Let's now modify the *setState()* method to use this, because we now want *state.text* 
+to modify the *textContent* of the *span* tag rather than the *div* tag:
+
+      setState(state) {
+        if (state.text) {
+          this.spanTag.textContent = state.text;
+        }
+      }
+
+
+Try saving this edited version and reload the page in the browser.  It should display the exact same thing as before - "Hello World" = but if you examine the Elements view in the browser's Developer Tools, you should
+now see that the text is inside the *span* tag:
+
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <title>Golgi Demo</title>
+          <style>...</style>
+        </head>
+        <body>
+          <script type="module" src="./demo-1a.js"></script>
+          <demo-div>
+            <div>
+              <span>This is Golgi!</span>
+            </div>
+          </demo-div>
+        </body>
+      </html>
+
+
+As a further demonstration, try editing the */golgi/demo.js* root Module as follows:
+
+      let demoComponent = await golgi.renderComponent('demo-div-3', 'body', context);
+      demoComponent.setState({text: demoComponent.spanTag.tagName});
+
+You can see from this that the *spanTag* property created by the *golgi-prop* attribute gives us
+access directly to the *span* tag within our instance of the *demo-div* WebComponent.
+
+
+# Adding Handlers to *Golgi Components*
+
+Something you'll often want to do is to add handlers to tags within a *Golgi Component*.  Sometimes
+you'll want to do that when its WebComponent is being instantiated so that the handler(s) is/are
+always present.
+
+Once again, Golgi makes this very simple.  Let's add an *onClick* handler to our *demo-div* Component.
+
+Edit the */golgi/components/demo-div.js* file once more, and add the following method to its
+WebComponent:
+
+      onBeforeState() {
+        const fn = () => {
+          this.setState({text: 'You clicked the div at ' + Date.now()});
+        };
+        this.addHandler(fn);
+      }
+
+Save the file and reload the *index.html* file in the browser, and now whenevr you click
+the text, you'll see it updating the *span* tag's text content.
+
+Let's examine why this happened.
+
+Whilst WebComponents provide built-in lifecycle methods (eg *connectedCallback* and 
+*disconnectedCallback*), *Golgi* augments the WebComponent with several more, one of which is
+*onBeforeState()*.
+
+As its name implies, the *onBeforeState()* lifecycle method is invoked by *Golgi* before 
+applying any state changes (the latter
+being something that will begin to make sense when we later look at *Golgi Assemblies*).  
+For now, consider it as a
+good lifecycle method to use for situations where you want to add custom configurations to the
+WebComponent, immediately after *Golgi* has activated and appended it to the DOM and before anything
+else happens.
+
+You'll also see that we're making use of a method - *addHandler* - that *Golgi* automatically adds
+to every WebComponent.  For now, assume that it's a handy shortcut for the *addEventListener()* DOM
+method, but, as you'll see later, there's a good reason for using *this.addHandler()* in preference to
+the underlying raw DOM method.
+
+By default, *addHandler()* assumes that you want to add an *onClick* handler which is probably what
+you'll want in the majority of cases.  If you want a diffeent handler, eg *mouseover*, then you can
+specify it as a second argument, eg:
+
+      this.addHandler(fn, 'mouseover');
+
+Also by default, *addHandler()* assumes you want the handler to be applied to the WebComponent as
+a whole.  In a complex WebComponent consisting of a lot of HTML tags, you may want to be more
+specific and apply it to a particular tag within the component.  If so, specify the target element 
+as the second argument, eg to apply our 'click' handler specifically to the *span* tag in our
+WebComponent, we could specify:
+
+      this.addHandler(fn, this.spanTag);
+
+and if we needed it to use a different event:
+
+      this.addHandler(fn, this.spantag, 'mouseover');
+
+
+# Removing *Golgi Components* from the DOM
+
+Sometimes you'll want to remove stuff from the DOM that represents your UI.  You should do
+this by using the *remove()* method that is automatically added to WebComponents by *Golgi*.
+
+It's not a good idea to use the simple, raw *removeChild()* DOM method to remove
+ *Golgi Components*.  That's because:
+
+- as you'll discover when we look at *Golgi Assemblies*, the *Golgi Component* you're removing 
+may have other child *Golgi Component*s nested within it, which, in turn, 
+may have others nested within them, and so on ad nauseam.  Each of these child Components should 
+be cleanly and explicitly removed too in order to avoid memory leaks.
+
+- furthermore, the WebComponent(s) being removed may have been augmented with handler functions (as per
+our previous example), and these will be left hanging about in memory if you simply use *removeChild()*
+to delete the WebComponent from your DOM.
+
+Let's deal with these in reverse sequence.  As you saw in the previous example, we used *Golgi*'s
+*addHandler()* method rather than the raw *addEventListener()* DOM method.  The *addHandler()* method
+registers the handler in a Map that is maintained within the WebComponent.
+
+However, there's an important proviso.  For this to work, you **must** add the following
+*disconnectedCallback()* WebComponent lifecycle method to any *Golgi Component* to which you've
+added handlers:
+
+      disconnectedCallback() {
+        this.onUnload();
+      }
+
+Dealing with the first issue, by using *Golgi*'s *remove()* method, it will recurse down through any
+lower-level nested *Golgi Component*s, starting at the lowest-level leaf Components, first removing 
+any handlers and then deleting the WebComponent before moving up to its parent and repeating the
+process.  The *remove()* method, together with the *addHandler()* method, therefore ensure that memory leaks
+are avoided when deleting a *Golgi Component*.
+ 
+So, let's put all these together into our example.
+
+Edit the */golgi/components/demo-div.js* file and add the *disconnectedCallback()* method shown above.
+Just to make sure, here's what your amended version of this file should now look like.
+
+      export function load() {
+        let componentName = 'demo-div';
+        let count = -1;
+        customElements.define(componentName, class demo_div extends HTMLElement {
+          constructor() {
+            super();
+            count++;
+            const html = `
+      <div>
+        <span golgi-prop="spanTag">Click Me!</span>
+      </div>
+            `;
+            this.html = `${html}`;
+            this.name = componentName + '-' + count;
+          }
+          setState(state) {
+            if (state.text) {
+              this.spanTag.textContent = state.text;
+            }
+          }
+          onBeforeState() {
+            const fn = () => {
+              this.setState({text: 'You clicked the div at ' + Date.now()});
+            };
+            this.addHandler(fn, this.spanTag);
+          }
+
+          disconnectedCallback() {
+            this.onUnload();
+          }
+        });
+      };
+
+
+Next, edit your root Module (*/golgi/demo.js*), and add a *setTimeout* function that 
+will remove the *demo-div* Component from the DOM after 5 seconds:
+
+      const {golgi} = await import('./golgi.min.js');
+      let context = {
+        componentPaths: {
+          demo: './components/'
+        }
+      };
+      let demoComponent = await golgi.renderComponent('demo-div', 'body', context);
+
+      setTimeout(function() {
+        demoComponent.remove();
+      }, 5000);
+
+Now reload the *index.html* page.  After 5 seconds, the text will disappear, and if you examine
+the DOM using the browser's Developer Tools *elements* tab, you'll see confirmation that the
+*&lt;demo-div&gt;* tag no longer exists.
+
 
