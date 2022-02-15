@@ -77,10 +77,6 @@ export function load() {
         this.iconElement.parentElement.textContent = '';
       }
     }
-
-    disconnectedCallback() {
-      this.onUnload();
-    }
     
   });
 };

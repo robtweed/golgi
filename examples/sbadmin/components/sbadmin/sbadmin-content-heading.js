@@ -1,15 +1,15 @@
 export function load() {
 
-  let componentName = 'sbadmin-brand';
+  let componentName = 'sbadmin-content-heading';
   let count = -1;
 
-  customElements.define(componentName, class sbadmin_brand extends HTMLElement {
+  customElements.define(componentName, class sbadmin_content_heading extends HTMLElement {
     constructor() {
       super();
       count++;
 
       const html = `
-<a golgi-component-class="navbar-brand" class="navbar-brand ps-3" href="#"></a>
+<h1 class="mt-4" />
       `;
       this.html = `${html}`;
       this.name = componentName + '-' + count;
@@ -22,13 +22,6 @@ export function load() {
       if (state.text) {
         this.rootElement.textContent = state.text;
       }
-      if (state.href) {
-        this.rootElement.href = state.href;
-      }
-    }
-
-    disconnectedCallback() {
-      this.onUnload();
     }
     
   });

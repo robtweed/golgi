@@ -36,10 +36,6 @@ export function load() {
       };
       this.addHandler(fn, this.button);
     }
-
-    disconnectedCallback() {
-      this.onUnload();
-    }
     
   });
 };

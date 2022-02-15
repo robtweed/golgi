@@ -17,6 +17,7 @@ export function load() {
     <sbadmin-card layoutClass="col-xl-6 nofooter">
       <sbadmin-card-title iconClass="chart-area" title="Area Chart Example" golgi-appendTo="headerTag"/>
       <chart-root golgi-appendTo="bodyTag">
+        <script src="/golgi/components/chart/js/chart-2.8.0.min.js" await="true" />
         <chart-area-plot golgi-hook="draw" golgi-stateMap="chart:update"/>
       </chart-root>
     </sbadmin-card>
@@ -28,8 +29,7 @@ export function load() {
   let hooks = {
     'sbadmin-content-page': {
       configure: function() {
-        console.log('**** configuring sbadmin-content-page ' + this.name);
-        console.log(this.context);
+        this.getComponentByName('sbadmin-root')[0].contentPages.set('dashboard', this);
         let _this = this;
         this.onSelected = function() {
           console.log('Page ' + _this.name + ' selected');

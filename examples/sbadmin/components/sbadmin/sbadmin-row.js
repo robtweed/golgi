@@ -1,15 +1,15 @@
 export function load() {
 
-  let componentName = 'sbadmin-content-heading';
+  let componentName = 'sbadmin-row';
   let count = -1;
 
-  customElements.define(componentName, class sbadmin_content_heading extends HTMLElement {
+  customElements.define(componentName, class sbadmin_row extends HTMLElement {
     constructor() {
       super();
       count++;
 
       const html = `
-<h1 class="mt-4" />
+<span class="row" />
       `;
       this.html = `${html}`;
       this.name = componentName + '-' + count;
@@ -19,13 +19,6 @@ export function load() {
       if (state.name) {
         this.name = state.name;
       }
-      if (state.text) {
-        this.rootElement.textContent = state.text;
-      }
-    }
-
-    disconnectedCallback() {
-      this.onUnload();
     }
     
   });

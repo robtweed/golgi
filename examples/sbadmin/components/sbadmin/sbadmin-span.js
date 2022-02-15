@@ -1,16 +1,17 @@
 export function load() {
-
-  let componentName = 'sbadmin-row';
+    
+  let componentName = 'sbadmin-span';
   let count = -1;
-
-  customElements.define(componentName, class sbadmin_row extends HTMLElement {
+    
+  customElements.define(componentName, class sbadmin_span extends HTMLElement {
     constructor() {
       super();
       count++;
 
       const html = `
-<span class="row" />
+<span></span>
       `;
+    
       this.html = `${html}`;
       this.name = componentName + '-' + count;
     }
@@ -19,10 +20,10 @@ export function load() {
       if (state.name) {
         this.name = state.name;
       }
-    }
-
-    disconnectedCallback() {
-      this.onUnload();
+      if (state.text) {
+        console.log('text fired in sbadmin-span');
+        this.rootElement.textContent = state.text;
+      }
     }
     
   });

@@ -43,15 +43,11 @@ export function load() {
     }
     
     onBeforeState() {
-      let _this = this;
-      let fn = function() {
-        _this.context.ui_root.switchToPage(_this.contentPage);
+      this.ui_root = this.getParentComponent('sbadmin-root');
+      let fn = () => {
+        this.ui_root.switchToPage(this.contentPage);
       };
       this.addHandler(fn, this.aTag);
-    }
-
-    disconnectedCallback() {
-      this.onUnload();
     }
     
   });

@@ -16,14 +16,8 @@ export function load() {
     }
     
    onAfterHooks() {
-      console.log(this.name + ' page loaded and hooks executed!');
-      console.log('context for :' + this.name);
-      console.log(this.context);
-      if (!this.context.contentPages) {
-        this.context.contentPages = new Map();
-      }
-      this.context.contentPages.set(this.name, this);
-      this.context.ui_root.setPageActive(this.name);
+      this.ui_root = this.getParentComponent('sbadmin-root');
+      this.ui_root.contentPages.set(this.name, this);
     }
 
     //onSelected() {
@@ -38,7 +32,7 @@ export function load() {
         this.hide()
       }
       if (state.show && !this.rootElement.classList.contains('show')) {
-        for (let component of this.context.contentPages.values()) {
+        for (let component of this.ui_root.contentPages.values()) {
           component.hide();
         }
         this.show();
@@ -51,10 +45,6 @@ export function load() {
 
     hide() {
       this.rootElement.classList.remove('show');
-    }
-
-    disconnectedCallback() {
-      this.onUnload();
     }
     
   });

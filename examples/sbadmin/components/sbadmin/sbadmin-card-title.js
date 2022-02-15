@@ -34,10 +34,6 @@ export function load() {
         this.textEl.textContent = state.title;
       }
     }
-
-    disconnectedCallback() {
-      this.onUnload();
-    }
     
   });
 };

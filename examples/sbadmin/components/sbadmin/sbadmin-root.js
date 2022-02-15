@@ -36,21 +36,14 @@ export function load() {
 
     setPageActive(pageName) {
       // set selected page to active
-      console.log('&&&& setPageActive for ' + pageName);
-      console.log(this.context);
-      let page = this.context.contentPages.get(pageName);
+      let page = this.contentPages.get(pageName);
       page.setState({show: true});
-      console.log('&&& sbadmin-root setPageActive - will try to invoke page.onSelected');
       if (page.onSelected) page.onSelected();
     }
 
     async switchToPage(pageName) {
       if (!this.contentPages.has(pageName)) {
-        console.log('**** rendering ' + pageName);
-        let element = await this.renderAssembly(pageName, this.contentTarget, this.context);
-        console.log('***** switchToPage element = ');
-        console.log(element);
-        this.contentPages.set(pageName, element);
+        await this.renderAssembly(pageName, this.contentTarget, this.context);
       }
       this.setPageActive(pageName);
     }
@@ -67,39 +60,7 @@ export function load() {
 
     async onBeforeState() {
       this.contentPages = new Map();
-      this.name = 'root';
-	
-      this.addMetaTag({
-        charset: 'utf-8'
-      });
-      this.addMetaTag({
-        'http-equiv': 'X-UA-Compatible',
-        content: 'IE=edge'
-      });
-      this.addMetaTag({
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1, shrink-to-fit=no'
-      });
-	  
-      document.getElementsByTagName('body')[0].classList.add('sb-nav-fixed');
-
-      if (this.context.resourcePaths && this.context.resourcePaths.sbadmin) {
-        await this.loadResources(this.context.resourcePaths.sbadmin);
-      }
-      else {
-        /*
-        //this.loadCSS('https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css', {crossorigin: 'anonymous'});
-        this.loadCSS(this.rootPath + 'css/styles.css');
-
-        this.loadJS('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js', {crossorigin: 'anonymous'});
-        //this.loadJS('https://cdn.jsdelivr.net/npm/simple-datatables@latest', {crossorigin: 'anonymous'});
-        await this.loadJSAsync('https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js', {crossorigin: 'anonymous'})
-        */
-      }
     }
 
-    disconnectedCallback() {
-      this.onUnload();
-    }
   });
 };

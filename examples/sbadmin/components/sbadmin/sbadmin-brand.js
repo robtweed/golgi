@@ -1,32 +1,30 @@
 export function load() {
-  let componentName = 'sbadmin-copyright';
+
+  let componentName = 'sbadmin-brand';
   let count = -1;
 
-  customElements.define(componentName, class sbadmin_copyright extends HTMLElement {
+  customElements.define(componentName, class sbadmin_brand extends HTMLElement {
     constructor() {
       super();
       count++;
+
       const html = `
-<div class="text-muted">
-  <span>Copyright &copy; </span>
-  <span golgi-prop="textTarget" />
-</div>
+<a golgi-component-class="navbar-brand" class="navbar-brand ps-3" href="#"></a>
       `;
       this.html = `${html}`;
       this.name = componentName + '-' + count;
     }
-
+    
     setState(state) {
       if (state.name) {
         this.name = state.name;
       }
       if (state.text) {
-        this.textTarget.textContent = state.text;
+        this.rootElement.textContent = state.text;
       }
-    }
-
-    disconnectedCallback() {
-      this.onUnload();
+      if (state.href) {
+        this.rootElement.href = state.href;
+      }
     }
     
   });

@@ -28,9 +28,5 @@ export function load() {
       }
     }
 
-    disconnectedCallback() {
-      this.onUnload();
-    }
-
   });
 };

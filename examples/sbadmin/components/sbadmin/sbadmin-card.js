@@ -82,10 +82,6 @@ export function load() {
         'transparent'
       ];
     }
-
-    disconnectedCallback() {
-      this.onUnload();
-    }
     
   });
 };

@@ -35,10 +35,6 @@
         onBeforeState() {
           this.observerStart();
         }
-
-        disconnectedCallback() {
-          if (this.onUnload) this.onUnload();
-        }
     
       });
     };
