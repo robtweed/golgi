@@ -758,8 +758,32 @@ let golgi = {
         ownerComponent.observerCallback(mutation);
       }
     });
-  }),
-  state: new Proxy({}, {
+  })
+};
+
+golgi.state = new Proxy(golgi.dataStore, {
+
+    get: function(target, prop, receiver) {
+
+      let jpath = [];
+
+      function applyState(mapKey, value) {
+        //console.log('trying to apply state for mapKey ' + mapKey + ' = ' + value);
+        //console.log(golgi.stateMap);
+        if (golgi.stateMap.has(mapKey)) {
+          golgi.stateMap.get(mapKey).forEach((mapObj) => {
+            let state = {};
+            state[mapObj.method] = value;
+            mapObj.component.setState(state); 
+          });
+        }
+      }
+      setTimeout(function() {
+        applyState(prop, target[prop]);
+      }, 100);
+      return target[prop];
+    },
+
     set: function(obj, prop, value) {
 
       let jpath = [];
@@ -807,7 +831,7 @@ let golgi = {
 
       return true;
     }
-  })
-};
+  });
+
 
 export {golgi};
