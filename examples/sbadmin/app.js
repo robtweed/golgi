@@ -1,4 +1,4 @@
-async function run() {
+//async function run() {
 
   const {golgi} = await import('../../src/golgi.js');
 
@@ -14,9 +14,10 @@ async function run() {
   golgi.setLog(true);
 
   await golgi.renderAssembly('root_assembly', 'body', context);
-}
 
-run();
+//}
+
+//run();
 
 
 

@@ -17,7 +17,7 @@ export function load() {
     <sbadmin-card layoutClass="col-xl-6 nofooter">
       <sbadmin-card-title iconClass="chart-area" title="Area Chart Example" golgi:appendTo="headerTag"/>
       <chart-root golgi:appendTo="bodyTag">
-        <script src="/golgi/components/chart/js/chart-2.8.0.min.js" await="true" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" await="true" />
         <chart-area-plot golgi:hook="draw" golgi:stateMap="chart:update"/>
       </chart-root>
     </sbadmin-card>
