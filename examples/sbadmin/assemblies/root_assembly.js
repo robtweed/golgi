@@ -18,11 +18,24 @@ export function load(ctx) {
   let hooks = {
     'sbadmin-root': {
       loadContent: async function() {
-        console.log('hook for sbadmin-root: this =');
-        console.log(this);
+        // modify the displayed logged on username using data binding
+
+        this.golgi_state.username = 'Test User';
+
         await this.switchToPage('dashboard');
+
+        // modify the chart using data binding
+
         setTimeout(() => {
           this.golgi_state.chart = [20000, 20162, 16263, 18394, 18287, 28682, 31274, 33259, 25849, 24159, 32651, 31984, 38451];
+          //this.golgi_state.chart = [];
+          //this.golgi_state.chart[0] = 30000;
+
+          setTimeout(() => {
+            this.golgi_state.chart.shift();
+            this.golgi_state.chart.push(15000);
+          }, 3000);
+
         }, 5000);
       }
     },
