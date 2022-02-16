@@ -23,7 +23,7 @@ easily customise to meet your needs.
 **NOTE: ** You must use a modern browser that supports WebComponents!
 
 See the [*./examples/sbadmin*](./examples/sbadmin) folder for the actual *Golgi* source code
-files that actually run the live example.
+files that run the live example.
 
 # About Golgi
 
