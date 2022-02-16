@@ -89,6 +89,13 @@ assembly path configurations, since the *import* relative paths used within the 
 module will be with respect to its original path, in this case 
 *https://cdn.jsdelivr.net/gh/robtweed/golgi/src/*.  See the tutorial below for details.
 
+# Example
+
+Try out this [live example](https://robtweed.github.io/golgi/examples/sbadmin/), 
+demonstrating how *Golgi* turns the [SB Admin ](https://startbootstrap.com/template/sb-admin) 
+theme into an actual framework that you can quickly and
+easily customise to meet your needs.
+
 # Tutorial
 
 [Follow this tutorial](./TUTORIAL.md) to quickly learn how to use *Golgi*.
