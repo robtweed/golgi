@@ -7,6 +7,12 @@ Twitter: @rtweed
 
 Google Group for discussions, support, advice etc: [http://groups.google.co.uk/group/enterprise-web-developer-community](http://groups.google.co.uk/group/enterprise-web-developer-community)
 
+# Try In Out!
+
+Try out this [live example](https://robtweed.github.io/golgi/examples/sbadmin/), 
+demonstrating how *Golgi* turns the [SB Admin ](https://startbootstrap.com/template/sb-admin) 
+theme into an actual framework that you can quickly and
+easily customise to meet your needs.
 
 # About Golgi
 
