@@ -83,7 +83,7 @@ then *Gogli* is working for you and you're ready to explore it in more detail.
 
 Clearly this is a really unremarkable demonstration of *Golgi*'s abilities: all we've done is
 display a *div* tag in your browser!  However, if we now analyse what happened and what we
-specified in those files, you'll begin to get an initial idea of how the first of *Golgi's*
+specified in those files, you'll begin to get an initial idea of how the most basic of *Golgi's*
 building blocks - *Golgi Components* - are defined and used.
 
 ## The *index.html* Page
@@ -162,8 +162,10 @@ a hyphenated name, eg in our example:
       demo-div
 
 In *Golgi*, the text before the first hyphen (in our case *demo*) is used as a *namespace*.  The idea
-is you create one or more libraries of *Golgi Components* each of which have the same prefix or namespace.
-These can be then be used for one or, indeed, for many of your applications.
+is you create directories for each of your libraries of *Golgi Components*.  Within such a directory,
+all your *Golgi Components* will have the same prefix or namespace.
+These can be then be used as the basic building blocks for an application, or, indeed, for as many 
+of your applications as you wish.
 
 Because we loaded the *Golgi* Module from the Github repo, we can't use relative paths for our
 *Golgi* Components, so we need to specify the absolute path to your web server, which we can do
