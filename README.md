@@ -7,23 +7,27 @@ Twitter: @rtweed
 
 Google Group for discussions, support, advice etc: [http://groups.google.co.uk/group/enterprise-web-developer-community](http://groups.google.co.uk/group/enterprise-web-developer-community)
 
-# Try In Out!
+# What is Golgi?
 
-Try out this [live example](https://robtweed.github.io/golgi/examples/sbadmin/), 
+*Golgi* (pronounced Gol-jee) is a new approach to browser-based UI development that
+makes use of the latest Web Technologies, in particular WebComponents, ES6 Modules, Proxies and
+MutuationObserver.
+
+# Try It Out!
+
+Run this [live example](https://robtweed.github.io/golgi/examples/sbadmin/), 
 demonstrating how *Golgi* turns the [SB Admin ](https://startbootstrap.com/template/sb-admin) 
 theme into an actual framework that you can quickly and
 easily customise to meet your needs.
+
+**NOTE: ** You must use a modern browser that supports WebComponents!
 
 See the [*./examples/sbadmin*](./examples/sbadmin) folder for the actual *Golgi* source code
 files that actually run the live example.
 
 # About Golgi
 
-*Golgi* (pronounced Gol-jee) is a new approach to browser-based UI development that
-makes use of the latest Web Technologies, in particular WebComponents, ES6 Modules, Proxies and
-MutuationObserver.
-
-This means that *Golgi* can only be used where you know that the very latest browsers
+*Golgi* can only be used where you know that the very latest browsers
 are in use, but if they are, then it provides one of the fastest and leanest frameworks
 for UI development, since it makes use of the built-in capabilities of the browser,
 avoiding the need to download large bundled JavaScript framework files.  *Golgi* itself a mere 27Kb 
@@ -33,7 +37,8 @@ and is literally all that is needed to make everything work!
 *Golgi* can be used with many other standard UI frameworks such as Bootstrap 5, Chart.js etc. Of
 course, if you make use of these, their JavaScript and CSS resource files must be downloaded
 into your application.  However, *Golgi* allows such resources to be downloaded on demand and
-only when needed, resulting in very short application load and start times.
+only when needed, resulting in very short application load and start times.  You'll see this
+happening in the live example.
 
 Unlike many of the UI frameworks that are currently in vogue, *Golgi* does not require or make use
 of bundling (eg using WebPack etc).  Your JavaScript files and WebComponents that define a *Golgi*
