@@ -14,6 +14,9 @@ demonstrating how *Golgi* turns the [SB Admin ](https://startbootstrap.com/templ
 theme into an actual framework that you can quickly and
 easily customise to meet your needs.
 
+See the [*./examples/sbadmin*](./examples/sbadmin) folder for the actual *Golgi* source code
+files that actually run the live example.
+
 # About Golgi
 
 *Golgi* (pronounced Gol-jee) is a new approach to browser-based UI development that
