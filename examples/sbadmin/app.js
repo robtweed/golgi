@@ -5,10 +5,10 @@ async function run() {
 
   let context = {
     componentPaths: {
-      sbadmin: '../examples/sdadmin/components/sbadmin/',
-      chart: '../examples/sdadmin/components/chart/'
+      sbadmin: '../examples/sbadmin/components/sbadmin/',
+      chart: '../examples/sbadmin/components/chart/'
     },
-    assemblyPath: '../examples/sdadmin/assemblies/'
+    assemblyPath: '../examples/sbadmin/assemblies/'
   };
 
   golgi.setLog(true);
