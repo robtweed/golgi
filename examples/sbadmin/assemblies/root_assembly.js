@@ -11,22 +11,24 @@ export function load(ctx) {
 
   <assembly:header_assembly golgi:appendTo="topbarTarget" golgi:hook="testFn" /> 
   <assembly:footer_assembly golgi:appendTo="footerTarget" /> 
-  <assembly:sidebar_assembly golgi:appendTo="sidebarTarget" /> 
+  <assembly:sidebar_assembly golgi:appendTo="sidebarTarget" golgi:hook="login" /> 
 </sbadmin-root>
   `;
 
   let hooks = {
     'sbadmin-root': {
       loadContent: async function() {
-        // modify the displayed logged on username using data binding
 
-        this.golgi_state.username = 'Test User';
+        // modify the displayed logged on username using data binding
 
         await this.switchToPage('dashboard');
 
         // modify the chart using data binding
 
         setTimeout(() => {
+
+          this.golgi_state.username = 'Test User';
+
           this.golgi_state.chart = [20000, 20162, 16263, 18394, 18287, 28682, 31274, 33259, 25849, 24159, 32651, 31984, 38451];
           //this.golgi_state.chart = [];
           //this.golgi_state.chart[0] = 30000;
@@ -39,10 +41,10 @@ export function load(ctx) {
         }, 5000);
       }
     },
-    'assembly:header_assembly': {
-      testFn: async function() {
-        console.log('assembly-header-assembly hook triggered!');
-        console.log(this);
+  
+    'assembly:sidebar_assembly': {
+      login: function() {
+        this.state.username = 'Not yet logged in!';
       }
     }
   };
