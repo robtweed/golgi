@@ -9,7 +9,7 @@ export function load() {
       const html = `
 <div class="text-muted">
   <span>Copyright &copy; </span>
-  <span golgi-prop="textTarget" />
+  <span golgi:prop="textTarget" />
 </div>
       `;
       this.html = `${html}`;

@@ -9,7 +9,7 @@ export function load() {
       count++;
 
       const html = `
-<a golgi-component-class="navbar-brand" class="navbar-brand ps-3" href="#"></a>
+<a golgi:component-class="navbar-brand" class="navbar-brand ps-3" href="#"></a>
       `;
       this.html = `${html}`;
       this.name = componentName + '-' + count;

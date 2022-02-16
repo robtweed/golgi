@@ -9,13 +9,13 @@ export function load() {
       count++;
 
       const html = `
-<div class="card mb-4" golgi-prop="configDiv">
-  <div golgi-prop="headerTag" class="card-header"></div>
+<div class="card mb-4" golgi:prop="configDiv">
+  <div golgi:prop="headerTag" class="card-header"></div>
   <div class="card-body">
-    <div golgi-prop="titleTag"></div>
-    <div golgi-prop="bodyTag" />
+    <div golgi:prop="titleTag"></div>
+    <div golgi:prop="bodyTag" />
   </div>
-  <div golgi-prop="footerTag" class="card-footer d-flex align-items-center justify-content-between"></div>
+  <div golgi:prop="footerTag" class="card-footer d-flex align-items-center justify-content-between"></div>
 </div>
       `;
       this.html = `${html}`;

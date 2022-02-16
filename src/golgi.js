@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 15 February 2022
+ 16 February 2022
 
  */
 
@@ -32,78 +32,12 @@ let log = false;
 let count = 0;
 
 let golgi = {
-  assemblies: new Map(),
   dataStore: {},
   stateMap: new Map(),
-  componentHooks: new Map(),
   resourceLoaded: new Map(),
-  prepareAssembly: function(assemblyName, config) {
-    if (!assemblyName) return;
-    if (!config) return;
 
-    if (config.hooks) {
-      this.componentHooks.set(assemblyName, new Map());
-      for (let component in config.hooks) {
-        let assemblyHooks = this.componentHooks.get(assemblyName);
-        if (!assemblyHooks.has(component)) assemblyHooks.set(component, new Map());
-        let componentHooks = assemblyHooks.get(component); 
-        for (let name in config.hooks[component]) {
-          componentHooks.set(name, config.hooks[component][name]);
-        }
-      }
-    }
-    if (config.component) {
-      if (!Array.isArray(config.component)) {
-        config.component = [config.component];
-      }
-      config.component.forEach(function(component, index) {
-        config.component[index].assemblyName = assemblyName;
-      });
-      this.assemblies.set(assemblyName, config.component);
-    }
-  },
   setLog: function (state) {
     log = state;
-  },
-
-  loadResources: async function(resourceObj) {
-    let _this = this;
-    let styles = resourceObj.css;
-    if (styles) {
-      if (!Array.isArray(styles)) styles = [styles];
-      let style;
-      for (let style of styles) {
-        if (typeof style !== 'object') {
-          _this.loadCSS(style);
-        }
-        else {
-          if (style.await) {
-            await _this.loadCSSAsync(style.path, style.args);
-          }
-          else {
-            _this.loadCSS(style.path, style.args);
-          }
-        }
-      }
-    }
-    let scripts = resourceObj.js;
-    if (scripts) {
-      if (!Array.isArray(scripts)) scripts = [scripts];
-      let script;
-      for (let script of scripts) {
-        if (typeof script !== 'object') {
-          _this.loadJS(script);
-        }
-        else {
-          if (script.await) {
-            let src = await _this.loadJSAsync(script.path, script.args);
-          }
-          else {
-            _this.loadJS(script.path, script.args);
-          }
-        }
-      }
-    }
   },
 
   loadJSAsync: async function(src, attrs) {
@@ -194,12 +128,6 @@ let golgi = {
     document.getElementsByTagName('head')[0].appendChild(meta);
   },
 
-  async importAssemblyModule(path) {
-    let _module = await import(path);
-    let fn = Object.keys(_module)[0];
-    return _module[fn];
-  },
-
   load: async function(componentName, targetElement, context) {
 
     let namespace = componentName.split('-')[0];
@@ -269,12 +197,14 @@ let golgi = {
 
     // The array of components share the same target and must be appended
     // in strict sequence, so this is enforced by this logic..
+    targetElement = targetElement || 'body';
     if (targetElement === 'body') targetElement = document.getElementsByTagName('body')[0];
     context = context || {};
 
     if (!Array.isArray(configArr)) {
       configArr = [configArr];
     }
+
     let assemblyName = configArr[0].assemblyName;
 
     let _this = this;
@@ -309,7 +239,7 @@ let golgi = {
           }
         }
 
-        if (!config.componentName.includes('-')) {
+        if (!config.componentName.includes('-') && !config.componentName.includes(':')) {
           if (!['script', 'css', 'meta'].includes(config.componentName)) {
 
             let element = document.createElement(config.componentName);
@@ -340,33 +270,25 @@ let golgi = {
           return;
         }
 
-        if (config.componentName.split('-')[0] === 'assembly') {
-          let hooks = _this.componentHooks.get(config.assemblyName);
-          let assemblyName = config.componentName.split('assembly-')[1];
+        if (config.componentName.split(':')[0] === 'assembly') {
+          let assemblyName = config.componentName.split('assembly:')[1];
           //console.log(assemblyName);
-          //console.log(targetElement);
-          //console.log(hooks);
+          //console.log(targetEl);
           await _this.renderAssembly(assemblyName, targetEl, context);
 
-          // invoke any hooks
+          // invoke any hooks applied to the assembly
 
-          if (config.hooks && hooks) {
-            config.hooks.forEach(function(hook) {
-              if (hooks.has(config.componentName)) {
-                let componentHook = hooks.get(config.componentName);
-                if (componentHook.has(hook)) {
-                  try {
-                    componentHook.get(hook).call(_this, config.state);
-                  }
-                  catch(err) {
-                    if (log) {
-                      console.log('Unable to execute hook ' + name + ' for ' + config.componentName);
-                      console.log(err);
-                    }
-                  }
-                }
+          if (config.hook) {
+            try {
+              // note that the Golgi object will be the context for an assembly hook!
+              config.hook.call(_this);
+            }
+            catch(err) {
+              if (log) {
+                console.log('Unable to execute hook ' + name + ' for ' + config.componentName);
+                console.log(err);
               }
-            });
+            }
           }
           await loadComponent(no + 1);
  
@@ -375,9 +297,9 @@ let golgi = {
 
         let element = await _this.load(config.componentName, targetEl, context);
         if (log) {
-          //console.log('load element: ' + config.componentName);
-          //console.log(element);
-          //console.log(targetElement);
+          console.log('load element: ' + config.componentName);
+          console.log(element);
+          console.log(targetElement);
         }
         if (typeof element.html !== 'undefined') {
           element.innerHTML = element.html;
@@ -385,16 +307,16 @@ let golgi = {
           //let targets = element.querySelectorAll('[class*=golgi-]');
           let targets = element.querySelectorAll('*');
           targets.forEach(function(el) {
-            if (el.hasAttribute('golgi-prop')) {
-              let prop = el.getAttribute('golgi-prop');
+            if (el.hasAttribute('golgi:prop')) {
+              let prop = el.getAttribute('golgi:prop');
               element[prop] = el;
-              el.removeAttribute('golgi-prop');
+              el.removeAttribute('golgi:prop');
             } 
           });
           if (!element.childrenTarget) {
             element.childrenTarget = element.rootElement;
           }
-          let attrName = 'golgi-component-class';
+          let attrName = 'golgi:component-class';
           let parentClass = element.rootElement.getAttribute(attrName);
           if (parentClass) {
             let classes = parentClass.split(' ');
@@ -420,9 +342,7 @@ let golgi = {
         element.renderAssembly = _this.renderAssembly.bind(_this);
         element.renderComponent = _this.renderComponent.bind(_this);
         element.observerStart = _this.observerStart;
-        element.importAssemblyModule = _this.importAssemblyModule;
         element.methodsToRemove = [];
-        element.assemblies = _this.assemblies;
         element.golgi_state = _this.state;
 
         // load any script or css tags
@@ -519,26 +439,18 @@ let golgi = {
           element.onBeforeHooks();
         }
 
-        // invoke any hooks
+        // invoke hook if present
 
-        let hooks = _this.componentHooks.get(assemblyName);
-        if (config.hooks && hooks) {
-          config.hooks.forEach(function(hook) {
-            if (hooks.has(config.componentName)) {
-              let componentHook = hooks.get(config.componentName);
-              if (componentHook.has(hook)) {
-                try {
-                  componentHook.get(hook).call(element, config.state);
-                }
-                catch(err) {
-                  if (log) {
-                    console.log('Unable to execute hook ' + name + ' for ' + config.componentName);
-                    console.log(err);
-                  }
-                }
-              }
+        if (config.hook) {
+          try {
+            config.hook.call(element);
+          }
+          catch(err) {
+            if (log) {
+              console.log('Unable to execute hook ' + name + ' for ' + config.componentName);
+              console.log(err);
             }
-          });
+          }
         }
 
         if (element.onAfterHooks) {
@@ -563,51 +475,45 @@ let golgi = {
     }
     await loadComponent(0);
   },
-  renderAssembly: async function(args, targetElement, context, load_args) {
+  renderAssembly: async function(args, targetElement, context) {
     let name;
     if (!targetElement && !context && typeof args === 'object') {
       targetElement = args.targetElement;
       context = args.context;
-      load_args = args.load_args;
       name = args.name;
     }
     else {
       name = args;
     }
 
-    load_args = load_args || {};
-    load_args.golgi = this;
 
     if (!targetElement) return;
     if (!context) return;
     if (!name) return;
     if (name === '') return;
 
-    if (!this.assemblies.has(name)) {
-      let path = context.assemblyPath;
-      if (path === '') path = './';
-      if (path.slice(-1) !== '/') {
-        path = path + '/';
-      }
-      let _module = await import(path + name + '.js');
-      let assemblyObj = _module.load(load_args);
-      let json = assemblyObj.json || {};
-      if (assemblyObj.gx) {
-        json = this.parse(assemblyObj.gx);
-      }
-      let assemblyObject = {
-        component: json,
-        hooks: assemblyObj.hooks      }
-
-      // save the assembly into the registered assemblies object
-
-      this.prepareAssembly(name, assemblyObject);
+    let path = context.assemblyPath;
+    if (path === '') path = './';
+    if (path.slice(-1) !== '/') {
+      path = path + '/';
     }
-    let assemblyObj = this.assemblies.get(name);
+    let _module = await import(path + name + '.js');
+    let assemblyObj = _module.load.call(this, context);
+    let json = assemblyObj.json || {};
+    if (assemblyObj.gx) {
+      json = this.parse(assemblyObj.gx, assemblyObj.hooks);
+    }
 
-    // load any js and css if defined as script and css tags
+    if (json) {
+      if (!Array.isArray(json)) {
+        json = [json];
+      }
+      json.forEach(function(component, index) {
+        json[index].assemblyName = name;
+      });
+    }
 
-    return await this.loadGroup(assemblyObj, targetElement, context);
+    return await this.loadGroup(json, targetElement, context);
   },
 
   async renderComponent(componentName, targetElement, context) {
@@ -621,9 +527,6 @@ let golgi = {
     let assembly = [{
       componentName: componentName
     }];
-    if (!this.componentHooks.has(componentName)) {
-      this.componentHooks.set(componentName, new Map());
-    }
     await this.loadGroup(assembly, targetElement, context);
     return targetElement.getElementsByTagName(componentName)[noOfInstances];
   },
@@ -720,8 +623,8 @@ let golgi = {
     this.onUnload();
     this.parentNode.removeChild(this);
   },
-  parse: function(input) {
-    let xml = '<xml>' + input + '</xml>';
+  parse: function(input, hooks) {
+    let xml = '<xml xmlns="http://mgateway.com" xmlns:assembly="http://mgateway.com" xmlns:golgi="http://mgateway.com">' + input + '</xml>';
     let parser = new DOMParser();
     let dom = parser.parseFromString(xml, 'text/xml');
 
@@ -735,7 +638,7 @@ let golgi = {
             componentName: child.tagName
           };
           if (child.hasAttributes()) {
-            if (!child.tagName.includes('-')) {
+            if (!child.tagName.includes('-') && !child.tagName.includes(':')) {
               component.attributes = {};
               let attrs = [...child.attributes];
               attrs.forEach(function(attr) {
@@ -760,11 +663,11 @@ let golgi = {
                   }
                 }
 
-                if (attr.name === 'golgi-hook') {
-                  component.hooks = [value];
+                if (attr.name === 'golgi:hook' && hooks && hooks[child.tagName] && hooks[child.tagName][value]) {
+                  component.hook = hooks[child.tagName][value];
                 }
 
-                else if (attr.name === 'golgi-stateMap') {
+                if (attr.name === 'golgi:stateMap') {
                   let stateKey = value.split(':')[0];
                   if (!component.state_map) {
                     component.state_map = new Map();
@@ -772,7 +675,7 @@ let golgi = {
                   component.state_map.set(stateKey, value.split(':')[1]);
                 }
 
-                else if (attr.name === 'golgi-appendTo') {
+                else if (attr.name === 'golgi:appendTo') {
                   component.targetElement = {
                     componentName: element.tagName,
                     target: value

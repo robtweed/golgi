@@ -12,18 +12,18 @@ export function load() {
 	  
       const html = `
 <span>
-  <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark" golgi-prop="topbarTarget"></nav>
+  <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark" golgi:prop="topbarTarget"></nav>
   <div id="layoutSidenav">
     <div id="layoutSidenav_nav">
-      <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion" golgi-prop="sidebarTarget"></nav>
+      <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion" golgi:prop="sidebarTarget"></nav>
     </div>
     <div id="layoutSidenav_content">
       <main>
-        <div class="container-fluid px-4" golgi-prop="contentTarget"></div>
+        <div class="container-fluid px-4" golgi:prop="contentTarget"></div>
       </main>
       <footer class="py-4 bg-light mt-auto">
         <div class="container-fluid px-4">
-          <div class="d-flex align-items-center justify-content-between small" golgi-prop="footerTarget"></div>
+          <div class="d-flex align-items-center justify-content-between small" golgi:prop="footerTarget"></div>
         </div>
       </footer>
     </div>

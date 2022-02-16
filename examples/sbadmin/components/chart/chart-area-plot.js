@@ -17,7 +17,7 @@ export function load() {
   }
 </style>
 <div>
-  <canvas class="chart-layout" golgi-prop="canvasTag" />
+  <canvas class="chart-layout" golgi:prop="canvasTag" />
 </div>
       `;
       this.html = `${html}`;
@@ -45,7 +45,6 @@ export function load() {
     }
 
     disconnectedCallback() {
-      this.onUnload();
       if (this.chart) this.chart.destroy();
     }
     

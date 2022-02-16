@@ -10,8 +10,8 @@ export function load() {
 
       const html = `
 <div>
-  <i class="fas me-1" golgi-prop="iTag"></i>
-  <span golgi-prop="textEl" />
+  <i class="fas me-1" golgi:prop="iTag"></i>
+  <span golgi:prop="textEl" />
 </div>
       `;
       this.html = `${html}`;

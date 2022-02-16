@@ -1,24 +1,24 @@
 export function load() {
   let gx=`
-<sbadmin-content-page name="dashboard" golgi-hook="configure">
+<sbadmin-content-page name="dashboard" golgi:hook="configure">
   <sbadmin-content-heading text="Dashboard" />
   <sbadmin-row>
     <sbadmin-card layoutClass="col-xl-3 col-md-6 noheader" bgColor="warning" textColor="white" title="Warning Card">
-      <sbadmin-div golgi-appendTo="bodyTag" text="Card body text" />
-      <sbadmin-div golgi-appendTo="footerTag" text="Footer text" />
+      <sbadmin-div golgi:appendTo="bodyTag" text="Card body text" />
+      <sbadmin-div golgi:appendTo="footerTag" text="Footer text" />
     </sbadmin-card>
     <sbadmin-card layoutClass="col-xl-3 col-md-6 noheader" bgColor="danger" title="Danger Card" textColor="dark">
-      <sbadmin-div golgi-appendTo="bodyTag" text="Card body text" />
-      <sbadmin-div golgi-appendTo="footerTag" text="Footer text" />
+      <sbadmin-div golgi:appendTo="bodyTag" text="Card body text" />
+      <sbadmin-div golgi:appendTo="footerTag" text="Footer text" />
     </sbadmin-card>
   </sbadmin-row>
 
   <sbadmin-row>
     <sbadmin-card layoutClass="col-xl-6 nofooter">
-      <sbadmin-card-title iconClass="chart-area" title="Area Chart Example" golgi-appendTo="headerTag"/>
-      <chart-root golgi-appendTo="bodyTag">
+      <sbadmin-card-title iconClass="chart-area" title="Area Chart Example" golgi:appendTo="headerTag"/>
+      <chart-root golgi:appendTo="bodyTag">
         <script src="/golgi/components/chart/js/chart-2.8.0.min.js" await="true" />
-        <chart-area-plot golgi-hook="draw" golgi-stateMap="chart:update"/>
+        <chart-area-plot golgi:hook="draw" golgi:stateMap="chart:update"/>
       </chart-root>
     </sbadmin-card>
   </sbadmin-row>

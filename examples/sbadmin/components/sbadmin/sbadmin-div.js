@@ -10,7 +10,7 @@
 
           const html = `
 <div>
-  <span golgi-prop="spanTag"></span>
+  <span golgi:prop="spanTag"></span>
 </div>
           `;
     

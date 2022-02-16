@@ -26,7 +26,7 @@ export function load() {
 
 <sbadmin-sidebar-footer>
   <div class="small">Logged in as:</div>
-  <sbadmin-span golgi-stateMap="username:text" />
+  <sbadmin-span golgi:stateMap="username:text" />
 </sbadmin-sidebar-footer>
   `;
 

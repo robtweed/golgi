@@ -22,25 +22,15 @@ export function load() {
     }
 
     async onBeforeState() {
-      if (typeof Chart === 'undefined') {
-        if (this.context.resourcePaths && this.context.resourcePaths.chart) {
-          console.log('** loading from');
-          console.log(this.context.resourcePaths.chart);
-          await this.loadResources(this.context.resourcePaths.chart);
-        }
-        else {
-          //await this.loadJSAsync('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js', {crossorigin:'anonymous'});
-        }
+      // Chart.js should be loaded using a child <script> tag
+
+      if (!this.context.chartInitialised) {
         console.log('Chart configuration');
         Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
         Chart.defaults.global.defaultFontColor = '#292b2c';
         this.context.chartInitialised = true;
         console.log('***** Chart initialised *****');
       }
-    }
-
-    disconnectedCallback() {
-      this.onUnload();
     }
     
   });

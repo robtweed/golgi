@@ -9,17 +9,17 @@ export function load() {
       count++;
 
       const html = `
-<a class="nav-link collapsed" golgi-prop="aTag" href="#" data-bs-toggle="collapse" aria-expanded="false">
+<a class="nav-link collapsed" golgi:prop="aTag" href="#" data-bs-toggle="collapse" aria-expanded="false">
   <div class="sb-nav-link-icon">
-    <i class="fas" golgi-prop="iconElement"></i>
+    <i class="fas" golgi:prop="iconElement"></i>
   </div>
-  <span golgi-prop="textTarget">Menu Heading Text</span>
+  <span golgi:prop="textTarget">Menu Heading Text</span>
   <div class="sb-sidenav-collapse-arrow">
     <i class="fas fa-angle-down"></i>
   </div>
 </a>
-<div class="collapse" golgi-prop="collapseDiv" data-bs-parent="#sidenavAccordion">
-  <nav class="sb-sidenav-menu-nested nav" golgi-prop="childrenTarget"></nav>
+<div class="collapse" golgi:prop="collapseDiv" data-bs-parent="#sidenavAccordion">
+  <nav class="sb-sidenav-menu-nested nav" golgi:prop="childrenTarget"></nav>
 </div>
       `;
 

@@ -9,11 +9,11 @@ export function load() {
       count++;
 
       const html = `
-<a class="nav-link" golgi-prop="aTag" href="#">
+<a class="nav-link" golgi:prop="aTag" href="#">
   <div class="sb-nav-link-icon">
-    <i class="fas" golgi-prop="iconElement"></i>
+    <i class="fas" golgi:prop="iconElement"></i>
   </div>
-  <span golgi-prop="textTarget"></span>
+  <span golgi:prop="textTarget"></span>
 </a>
       `;
       this.html = `${html}`;

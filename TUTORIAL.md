@@ -470,7 +470,7 @@ Whilst you could achieve this using the standard HTML DOM APIs, this would end u
 laborious during development, and not particularly easy to follow and maintain at a later date.
 
 *Golgi* provides a very simple alternative way to make these assignments by allowing you to
-add a special reserved attribute name - *golgi-prop* - to any tag you define within a
+add a special reserved attribute name - *golgi:prop* - to any tag you define within a
 WebComponent.  The value of this attribute is used as a property name, that property being
 automatically added to the WebComponent, and that property value provides the DOM pointer to
 that tag.  
@@ -481,11 +481,11 @@ First, we're going to modify the *demo-div* *Golgi Component*.  So edit the
 */golgi/components/demo-div.js* file, and change the HTML assignment to the following:
 
       <div>
-        <span golgi-prop="spanTag"></span>
+        <span golgi:prop="spanTag"></span>
       </div>
 
 If you remember from earlier, the outer *div* tag is already automatically referenceable via
-*Golgi* as *this.rootElement*.  By adding the *golgi-prop* attribute to its new child *span*
+*Golgi* as *this.rootElement*.  By adding the *golgi:prop* attribute to its new child *span*
 tag, we'll now be able to reference and access that *span* tag as *this.spanTag*.
 
 Let's now modify the *setState()* method to use this, because we now want *state.text* 
@@ -523,7 +523,7 @@ As a further demonstration, try editing the */golgi/demo.js* root Module as foll
       let demoComponent = await golgi.renderComponent('demo-div-3', 'body', context);
       demoComponent.setState({text: demoComponent.spanTag.tagName});
 
-You can see from this that the *spanTag* property created by the *golgi-prop* attribute gives us
+You can see from this that the *spanTag* property created by the *golgi:prop* attribute gives us
 access directly to the *span* tag within our instance of the *demo-div* WebComponent.
 
 
@@ -639,4 +639,24 @@ Try it again, and this time watch the *Golgi* log being reported to the browser'
 
 You'll see it reporting the removal of the *demo-div* element and its *click* handler.
 
+
+# Introducing *Golgi Assemblies*
+
+So far we've just looked at how to define and use a single *Golgi Component*.  Where things begin
+to get really interesting and powerful is when we start to look at *Golgi Assemblies*.
+
+At their simplest, *Golgi Assemblies* are a set of nested *Golgi Components*.
+
+However, *Golgi* allows you to do all softs of things to those *Golgi Components* within an *Assembly*.
+
+Let's create a simple one using the *demo-div* *Golgi Component* we created earlier.
+
+First, it's a good idea to create a separate directory for your *Golgi Assemblies*. So, on your
+web server, create a subdirectory beneath the */golgi* directory you created earlier, and name it
+*assemblies*, ie you should now have a directory:
+
+      /golgi/assemblies
+
+Within this new directory, create a file named demo_assembly.js (ie */golgi/assemblies/demo_assembly.js*),
+containing the following:
 

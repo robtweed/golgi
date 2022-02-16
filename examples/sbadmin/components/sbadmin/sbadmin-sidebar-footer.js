@@ -9,7 +9,7 @@ export function load() {
       count++;
 
       const html = `
-<div golgi-component-class="sb-sidenav-footer" />
+<div golgi:component-class="sb-sidenav-footer" />
       `;
 
       this.html = `${html}`;
