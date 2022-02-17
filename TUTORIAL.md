@@ -649,7 +649,8 @@ to get really interesting and powerful is when we start to look at *Golgi Assemb
 
 At their simplest, *Golgi Assemblies* are a set of nested *Golgi Components*.
 
-However, *Golgi* allows you to do all softs of things to those *Golgi Components* within an *Assembly*.
+However, *Golgi* allows you to do all sorts of things to customise the *Golgi Components* 
+you use within an *Assembly*.
 
 Let's create a simple one using the *demo-div* *Golgi Component* we created earlier.
 

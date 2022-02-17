@@ -205,6 +205,8 @@ let golgi = {
       configArr = [configArr];
     }
 
+    //console.log(configArr);
+
     let assemblyName = configArr[0].assemblyName;
 
     let _this = this;
@@ -295,11 +297,62 @@ let golgi = {
           return;
         }
 
+        // load any meta tag definitions into <head>
+
+        if (config.meta) {
+          config.meta.forEach(function(meta) {
+            golgi.addMetaTag(meta);
+          });
+        }
+
+        // load any script or css tags
+
+        // Use nested promises to await overall, but load in parallel
+
+        let tagArr = ['script', 'css'];
+
+        await Promise.all(tagArr.map(async (tagName) => {
+          if (tagName === 'script' && config.script) {
+            await Promise.all(config.script.map(async (script) => {
+              if (!golgi.resourceLoaded.has(script.src)) {
+                let obj;
+                if (script.crossorigin) {
+                  obj = {crossorigin: script.crossorigin};
+                }
+                if (!script.await) {
+                  golgi.loadJS(script.src, obj)
+                }
+                else {
+                  await golgi.loadJSAsync(script.src, obj);
+                }
+                golgi.resourceLoaded.set(script.src, true);
+              }
+            }));
+          }
+          if (tagName === 'css' && config.css) {
+            await Promise.all(config.css.map(async (css) => {
+              if (!golgi.resourceLoaded.has(css.src)) {
+                let obj;
+                if (css.crossorigin) {
+                  obj = {crossorigin: css.crossorigin};
+                }
+                if (!css.await) {
+                  golgi.loadCSS(css.src, obj)
+                }
+                else {
+                  await golgi.loadCSSAsync(css.src, obj);
+                }
+                golgi.resourceLoaded.set(css.src, true);
+              }
+            }));
+          }
+        }));
+
         let element = await _this.load(config.componentName, targetEl, context);
         if (log) {
           console.log('load element: ' + config.componentName);
-          console.log(element);
-          console.log(targetElement);
+          //console.log(element);
+          //console.log(targetElement);
         }
         if (typeof element.html !== 'undefined') {
           element.innerHTML = element.html;
@@ -344,54 +397,6 @@ let golgi = {
         element.observerStart = _this.observerStart;
         element.methodsToRemove = [];
         element.golgi_state = _this.state;
-
-        // load any script or css tags
-
-        if (config.children) {
-          await Promise.all(config.children.map(async (child) => {
-            if (child.componentName === 'script') {
-              if (child.attributes && child.attributes.src) {
-                let src = child.attributes.src;
-                if (!golgi.resourceLoaded.has(src)) {
-                  let obj;
-                  if (child.attributes.crossorigin) {
-                    obj = {crossorigin: child.attributes.crossorigin};
-                  }
-                  if (!child.attributes.await) {
-                    golgi.loadJS(src, obj)
-                  }
-                  else {
-                    await golgi.loadJSAsync(src, obj);
-                  }
-                  golgi.resourceLoaded.set(src, true);
-                }
-              }
-            }
-            if (child.componentName === 'css') {
-              if (child.attributes && child.attributes.src) {
-                let src = child.attributes.src;
-                if (!golgi.resourceLoaded.has(src)) {
-                  let obj;
-                  if (child.attributes.crossorigin) {
-                    obj = {crossorigin: child.attributes.crossorigin};
-                  }
-                  if (!child.attributes.await) {
-                    golgi.loadCSS(child.attributes.src, obj)
-                  }
-                  else {
-                    await golgi.loadCSSAsync(child.attributes.src, obj);
-                  }
-                }
-                golgi.resourceLoaded.set(src, true);
-              }
-            }
-            if (child.componentName === 'meta') {
-              if (child.attributes) {
-                golgi.addMetaTag(child.attributes);
-              }
-            }
-          }));
-        }
 
         if (log) {
           console.log('Golgi Component instantiated and ready for use:');
@@ -625,6 +630,7 @@ let golgi = {
   },
   parse: function(input, hooks) {
     let xml = '<xml xmlns="http://mgateway.com" xmlns:assembly="http://mgateway.com" xmlns:golgi="http://mgateway.com">' + input + '</xml>';
+    //console.log(xml);
     let parser = new DOMParser();
     let dom = parser.parseFromString(xml, 'text/xml');
 
@@ -634,10 +640,15 @@ let golgi = {
       let children = [...element.childNodes];
       children.forEach(function(child) {
         if (child.nodeType === 1) {
+
+          if (['script', 'css', 'meta'].includes(child.tagName)) return;
+
           let component = {
             componentName: child.tagName
           };
+
           if (child.hasAttributes()) {
+
             if (!child.tagName.includes('-') && !child.tagName.includes(':')) {
               component.attributes = {};
               let attrs = [...child.attributes];
@@ -714,6 +725,21 @@ let golgi = {
           }
           if (child.hasChildNodes()) {
             component.children = [];
+
+            let children = [...child.childNodes];
+            children.forEach(function(child) {
+              if (child.nodeType === 1) {
+                if (['script', 'css', 'meta'].includes(child.tagName)) {
+                  if (!component[child.tagName]) component[child.tagName] = [];
+                  let obj = {};	
+                  [...child.attributes].forEach(function(attr) {
+                    obj[attr.name] = attr.value;
+                  });
+                  component[child.tagName].push(obj);
+                }
+              }
+            });
+
             getChildren(child, component.children);
           }
           comp.push(component);
@@ -725,8 +751,10 @@ let golgi = {
     return component;
   },
   observerStart() {
-    console.log('running observerStart on this:');
-    console.log(this);
+    if (log) {
+      console.log('running observerStart on this:');
+      console.log(this);
+    }
     if (this.observerCallback) {
       golgi.observer.observe(this, {
         attributes: true, 
@@ -789,8 +817,10 @@ golgi.state = new Proxy(golgi.dataStore, {
       let jpath = [];
 
       function applyState(mapKey, value) {
-        //console.log('trying to apply state for mapKey ' + mapKey + ' = ' + value);
-        //console.log(golgi.stateMap);
+        if (log) {
+          console.log('trying to apply state for mapKey ' + mapKey + ' = ' + value);
+          console.log(golgi.stateMap);
+        }
         if (golgi.stateMap.has(mapKey)) {
           golgi.stateMap.get(mapKey).forEach((mapObj) => {
             let state = {};
@@ -801,8 +831,10 @@ golgi.state = new Proxy(golgi.dataStore, {
       }
 
       function getProps(parentProp, obj) {
-        console.log('getProps called for ' + parentProp);
-        console.log(obj);
+        if (log) {
+          console.log('getProps called for ' + parentProp);
+          console.log(obj);
+        }
         jpath.push(parentProp);
         applyState(jpath.join('.'), obj);
 
