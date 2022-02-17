@@ -1102,7 +1102,7 @@ and with that, *Golgi* find no more *gx* tags in our Assembly, so processing of 
 
 ## Try Out the *demo-div* Component Click Handler
 
-Now that the completed page is rendered in your browser, if you remember back to when we created the *dem-div* component, we added a *click* handler to its *span* tag:
+Now that the completed page is rendered in your browser, if you remember back to when we created the *demo-div* component, we added a *click* handler to its *span* tag:
 
           onBeforeState() {
             const fn = (e) => {
@@ -1114,6 +1114,111 @@ Now that the completed page is rendered in your browser, if you remember back to
 
 Try clicking each of the lines of text.  You should notice that they each respond to clicks and also behave independently, each updating the text within their own instance of the *demo-div* WebComponent.
 
+
+## Adding *Hooks* To *Golgi COmponents* Within Assemblies
+
+### What Are Hooks?
+
+*Golgi Assemblies* have a very powerful trick up their sleeve: *Hooks*.
+  
+*Hooks* are methods that you can
+optionally define and assign to specific Components within your Assemblies.  
+
+A Hook Method is
+invoked immediately after its owner Component is rendered and attached to the DOM.  Critically, 
+the Hook Method
+is only invoked for the instance of the Component for which it is defined.
+
+**Note: ** a Component's Hook Method is invoked immediately after the Component's state is
+updated in accordance with any attributes in the Component's *gx* tag,
+
+
+### An Example Use Case for Hooks
+
+So far you've seen how you can define properties and methods within the WebComponent
+definition of a *Golgi Component*.  Such methods and properties become available for every instance
+of that *Golgi Component* within your Assemblies.
+
+You'll frequently have situations where you want to augment just one particular instance of a
+*Golgi Component* within your Assemblies, for example adding a particular handler to it,
+whilst leaving all other instances of the Component as standard.  Hooks
+make this trivially simple.
+
+### Specifying A Hook
+
+#### The *golgi:hook gx* Attribute
+
+You add a hook to a Component by adding the special attribute *golgi:hook* to the Component's *gx* tag.
+You must provide a name for the method (this allows you to have multiple instances of a Component
+within your Assembly, each with a different hook method if you wish).
+
+So change the *gx* of your example Assembly as follows, adding a hook to the inner instance
+of the *demo-div* tag:
+
+      let gx=`
+      <demo-div text="Welcome to Golgi Assemblies">
+        <demo-div text="I'm inside the other div!" golgi:hook="addHandler" />
+      </demo-div>
+      `;
+
+#### The *hooks* Object
+
+We now need to define the actual *addHandler* hook method.  We do that by adding an object
+named *hooks* within your Assembly's *load()* function.  The *hooks* object should
+follow the pattern below:
+
+
+      let hooks = {
+        {{gx tag name}}: {
+
+          {{hook name}}: function() {
+
+            // define the hook logic here
+
+          }
+        }
+      }
+
+Note that provided you use the syntax above, specifically defining the function usng
+*function() {....}*, then the *this* context within the Hook method will be the
+instance of the Web Component within the specified *Golgi Component*.
+
+Having added the *hooks* object, you **must** add it to the exports from the Assembly's
+*load* function.  This is the most common mistake I make and then I wonder why my 
+hooks aren't working!
+
+      return {gx, hooks};
+
+
+### Add A Hook To Our Example Assembly
+
+So, let's now add our *addHandler()* Hook to our Assembly:
+
+      let hooks = {
+        'demo-div': {
+          addHandler: function() {
+
+            // note that "this" refers to the specific instance of
+            // the owner WebComponent when the Hook is invoked
+
+            const fn = () => {
+              this.spanTag.textContent = 'You moused over at ' + Date.now();
+            };
+            this.addHandler(fn, this.spanTag, 'mouseover');
+          }
+        }
+      };
+
+      return {gx, hooks};
+
+
+### Try It Out!
+
+Now all you need to do is try reloading your *index.html* page in your browser.  Whenever you 
+run your mouse pointer over the second line of text, you should find that it changes.  However, 
+the outer instance of the *demo-div* Component, which is showing the first line of text, won't
+be affected by a *mouseover* event.  Both instances still respond to a *click* event, because this
+is defined in the underlying WebComponent of each instance.
 
 
 
