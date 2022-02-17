@@ -48,7 +48,14 @@
       - [The *childrenTarget* Property](#the-childrentarget-property)
       - [The DOM After the Child *gx* Tag is Rendered](the-dom-after-the-child-gx-tag-is-rendered)
   - [Try Out the *demo-div* Component Click Handler](#try-out-the-demo-div-component-click-handler)
-
+  - [Adding *Hooks* To *Golgi COmponents* Within Assemblies](#adding-hooks-to-golgi-components-within-assemblies)
+    - [What Are Hooks?](#what-are-hooks)
+    - [An Example Use Case for Hooks](#an-example-use-case-for-hooks)
+    - [Specifying a Hook](#specifying-a-hook)
+      - [The *golgi:hook gx* Attribute](#the-golgihook-gx-attribute)
+      - [The *hooks* Object](#the-hooks-object)
+    - [Add A Hook To Our Example Assembly](#add-a-hook-to-our-example-assembly)
+    - [Try It Out!](#try-it-out)
 
 # First Steps 
 
