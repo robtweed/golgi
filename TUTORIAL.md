@@ -685,7 +685,7 @@ containing the following:
         let gx=`
       <demo-div text="Welcome to Golgi Assemblies">
         <demo-div text="I'm inside the other div!" />
-      </demo-div-5>
+      </demo-div>
         `;
       
         return {gx};
@@ -807,7 +807,7 @@ Note that the *gx* **must** be specified within back-ticks:
         let gx=`
       <demo-div text="Welcome to Golgi Assemblies">
         <demo-div text="I'm inside the other div!" />
-      </demo-div-5>
+      </demo-div>
         `;
 
 The block of *gx* **must** follow the basic XML rules, so that means no attributes without values, and
@@ -992,7 +992,7 @@ inner WebComponent instance, resulting in the DOM changing to:
         </demo-div>
       </body>
 
-and with that, processing of our example completes!
+and with that, *Golgi* find no more *gx* tags in our Assembly, so processing of our example completes!
 
 
 
