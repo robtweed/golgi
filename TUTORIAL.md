@@ -2,6 +2,52 @@
 
 # Index
 
+- [First Steps](#first-steps)
+- [Golgi Components](#golgi-components)
+  - [Create A Simple Demo](#create-a-simple-demo)
+    - [*index.html*](#indexhtml)
+    - [*demo.js*](#demojs)
+    - [*demo-div.js*](#demo-divjs)
+  - [Run The Demo](#run-the-demo)
+  - [How Did It Work?](#how-did-it-work)
+    - [The *index.html* Page](#the-indexhtml-page)
+    - [The Golgi Root Application Module](#the-golgi-root-application-module)
+      - [Loading The *Golgi* Module](#loading-the-golgi-module)
+      - [Defining the *Golgi Component* and *Assembly* Paths](#defining-the-golgi-component-and-assembly-paths)
+      - [Rendering the *demo-div Golgi Component*](#rendering-the-demo-div-golgi-component)
+    - [The *demo-div Golgi Component*](#the-demo-div-golgi-component)
+      - [The *Golgi Component* Pattern](#the-golgi-component-pattern)
+      - [How Your Golgi Component Is Loaded and Rendered](#how-your-golgi-component-is-loaded-and-rendered)
+    - [Check The Browser's Developer Tools](#check-the-browsers-developer-tools)
+    - [Using *Golgi*'s Log](#using-golgis-log)
+  - [Adding And Using A SetState() Method](#adding-and-using-a-setstate-method)
+  - [Assigning WebComponent HTML Tags To Properties](#assigning-webcomponent-html-tags-to-properties)
+  - [Adding Handlers to *Golgi Components*](#adding-handlers-to-golgi-components)
+  - [Removing *Golgi Components* from the DOM](#removing-golgi-components-from-the-dom)
+- [Golgi Assemblies](#golgi-assemblies)
+  - [What Are *Golgi Assemblies*?](#what-are-golgi-assemblies)
+  - [Create A Simple Example](#create-a-simple-example)
+    - [Create An Assemblies Directory](#create-an-assemblies-directory)
+    - [Create Your Assembly File](#create-your-assembly-file)
+    - [Edit The Root Application Module](#edit-the-root-application-module)
+    - [Run The Example](#run-the-example)
+  - [How And Why Did The Example Work?](#how-and-why-did-the-example-work)
+    - [The Root Application Module](#the-root-application-module)
+      - [The Context Object](#the-context-object)
+      - [The *renderAssembly()* Method](#the-renderassembly-method)
+    - [Our *Golgi Assembly*](#our-golgi-assembly)
+      - [The *Golgi Assembly* Pattern](#the-golgi-assembly-pattern)
+      - [How the *RenderAssembly()* Method Works](#how-the-renderassembly-method-works)
+    - [What Happened When Our Assembly Was Rendered?](#what-happened-when-our-assembly-was-rendered)
+      - [The Parent *gx* Tag](#the-parent-gx-tag)
+      - [The *demo-div Golgi Component*](#the-demo-div-golgi-component-1)
+      - [The DOM After The Parent *gx* Tag is Rendered](#the-dom-after-the-parent-gx-tag-is-rendered)
+      - [Setting State Using *gx* Tag Attributes](#setting-state-using-gx-tag-attributes)
+      - [The DOM After State Is Set](#the-dom-after-state-is-set)
+      - [The Child *gx* Tag](#the-child-gx-tag)
+      - [The *childrenTarget* Property](#the-childrentarget-property)
+      - [The DOM After the Child *gx* Tag is Rendered](the-dom-after-the-child-gx-tag-is-rendered)
+  - [Try Out the *demo-div* Component Click Handler](#try-out-the-demo-div-component-click-handler)
 
 
 # First Steps 
@@ -342,7 +388,7 @@ We're now going to start building on top of this very simple demonstration examp
 gradually begin to see how *Golgi* can be used for UI development.
 
 
-#### Check The Browser's Developer Tools
+### Check The Browser's Developer Tools
 
 Before we move on, if you're using a browser such as Chrome, you can open the Developer 
 Tools panel, and, if you
