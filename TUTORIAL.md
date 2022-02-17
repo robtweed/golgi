@@ -214,7 +214,7 @@ to the *body* tag, so instead of specifying it in full, ie:
       golgi.renderComponent('demo-div', document.getElementsByTagName('body')[0], context);
 
   ... and because the *body* tag is a very common one to use as a target, the *renderComponent()*
-allows you to simply specify it as the *string* value *'body'*.
+method allows you to simply specify it as the *string* value *'body'*.
 
 - the context object which then becomes available for use by *Golgi* and also for use
 in your *Golgi Components* if you need or want it.
@@ -644,6 +644,8 @@ You'll see it reporting the removal of the *demo-div* element and its *click* ha
 
 # Introducing *Golgi Assemblies*
 
+## What Are *Golgi Assemblies*?
+
 So far we've just looked at how to define and use a single *Golgi Component*.  Where things begin
 to get really interesting and powerful is when we start to look at *Golgi Assemblies*.
 
@@ -652,7 +654,22 @@ At their simplest, *Golgi Assemblies* are a set of nested *Golgi Components*.
 However, *Golgi* allows you to do all sorts of things to customise the *Golgi Components* 
 you use within an *Assembly*.
 
-Let's create a simple one using the *demo-div* *Golgi Component* we created earlier.
+*Golgi Assemblies* always follow the simple pattern:
+
+      export function load(ctx) {
+
+        // Define your assembly as a nested set of XML tags, known as "gx"
+        // with each XML tag repesenting a Golgi Component of the same name
+
+        // optionally define one or more "hook" methods linked to the gx tags
+
+        return {gx, hooks};  // or return {gx} if you didn't define any hooks
+      }; 
+
+
+## A Simple Example
+
+Let's create a simple *Golgi Assembly* using the *demo-div* *Golgi Component* we created earlier.
 
 First, it's a good idea to create a separate directory for your *Golgi Assemblies*. So, on your
 web server, create a subdirectory beneath the */golgi* directory you created earlier, and name it
@@ -662,4 +679,320 @@ web server, create a subdirectory beneath the */golgi* directory you created ear
 
 Within this new directory, create a file named demo_assembly.js (ie */golgi/assemblies/demo_assembly.js*),
 containing the following:
+
+
+      export function load(ctx) {
+        let gx=`
+      <demo-div text="Welcome to Golgi Assemblies">
+        <demo-div text="I'm inside the other div!" />
+      </demo-div-5>
+        `;
+      
+        return {gx};
+      };
+
+
+Next, edit your root application module (ie */golgi/demo.js*) to render this assembly rather than the
+single *Golgi Component* we've been using so far:
+
+      const {golgi} = await import('./golgi.min.js');
+      let context = {
+        componentPaths: {
+          demo: './components/'
+        },
+        assemblies: './assemblies'
+      };
+
+      golgi.setLog(true);
+
+      await golgi.renderAssembly('demo_assembly', 'body', context);
+
+
+That's it!  Now see what happens when you reload the *index.html* page in your browser.
+
+You should see two lines:
+
+      Welcome to Golgi Assemblies
+      I'm inside the other div!
+
+Take a look at the browser's Developer Tools Elements view and you'll see that it has indeed rendered
+and nested two of our *demo-div* Components:
+
+      <demo-div>
+        <div>
+          </span>Welcome to Golgi Assemblies</span>
+          <demo-div>
+            <div>
+              </span>I'm inside the other div!</span>
+            </div>
+          </demo-div>
+        </div>
+      </demo-div>
+
+
+## So What just Happened?
+
+Let's analyse in detail what happened and why.
+
+### The Root Application Module
+
+Let's start with the root application module.  The first thing to notice is that we extended
+the *context* object with the path for the directory we created for our assembly files:
+
+      let context = {
+        componentPaths: {
+          demo: './components/'
+        },
+        assemblies: './assemblies'
+      };
+
+
+In an individual *Golgi* application, all your *Golgi Assembly* files must reside together in
+the same directory.  The *Golgi Components* used by your *Assemblies* may come from more than
+one path: if you remember, *Golgi Components* are namespaced according to the prefix in their
+hyphenated name.
+
+A *Golgi* application will normally be started by rendering an initial "root" *Golgi Assembly*.
+That *Assembly* or its logic within it may render other Assemblies, but your main application
+module should render the root *Assembly* using *Golgi*'s *renderAssembly()* method.  Here
+that is in our example:
+
+      await golgi.renderAssembly('demo_assembly', 'body', context);
+
+You'll notice that this is almost identical to the *renderComponent()* method we used previously.  
+It doesn't return anything, but requires three similar arguments:
+
+- the name of the *Golgi Assembly*
+- the target element within your HTML page to which the root Component within the
+*Assembly* will be appended.  We want to append it to the *body* tag, so instead of 
+specifying it in full, ie:
+
+      await golgi.renderAssembly('demo_assembly', document.getElementsByTagName('body')[0], context);
+
+  ... and because the *body* tag is a very common one to use as a target, the *renderAssembly()*
+method allows you to simply specify it as the *string* value *'body'*.
+
+- the context object which then becomes available for use within
+your *Golgi Assembly*'s exported function if you need or want it.
+
+The *renderAssembly()* method dynamically *import*s the *demo_assembly* Module using a path constructed
+as follows:
+
+      context.componentPaths.assemblyPath + {{assembly name}} + '.js'
+
+eg in our example:
+
+      './assemblies/' + 'demo_assembly' + '.js'
+
+So this highlights an important pattern you **must** adhere to when using *Golgi*: the filename for
+each of your *Golgi Assemblies* must match the name by which your refer to it.
+
+### Our *Golgi Assembly*
+
+So now let's look at our simple demonstration *Golgi Assembly*.
+
+The first thing to notice is that it must be defined as an ES6 module that exports a
+function named *load().  This function has a single argument which is the *context* object
+that you passed into the *renderAssembly()* method as its third argument:
+
+      export function load(ctx) {
+        // assembly definition
+      };
+
+Inside this function, we define something refered to as *gx* which is a group of XML tags representing
+the *Golgi Components* and/or other *Golgi Assemblies* that constitute our Assembly.
+
+Note that the *gx* **must** be specified within back-ticks:
+
+        let gx=`
+      <demo-div text="Welcome to Golgi Assemblies">
+        <demo-div text="I'm inside the other div!" />
+      </demo-div-5>
+        `;
+
+The block of *gx* **must** follow the basic XML rules, so that means no attributes without values, and
+no unclosed tags: this **isn't** lazy-formatted HTML!
+
+The *gx* that you define **must** be returned using:
+
+      return {gx};
+
+
+Once dynamically *import*ed by the *renderAssembly()* method, the *Golgi Assembly*'s *load()* 
+method is invoked by *Golgi* which results in a cascade of activity: 
+
+-each *Golgi Component*
+referenced in your *gx* is dynamically imported and rendered in turn, first starting with the parent
+*gx* tag(s), then, once each has completed its load and render sequence, any child *gx* tags
+are similarly processed.  This process is repeated, recursing down through all the nested *gx* tags that 
+you have specified.
+
+**Note: ** Golgi processes each child *gx* tag in a simple *forEach()* loop, meaning that 
+the asynchronous processing of each child
+*gx* tag occurs in parallel, so they don't wait for each other to load.  That's nice and efficient,
+as, by definition, sibling Components have no dependency on each other.
+
+However, a *gx* tag's child tags aren't processed until the parent tag's Component has completed its 
+asynchronous load sequence.  That ensures that all the necessary DOM elements are in already place ready 
+for any child Components to be appended to them.
+
+
+### What Happened When Our Assembly Was Rendered?
+
+Hopefully everything will become clearer if we step through our example Assembly and analyse how
+*Golgi* processed it.
+
+It starts with the parent *gx* tag which, in our case is:
+
+      <demo-div text="Welcome to Golgi Assemblies">...</demo-div>
+
+This tells *Golgi* to render our *demo-div* *Golgi Component*.  If it hasn't already been 
+imported, Golgi does so, and once ready, it renders the Component, attaching it to the
+parent DOM node defined by the *renderAssembly()* function's second argument.
+
+Let's just remind ourselves what the *demo-div* *Golgi Component*t looked like:
+
+      export function load() { 
+        let componentName = 'demo-div';
+        let count = -1;
+        customElements.define(componentName, class demo_div extends HTMLElement {
+          constructor() {
+            super();
+            count++;
+            const html = `
+      <div>
+        <span golgi:prop="spanTag">Click Me!</span>
+      </div>
+            `;
+            this.html = `${html}`;
+            this.name = componentName + '-' + count;
+          }
+
+          setState(state) {
+            if (state.text) {
+              this.spanTag.textContent = state.text;
+            }
+          }
+
+          onBeforeState() {
+            const fn = (e) => {
+              e.stopPropagation();
+              this.setState({text: 'You clicked the div at ' + Date.now()});
+            };
+            this.addHandler(fn, this.spanTag);
+          }
+        });
+      };
+
+
+At this point, your page's DOM will look like this:
+
+      <body>
+        <demo-div>
+          <div>
+            <span>Click Me!</span>
+          </div>
+        </demo-div>
+      </body>
+
+The next thing that happens is that *Golgi* looks through the *gx* tag's attributes.  Unless
+prefixed with *golgi:*, each one is used to specify initial state for the *Component*, using
+the *setState()* methods that are defined within its underlying WebComponent.
+
+So, this attribute:
+
+      text="Welcome to Golgi Assemblies"
+
+is converted into:
+
+      component.setState({text: "Welcome to Golgi Assemblies"});
+
+So you can see in the *demo-div* WebComponent definition that setting 
+*state.text* will result in:
+
+      this.spanTag.textContent = state.text;
+
+Remember that *this.spanTag* was defined by the *golgi:prop* attribute in the *span* tag here:
+
+        <span golgi:prop="spanTag">Click Me!</span>
+
+And so the text within the *demo-div* Component's *span* tag will change to
+*Welcome to Golgi Assemblies*, ie:
+
+      <body>
+        <demo-div>
+          <div>
+            <span>Welcome to Golgi Assemblies</span>
+          </div>
+        </demo-div>
+      </body>
+
+
+So that completes the processing of the parent *gx* tag.  *Golgi* now moves on to
+process any of its child *gx* tags, and finds this one:
+
+        <demo-div text="I'm inside the other div!" />
+
+So it repeats the steps.  *Golgi* notices that it's already imported and registered
+the *demo-div* WebComponent, so it can use it straight away.  It renders the WebComponent's
+HTML and then it needs to decide where to append it.  Unless told otherwise, *Golgi* will
+assume that it should be appended to the parent Component's element designated by a 
+*childrenTarget* property.  By default, and unless otherwise instructed to do so, *Golgi* will
+automatically assign a WebComponent's HTML *rootElement* to be the *childrenTarget*.  
+
+We'll see later how you can change and control this, but in our example, *Golgi* has used 
+its default logic, so the *childrenTarget* is the outer *&lt;div&gt;* tag of the *demo-div* Component, ie:
+
+                       <body>
+                         <demo-div>
+      childrenTarget ==>   <div>
+                             <span>Welcome to Golgi Assemblies</span>
+                           </div>
+                         </demo-div>
+                       </body>
+
+As a result, the second instance of the *demo-div* WebComponent is appended as a child of the
+first instance's *div* tag.  So the DOM now looks like this:
+
+      <body>
+        <demo-div>
+          <div>
+            <span>Welcome to Golgi Assemblies</span>
+
+            <demo-div>
+              <div>
+                <span>Click Me!</span>
+              </div>
+            </demo-div>
+
+          </div>
+        </demo-div>
+      </body>
+
+
+The *text* attribute of the inner *demo-div* *gx* tag is now processed:
+
+     text="I'm inside the other div!"
+
+which, once again, applies the *setState()* method, but this time applied to the
+inner WebComponent instance, resulting in the DOM changing to:
+
+      <body>
+        <demo-div>
+          <div>
+            <span>Welcome to Golgi Assemblies</span>
+
+            <demo-div>
+              <div>
+                <span>I'm inside the other div!</span>
+              </div>
+            </demo-div>
+
+          </div>
+        </demo-div>
+      </body>
+
+and with that, processing of our example completes!
+
+
 
