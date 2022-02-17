@@ -8,6 +8,6 @@ let context = {
   assemblyPath: '../examples/sbadmin/assemblies/'
 };
 
-golgi.setLog(true);
+//golgi.setLog(true);
 
 await golgi.renderAssembly('root_assembly', 'body', context);
