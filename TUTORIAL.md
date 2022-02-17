@@ -1,6 +1,10 @@
 # *Golgi* Tutorial
 
-# First Steps
+# Index
+
+
+
+# First Steps 
 
 You'll need access to a web server and its file system.  Any Web Server on any platform will do.
 
@@ -8,9 +12,13 @@ Create a directory that is accessible by the web server, eg */golgi*.
 
 Then create a sub-directory within it named *components*, ie */golgi/components*.
 
+# Golgi Components
+
+## Create a Simple Demo
+
 Inside the */golgi* directory, create the following two files using the filenames and contents shown below:
 
-## *index.html*
+### *index.html*
 
       <!DOCTYPE html>
       <html lang="en">
@@ -24,7 +32,7 @@ Inside the */golgi* directory, create the following two files using the filename
       </html>
 
 
-## *demo.js*
+### *demo.js*
 
       const {golgi} = await import('https://cdn.jsdelivr.net/gh/robtweed/golgi/src/golgi.min.js');
       
@@ -39,7 +47,7 @@ Inside the */golgi* directory, create the following two files using the filename
 
 And then, in the */golgi/components directory create:
 
-## *demo-div.js*
+### *demo-div.js*
 
       export function load() {
       
@@ -62,6 +70,8 @@ And then, in the */golgi/components directory create:
       };
 
 
+## Run The Demo
+
 Now, load the index file into a browser.  Note that it must be a modern browser that
 supports WebComponents, eg:
 
@@ -79,14 +89,14 @@ If see the text below appearing in your browser:
 then *Gogli* is working for you and you're ready to explore it in more detail.
 
 
-# What Just Happened?
+## How Did It Work?
 
 Clearly this is a really unremarkable demonstration of *Golgi*'s abilities: all we've done is
 display a *div* tag in your browser!  However, if we now analyse what happened and what we
-specified in those files, you'll begin to get an initial idea of how the most basic of *Golgi's*
+specified in those three files, you'll begin to get an initial idea of how the most basic of *Golgi's*
 building blocks - *Golgi Components* - are defined and used.
 
-## The *index.html* Page
+### The *index.html* Page
 
 Every *Golgi* application needs an HTML page from which it loads and starts.  You'll rarely need
 anything other than the one you used in this simple example, so keep it as a template for
@@ -119,7 +129,7 @@ The key piece is this line:
 This tells the browser to load your main root application module, in this case *demo.js*.
 
 
-## The *demo.js* Module
+### The Golgi Root Application Module
 
 The *demo.js* Module is an extremely simple example of a *Golgi* main or root application module.
 
@@ -130,7 +140,9 @@ UI and its application logic.  It must be defined as an ES6 Module using the fol
 - define the paths where your *Golgi Components* and *Golgi Assemblies* reside
 - start rendering the initial *Golgi Components* or *Golgi Assemblies* that will kick off your application.
 
-### Loading The *Golgi* Module
+Let's drill down into each of those steps:
+
+#### Loading The *Golgi* Module
 
 In our example, we dynamically loaded the *Golgi* Module directly from this Github repo:
 
@@ -145,7 +157,7 @@ this case:
 
       https://cdn.jsdelivr.net/gh/robtweed/golgi/src/
 
-### Defining the *Golgi Component* and *Assembly* Paths
+#### Defining the *Golgi Component* and *Assembly* Paths
 
 You specify the paths from which the *Golgi* Module will *import* your *Golgi Components* and 
 *Assemblies* in a *context* object:
@@ -197,7 +209,7 @@ you can now use relative paths to point to their location on your web server:
       };
 
 
-### Rendering the *demo-div Golgi Component*
+#### Rendering the *demo-div Golgi Component*
 
 We now have everything needed to start our simple demo application.  In our case we just
 want to render the *demo-div Golgi Component*.  We do that using *Golgi*'s *renderComponent()*
@@ -235,9 +247,12 @@ Once *import*ed, the *Golgi Component*'s *load()* method is invoked to register 
 WebComponent, and it is then appended to the specified target element of your HTML page.
 
 
-## The *demo-div Golgi Component*
+### The *demo-div Golgi Component*
 
-So now we need to examine our *demo-div Golgi Component*.
+So now we need to examine the last of our files (*demo-div.js*), which contains the 
+definition of the *demo-div Golgi Component*.
+
+#### The *Golgi Component* Pattern
 
 *Golgi Component*s must adhere to the following pattern:
 
@@ -300,11 +315,14 @@ adhere to the pattern and conventions shown here:
 So, in summary, this will create a WebComponent named *demo-div* that represents a simple
 *div* tag with some pre-defined text.
 
-What happens, then, is that *Golgi*'s *renderComponent()* method:
+#### How Your Golgi Component Is Loaded and Rendered
 
-- *import*s the *demo-div.js* Module file
-- invokes its *load()* method which instantiates an instance of the WebComponent it defines
-- appends the WebComponent tag to the target HTML element that was specified in the *renderComponent()*
+In our simple example, we're loading and rendering our *demo-div* *Golgi Component* by
+using the *renderComponent()* method.  What this method does is to:
+
+- *import* the *demo-div.js* Module file
+- invoke its *load()* method which instantiates an instance of the WebComponent it defines
+- append the WebComponent tag to the target HTML element that was specified in the *renderComponent()*
 method invocation.
 
 There's actually other stuff that *Golgi* does, but none of that is relevant yet to our simple example and we'll discover all that other good stuff later in the tutorial.
@@ -324,7 +342,7 @@ We're now going to start building on top of this very simple demonstration examp
 gradually begin to see how *Golgi* can be used for UI development.
 
 
-# Check The Browser's Developer Tools
+#### Check The Browser's Developer Tools
 
 Before we move on, if you're using a browser such as Chrome, you can open the Developer 
 Tools panel, and, if you
@@ -365,7 +383,7 @@ HTML document's DOM is being correctly updated by your *Golgi Component*s and *A
 I'd recommend that you refer to it throughout the rest of this tutorial when you load/reload
 each new version of the demonstration application.
 
-# Using *Golgi*'s Log
+### Using *Golgi*'s Log
 
 A further means of seeing and checking what *Golgi* is doing is to enable its log (by 
 default it is disabled).  When enabled, *Golgi* reports various key steps to the browser's
@@ -378,7 +396,7 @@ To turn logging on, add this line to your root application module:
 To inspect its log, use the *Console* tab in the browser's Developer Tools panel.
 
 
-# Adding and Using A SetState Method
+## Adding And Using A SetState() Method
 
 One of the things you'll want to be able to do with your *Golgi Component*s is to manipulate
 their state.  The convention I use is to add a method named *setState()* to your
@@ -461,7 +479,7 @@ Instead of the text "This is Golgi!", you should now see the text:
       Hello World
 
 
-# Assigning WebComponent HTML Tags To Properties
+## Assigning WebComponent HTML Tags To Properties
 
 Thus far, the WebComponent within our demonstration *Golgi Component* consists of a single
 *div* tag.  However, the WebComponent can define as much and as complex a chunk of nested
@@ -529,7 +547,7 @@ You can see from this that the *spanTag* property created by the *golgi:prop* at
 access directly to the *span* tag within our instance of the *demo-div* WebComponent.
 
 
-# Adding Handlers to *Golgi Components*
+## Adding Handlers to *Golgi Components*
 
 Something you'll often want to do is to add handlers to tags within a *Golgi Component*.  Sometimes
 you'll want to do that when its WebComponent is being instantiated so that the handler(s) is/are
@@ -588,7 +606,7 @@ and if we needed it to use a different event:
       this.addHandler(fn, this.spantag, 'mouseover');
 
 
-# Removing *Golgi Components* from the DOM
+## Removing *Golgi Components* from the DOM
 
 Sometimes you'll want to remove stuff from the DOM that represents your UI.  You should do
 this by using the *remove()* method that is automatically added to WebComponents by *Golgi*.
@@ -641,8 +659,9 @@ Try it again, and this time watch the *Golgi* log being reported to the browser'
 
 You'll see it reporting the removal of the *demo-div* element and its *click* handler.
 
+----
 
-# Introducing *Golgi Assemblies*
+# *Golgi Assemblies*
 
 ## What Are *Golgi Assemblies*?
 
@@ -667,7 +686,9 @@ you use within an *Assembly*.
       }; 
 
 
-## A Simple Example
+## Create A Simple Example
+
+### Create An Assemblies Directory
 
 Let's create a simple *Golgi Assembly* using the *demo-div* *Golgi Component* we created earlier.
 
@@ -676,6 +697,8 @@ web server, create a subdirectory beneath the */golgi* directory you created ear
 *assemblies*, ie you should now have a directory:
 
       /golgi/assemblies
+
+### Create Your Assembly File
 
 Within this new directory, create a file named demo_assembly.js (ie */golgi/assemblies/demo_assembly.js*),
 containing the following:
@@ -691,6 +714,7 @@ containing the following:
         return {gx};
       };
 
+### Edit The Root Application Module
 
 Next, edit your root application module (ie */golgi/demo.js*) to render this assembly rather than the
 single *Golgi Component* we've been using so far:
@@ -707,6 +731,8 @@ single *Golgi Component* we've been using so far:
 
       await golgi.renderAssembly('demo_assembly', 'body', context);
 
+
+### Run The Example
 
 That's it!  Now see what happens when you reload the *index.html* page in your browser.
 
@@ -730,13 +756,17 @@ and nested two of our *demo-div* Components:
       </demo-div>
 
 
-## So What just Happened?
+## How And Why Did The Example Work?
 
 Let's analyse in detail what happened and why.
 
 ### The Root Application Module
 
-Let's start with the root application module.  The first thing to notice is that we extended
+Let's start with the root application module.  
+
+#### The Context Object
+
+The first thing to notice is that we extended
 the *context* object with the path for the directory we created for our assembly files:
 
       let context = {
@@ -751,6 +781,8 @@ In an individual *Golgi* application, all your *Golgi Assembly* files must resid
 the same directory.  The *Golgi Components* used by your *Assemblies* may come from more than
 one path: if you remember, *Golgi Components* are namespaced according to the prefix in their
 hyphenated name.
+
+#### The *renderAssembly()* Method
 
 A *Golgi* application will normally be started by rendering an initial "root" *Golgi Assembly*.
 That *Assembly* or its logic within it may render other Assemblies, but your main application
@@ -791,6 +823,8 @@ each of your *Golgi Assemblies* must match the name by which your refer to it.
 
 So now let's look at our simple demonstration *Golgi Assembly*.
 
+#### The *Golgi Assembly* Pattern
+
 The first thing to notice is that it must be defined as an ES6 module that exports a
 function named *load().  This function has a single argument which is the *context* object
 that you passed into the *renderAssembly()* method as its third argument:
@@ -818,8 +852,10 @@ The *gx* that you define **must** be returned using:
       return {gx};
 
 
-Once dynamically *import*ed by the *renderAssembly()* method, the *Golgi Assembly*'s *load()* 
-method is invoked by *Golgi* which results in a cascade of activity: 
+#### How the *renderAssembly()* Method Works
+
+The *renderAssembly()* method first dynamically *import*s the *Golgi Assembly* Module,
+and then invokes its *load()* method.  This results in a cascade of activity: 
 
 -each *Golgi Component*
 referenced in your *gx* is dynamically imported and rendered in turn, first starting with the parent
@@ -842,6 +878,8 @@ for any child Components to be appended to them.
 Hopefully everything will become clearer if we step through our example Assembly and analyse how
 *Golgi* processed it.
 
+#### The Parent *gx* Tag
+
 It starts with the parent *gx* tag which, in our case is:
 
       <demo-div text="Welcome to Golgi Assemblies">...</demo-div>
@@ -849,6 +887,8 @@ It starts with the parent *gx* tag which, in our case is:
 This tells *Golgi* to render our *demo-div* *Golgi Component*.  If it hasn't already been 
 imported, Golgi does so, and once ready, it renders the Component, attaching it to the
 parent DOM node defined by the *renderAssembly()* function's second argument.
+
+#### The *demo-div Golgi Component*
 
 Let's just remind ourselves what the *demo-div* *Golgi Component*t looked like:
 
@@ -884,6 +924,8 @@ Let's just remind ourselves what the *demo-div* *Golgi Component*t looked like:
         });
       };
 
+#### The DOM After The Parent *gx* Tag is Rendered
+
 
 At this point, your page's DOM will look like this:
 
@@ -894,6 +936,8 @@ At this point, your page's DOM will look like this:
           </div>
         </demo-div>
       </body>
+
+#### Setting State Using *gx* Tag Attributes
 
 The next thing that happens is that *Golgi* looks through the *gx* tag's attributes.  Unless
 prefixed with *golgi:*, each one is used to specify initial state for the *Component*, using
@@ -916,6 +960,8 @@ Remember that *this.spanTag* was defined by the *golgi:prop* attribute in the *s
 
         <span golgi:prop="spanTag">Click Me!</span>
 
+#### The DOM After State Is Set
+
 And so the text within the *demo-div* Component's *span* tag will change to
 *Welcome to Golgi Assemblies*, ie:
 
@@ -928,15 +974,24 @@ And so the text within the *demo-div* Component's *span* tag will change to
       </body>
 
 
-So that completes the processing of the parent *gx* tag.  *Golgi* now moves on to
+So that completes the processing of the parent *gx* tag.  
+
+
+#### The Child *gx* Tag
+
+*Golgi* now moves on to
 process any of its child *gx* tags, and finds this one:
 
         <demo-div text="I'm inside the other div!" />
 
 So it repeats the steps.  *Golgi* notices that it's already imported and registered
 the *demo-div* WebComponent, so it can use it straight away.  It renders the WebComponent's
-HTML and then it needs to decide where to append it.  Unless told otherwise, *Golgi* will
-assume that it should be appended to the parent Component's element designated by a 
+HTML and then it needs to decide where to append it.  
+
+#### The *childrenTarget* Property
+
+Unless told otherwise, *Golgi* will
+assume that the rendered HTML should be appended to the parent Component's element designated by a 
 *childrenTarget* property.  By default, and unless otherwise instructed to do so, *Golgi* will
 automatically assign a WebComponent's HTML *rootElement* to be the *childrenTarget*.  
 
@@ -952,7 +1007,11 @@ its default logic, so the *childrenTarget* is the outer *&lt;div&gt;* tag of the
                        </body>
 
 As a result, the second instance of the *demo-div* WebComponent is appended as a child of the
-first instance's *div* tag.  So the DOM now looks like this:
+first instance's *div* tag.  
+
+#### The DOM After the Child *gx* Tag is Rendered
+
+So the DOM now looks like this:
 
       <body>
         <demo-div>
@@ -993,6 +1052,22 @@ inner WebComponent instance, resulting in the DOM changing to:
       </body>
 
 and with that, *Golgi* find no more *gx* tags in our Assembly, so processing of our example completes!
+
+
+## Try Out the *demo-div* Component Click Handler
+
+Now that the completed page is rendered in your browser, if you remember back to when we created the *dem-div* component, we added a *click* handler to its *span* tag:
+
+          onBeforeState() {
+            const fn = (e) => {
+              e.stopPropagation();
+              this.setState({text: 'You clicked the div at ' + Date.now()});
+            };
+            this.addHandler(fn, this.spanTag);
+          }
+
+Try clicking each of the lines of text.  You should notice that they each respond to clicks and also behave independently, each updating the text within their own instance of the *demo-div* WebComponent.
+
 
 
 
