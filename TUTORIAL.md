@@ -1122,7 +1122,7 @@ Now that the completed page is rendered in your browser, if you remember back to
 Try clicking each of the lines of text.  You should notice that they each respond to clicks and also behave independently, each updating the text within their own instance of the *demo-div* WebComponent.
 
 
-## Adding *Hooks* To *Golgi COmponents* Within Assemblies
+## Adding *Hooks* To *Golgi Components* Within Assemblies
 
 ### What Are Hooks?
 
@@ -1190,6 +1190,10 @@ Note that provided you use the syntax above, specifically defining the function 
 *function() {....}*, then the *this* context within the Hook method will be the
 instance of the Web Component within the specified *Golgi Component*.
 
+You can define as many hook methods with an Assembly as you like, one for every
+*gx* tag if you want!  Simply ensure that the object names in the *hooks* object
+match up with the tag names and *golgi:hook" values used in the *gx* tags.
+
 Having added the *hooks* object, you **must** add it to the exports from the Assembly's
 *load* function.  This is the most common mistake I make and then I wonder why my 
 hooks aren't working!
@@ -1225,7 +1229,92 @@ Now all you need to do is try reloading your *index.html* page in your browser. 
 run your mouse pointer over the second line of text, you should find that it changes.  However, 
 the outer instance of the *demo-div* Component, which is showing the first line of text, won't
 be affected by a *mouseover* event.  Both instances still respond to a *click* event, because this
-is defined in the underlying WebComponent of each instance.
+is defined in the underlying WebComponent used by each instance.
+
+
+## State Management and Data Binding In *Golgi*
+
+*Golgi* provides a powerful means of state management and data binding which is deceptively
+simple to use.  The *Golgi* Object includes a property named *state* which is actually a 
+Proxy Object that traps any changes you make to it.
+
+Within a *gx* tag in an Assembly, you can define a *State Map* that maps a *Golgi state*
+object property name to a *setState()* property within the Component.  You do this by using
+a special *gx* attribute named *golgi:stateMap*.  Its value has two parts, separated by a colon:
+
+- the *Golgi state* object property name to trap.  This can use dot syntax to specify lower sub-levels within the *state* object. 
+- the target Component's *setState* property to which to map the state value
+
+For example:
+
+      <demo-div text="Welcome to Golgi Assemblies" golgi:stateMap="message:text">
+
+
+Having specified this, and once this *Golgi Component* has been rendered and is ready for use,
+you can then do the following anywhere else in a component's methods, for example in a *hook* method:
+
+      this.golgi_state.message = 'Hello World';
+
+Note that *this.golgi_state* is how *Golgi*'s *state* Proxy is exposed within the context
+of a COmponent.
+
+What will happen is that the instance of the Component to which we applied the *stateMap* will
+invoke its *setState()* method for the property named *text* as follows:
+
+      component.setState({text: 'Hello World'});
+
+
+In our example *demo-div* Component, this, of course, updates the Component's *span* text content.
+
+          setState(state) {
+            if (state.text) {
+              this.spanTag.textContent = state.text;
+            }
+          }
+
+Of course, when defining a *Golgi Component*'s setState() method logic, we could define all sorts of
+different state properties with all manner of actions, so you can assign a stateMap to as complex
+logic as you wish.  For example, mapping an array of data points to an *update* state property could
+cause a graph to be plotted, simply by setting the data points array in the *Golgi* state object.
+
+Let's try this out in your example.  First change the outer *gx* tag in your Assembly to:
+
+      <demo-div text="Welcome to Golgi Assemblies" golgi:stateMap="message:text">
+
+and now modify the hook method we defined for the inner *gx* tag:
+
+
+      let hooks = {
+        'demo-div': {
+          addHandler: function() {
+            const fn = () => {
+              this.spanTag.textContent = 'You moused over at ' + Date.now();
+              this.golgi_state.message = 'I also noticed that at ' + Date.now();
+            };
+            this.addHandler(fn, this.spanTag, 'mouseover');
+          }
+        }
+      };
+
+Reload the *index.html* page in the browser, and now try running your mouse pointer over the
+second line of text.  As if by magic, the top line will also now change!  This will happen
+every time you mouse over the second line of text.
+
+
+
+To follow...
+
+
+## golgi:appendTo
+
+
+## Loading assemblies using gx
+
+## Using ordinady HTML tags in gx
+
+# Advanced Stuff
+
+## golgi:component-class in components
 
 
 
