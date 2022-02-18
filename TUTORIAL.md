@@ -11,13 +11,13 @@
   - [Run The Demo](#run-the-demo)
   - [How Did It Work?](#how-did-it-work)
     - [The *index.html* Page](#the-indexhtml-page)
-    - [The Golgi Root Application Module](#the-golgi-root-application-module)
+    - [The *Golgi* Root Application Module](#the-golgi-root-application-module)
       - [Loading The *Golgi* Module](#loading-the-golgi-module)
       - [Defining the *Golgi Component* and *Assembly* Paths](#defining-the-golgi-component-and-assembly-paths)
       - [Rendering the *demo-div Golgi Component*](#rendering-the-demo-div-golgi-component)
     - [The *demo-div Golgi Component*](#the-demo-div-golgi-component)
       - [The *Golgi Component* Pattern](#the-golgi-component-pattern)
-      - [How Your Golgi Component Is Loaded and Rendered](#how-your-golgi-component-is-loaded-and-rendered)
+      - [How Your *Golgi Component* Is Loaded and Rendered](#how-your-golgi-component-is-loaded-and-rendered)
     - [Check The Browser's Developer Tools](#check-the-browsers-developer-tools)
     - [Using *Golgi*'s Log](#using-golgis-log)
   - [Adding And Using A SetState() Method](#adding-and-using-a-setstate-method)
@@ -65,7 +65,7 @@ Create a directory that is accessible by the web server, eg */golgi*.
 
 Then create a sub-directory within it named *components*, ie */golgi/components*.
 
-# Golgi Components
+# *Golgi* Components
 
 ## Create a Simple Demo
 
@@ -182,14 +182,14 @@ The key piece is this line:
 This tells the browser to load your main root application module, in this case *demo.js*.
 
 
-### The Golgi Root Application Module
+### The *Golgi* Root Application Module
 
 The *demo.js* Module is an extremely simple example of a *Golgi* main or root application module.
 
 Your root application module is where you define the main shape and starting point of your
 UI and its application logic.  It must be defined as an ES6 Module using the following pattern
 
-- load the Golgi Module
+- load the *Golgi* Module
 - define the paths where your *Golgi Components* and *Golgi Assemblies* reside
 - start rendering the initial *Golgi Components* or *Golgi Assemblies* that will kick off your application.
 
@@ -368,7 +368,7 @@ adhere to the pattern and conventions shown here:
 So, in summary, this will create a WebComponent named *demo-div* that represents a simple
 *div* tag with some pre-defined text.
 
-#### How Your Golgi Component Is Loaded and Rendered
+#### How Your *Golgi Component* Is Loaded and Rendered
 
 In our simple example, we're loading and rendering our *demo-div* *Golgi Component* by
 using the *renderComponent()* method.  What this method does is to:
@@ -606,7 +606,7 @@ Something you'll often want to do is to add handlers to tags within a *Golgi Com
 you'll want to do that when its WebComponent is being instantiated so that the handler(s) is/are
 always present.
 
-Once again, Golgi makes this very simple.  Let's add an *onClick* handler to our *demo-div* Component.
+Once again, *Golgi* makes this very simple.  Let's add an *onClick* handler to our *demo-div* Component.
 
 Edit the */golgi/components/demo-div.js* file once more, and add the following method to its
 WebComponent:
@@ -916,10 +916,10 @@ referenced in your *gx* is dynamically imported and rendered in turn, first star
 are similarly processed.  This process is repeated, recursing down through all the nested *gx* tags that 
 you have specified.
 
-**Note 1:** Golgi processes each child *gx* tag in strict sequence, to ensure that they
+**Note 1:** *Golgi* processes each child *gx* tag in strict sequence, to ensure that they
 are correctly appended to their parent element's target(s) in the sequence,
 as defined by the sequencing of your *gx* tags.  The
-importation of each child's associated Golgi Component modules must therefore await completion of its
+importation of each child's associated *Golgi Component* modules must therefore await completion of its
 previous sibling before it can begin its own importation and processing.  However, once a *Golgi Component* is loaded, the processing of
 any of its child components begins immediately: ie a next sibling Component does not
 have to await the importation and processing of its previous sibling's child Components.  This
@@ -932,7 +932,7 @@ any noticeable overhead.  Also, of course, the browser itself will thereafter ca
 imported by your application, so any network transport delays will be significantly reduced
 whenever the application is re-run in the browser.  
 
-** Note 3:** Even if a large UI application involves the
+**Note 3:** Even if a large UI application involves the
 importation of many *Golgi Components*, you should nevertheless find that both perceived and 
 actual performance is very high because (a) the imported modules are typically tiny files;
 (b) the progressive, "only as needed" build-out of an *Golgi* application
@@ -954,7 +954,7 @@ It starts with the parent *gx* tag which, in our case is:
       <demo-div text="Welcome to Golgi Assemblies">...</demo-div>
 
 This tells *Golgi* to render our *demo-div* *Golgi Component*.  If it hasn't already been 
-imported, Golgi does so, and once ready, it renders the Component, attaching it to the
+imported, *Golgi* imports it, and once ready, it renders the Component, attaching it to the
 parent DOM node defined by the *renderAssembly()* function's second argument.
 
 #### The *demo-div Golgi Component*
