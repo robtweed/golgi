@@ -59,6 +59,10 @@
   - [Customising How *Golgi Component*s Are Appended to their Parent Component](#customising-how-golgi-components-are-appended-to-their-parent-component)
     - [Re-assigning the *childrenTarget* Property](#re-assigning-the-childrentarget-property)
     - [Multiple Parent Append Target Elements](#multiple-parent-append-target-elements)
+  - [Using *Golgi Assemblies* Within *gx*](#using-golgi-assemblies-within-gx)
+  - [Using ordinary HTML tags within *gx*](#using-ordinary-html-tags-within-gx)
+  - [Dynamically Loading JavaScript and CSS Resources](#dynamically-loading-javascript-and-css-resources)
+  - [Dynamically Adding Meta Tags to the DOM](#dynamically-adding-meta-tags-to-the-dom)
 - [State management and Data Binding in *Golgi*](state-management-and-data-binding-in-golgi)
 
 
