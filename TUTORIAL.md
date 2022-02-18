@@ -65,8 +65,8 @@
   - [Dynamically Loading JavaScript and CSS Resources](#dynamically-loading-javascript-and-css-resources)
   - [Dynamically Adding Meta Tags to the DOM](#dynamically-adding-meta-tags-to-the-dom)
 - [*Golgi Component* Lifecycle Methods](#golgi-component-lifecycle-methods)
-- [*Golgi* Methods For Use Within *Golgi Components* and *Hook* Methods](golgi-methods-for-use-within-golgi-components-and-hook-methods)
-- [State management and Data Binding in *Golgi*](state-management-and-data-binding-in-golgi)
+- [*Golgi* Methods For Use Within *Golgi Components* and *Hook* Methods](#golgi-methods-for-use-within-golgi-components-and-hook-methods)
+- [State management and Data Binding in *Golgi*](#state-management-and-data-binding-in-golgi)
 
 
 # First Steps 
@@ -79,7 +79,7 @@ Then create a sub-directory within it named *components*, ie */golgi/components*
 
 <br/>
 <div align="right">
-    <b><a href="#----">? back to top</a></b>
+    <b><a href="#index">back to top</a></b>
 </div>
 <br/>
 
@@ -142,7 +142,7 @@ And then, in the */golgi/components directory create:
 
 <br/>
 <div align="right">
-    <b><a href="#----">? back to top</a></b>
+  <b><a href="#index">back to top</a></b>
 </div>
 <br/>
 
