@@ -61,11 +61,11 @@
     - [Multiple Parent Append Target Elements](#multiple-parent-append-target-elements)
   - [Using *Golgi Assemblies* Within *gx*](#using-golgi-assemblies-within-gx)
   - [Using ordinary HTML tags within *gx*](#using-ordinary-html-tags-within-gx)
-  - [Hoisting Classes to the Top-Level Component Element]()
+  - [Hoisting Classes to the Top-Level Component Element](#hoisting-classes-to-the-top-level-component-element)
   - [Dynamically Loading JavaScript and CSS Resources](#dynamically-loading-javascript-and-css-resources)
   - [Dynamically Adding Meta Tags to the DOM](#dynamically-adding-meta-tags-to-the-dom)
-- [*Golgi Component* Lifecycle Methods]()
-- [*Golgi* Methods For Use Within *Golgi Components* and *Hook* Methods]()
+- [*Golgi Component* Lifecycle Methods](#golgi-component-lifecycle-methods)
+- [*Golgi* Methods For Use Within *Golgi Components* and *Hook* Methods](golgi-methods-for-use-within-golgi-components-and-hook-methods)
 - [State management and Data Binding in *Golgi*](state-management-and-data-binding-in-golgi)
 
 
