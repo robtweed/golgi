@@ -77,6 +77,12 @@ Create a directory that is accessible by the web server, eg */golgi*.
 
 Then create a sub-directory within it named *components*, ie */golgi/components*.
 
+<br/>
+<div align="right">
+    <b><a href="#----">? back to top</a></b>
+</div>
+<br/>
+
 # *Golgi* Components
 
 ## Create a Simple Demo
@@ -134,6 +140,11 @@ And then, in the */golgi/components directory create:
         });
       };
 
+<br/>
+<div align="right">
+    <b><a href="#----">? back to top</a></b>
+</div>
+<br/>
 
 ## Run The Demo
 
