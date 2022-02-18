@@ -164,6 +164,11 @@ If see the text below appearing in your browser:
 
 then *Gogli* is working for you and you're ready to explore it in more detail.
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 ## How Did It Work?
 
@@ -204,6 +209,11 @@ The key piece is this line:
 
 This tells the browser to load your main root application module, in this case *demo.js*.
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 ### The *Golgi* Root Application Module
 
@@ -322,6 +332,11 @@ each of your *Golgi Component*s must match the name of the WebComponent it defin
 Once *import*ed, the *Golgi Component*'s *load()* method is invoked to register its
 WebComponent, and it is then appended to the specified target element of your HTML page.
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 ### The *demo-div Golgi Component*
 
@@ -417,6 +432,12 @@ any other complexities getting in the way or confusing things.
 We're now going to start building on top of this very simple demonstration example, and you'll 
 gradually begin to see how *Golgi* can be used for UI development.
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
+
 
 ### Check The Browser's Developer Tools
 
@@ -459,6 +480,12 @@ HTML document's DOM is being correctly updated by your *Golgi Component*s and *A
 I'd recommend that you refer to it throughout the rest of this tutorial when you load/reload
 each new version of the demonstration application.
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
+
 ### Using *Golgi*'s Log
 
 A further means of seeing and checking what *Golgi* is doing is to enable its log (by 
@@ -471,6 +498,11 @@ To turn logging on, add this line to your root application module:
 
 To inspect its log, use the *Console* tab in the browser's Developer Tools panel.
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 ## Adding And Using A SetState() Method
 
@@ -554,6 +586,11 @@ Instead of the text "This is Golgi!", you should now see the text:
 
       Hello World
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 ## Assigning WebComponent HTML Tags To Properties
 
@@ -622,6 +659,11 @@ As a further demonstration, try editing the */golgi/demo.js* root Module as foll
 You can see from this that the *spanTag* property created by the *golgi:prop* attribute gives us
 access directly to the *span* tag within our instance of the *demo-div* WebComponent.
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 ## Adding Handlers to *Golgi Components*
 
@@ -681,6 +723,12 @@ and if we needed it to use a different event:
 
       this.addHandler(fn, this.spantag, 'mouseover');
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
+
 
 ## Removing *Golgi Components* from the DOM
 
@@ -735,6 +783,12 @@ Try it again, and this time watch the *Golgi* log being reported to the browser'
 
 You'll see it reporting the removal of the *demo-div* element and its *click* handler.
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
+
 ----
 
 # *Golgi Assemblies*
@@ -761,6 +815,11 @@ you use within an *Assembly*.
         return {gx, hooks};  // or return {gx} if you didn't define any hooks
       }; 
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 ## Create A Simple Example
 
@@ -831,6 +890,12 @@ and nested two of our *demo-div* Components:
         </div>
       </demo-div>
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
+
 
 ## How And Why Did The Example Work?
 
@@ -857,6 +922,12 @@ In an individual *Golgi* application, all your *Golgi Assembly* files must resid
 the same directory.  The *Golgi Components* used by your *Assemblies* may come from more than
 one path: if you remember, *Golgi Components* are namespaced according to the prefix in their
 hyphenated name.
+
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 #### The *renderAssembly()* Method
 
@@ -895,6 +966,12 @@ eg in our example:
 So this highlights an important pattern you **must** adhere to when using *Golgi*: the filename for
 each of your *Golgi Assemblies* must match the name by which your refer to it.
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
+
 ### Our *Golgi Assembly*
 
 So now let's look at our simple demonstration *Golgi Assembly*.
@@ -927,6 +1004,11 @@ The *gx* that you define **must** be returned using:
 
       return {gx};
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 #### How the *renderAssembly()* Method Works
 
@@ -964,6 +1046,11 @@ means that only those Component modules needed at any point within your applicat
 as they are loaded, so the user shouldn't typically see any significant delays 
 whilst looking at a blank screen.
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 ### What Happened When Our Assembly Was Rendered?
 
@@ -1016,6 +1103,12 @@ Let's just remind ourselves what the *demo-div* *Golgi Component*t looked like:
         });
       };
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
+
 #### The DOM After The Parent *gx* Tag is Rendered
 
 
@@ -1028,6 +1121,12 @@ At this point, your page's DOM will look like this:
           </div>
         </demo-div>
       </body>
+
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 #### Setting State Using *gx* Tag Attributes
 
@@ -1052,6 +1151,12 @@ Remember that *this.spanTag* was defined by the *golgi:prop* attribute in the *s
 
         <span golgi:prop="spanTag">Click Me!</span>
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
+
 #### The DOM After State Is Set
 
 And so the text within the *demo-div* Component's *span* tag will change to
@@ -1068,6 +1173,11 @@ And so the text within the *demo-div* Component's *span* tag will change to
 
 So that completes the processing of the parent *gx* tag.  
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 #### The Child *gx* Tag
 
@@ -1079,6 +1189,12 @@ process any of its child *gx* tags, and finds this one:
 So it repeats the steps.  *Golgi* notices that it's already imported and registered
 the *demo-div* WebComponent, so it can use it straight away.  It renders the WebComponent's
 HTML and then it needs to decide where to append it.  
+
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 #### The *childrenTarget* Property
 
@@ -1100,6 +1216,12 @@ its default logic, so the *childrenTarget* is the outer *&lt;div&gt;* tag of the
 
 As a result, the second instance of the *demo-div* WebComponent is appended as a child of the
 first instance's *div* tag.  
+
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 #### The DOM After the Child *gx* Tag is Rendered
 
@@ -1145,6 +1267,11 @@ inner WebComponent instance, resulting in the DOM changing to:
 
 and with that, *Golgi* find no more *gx* tags in our Assembly, so processing of our example completes!
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 ## Try Out the *demo-div* Component Click Handler
 
@@ -1160,6 +1287,11 @@ Now that the completed page is rendered in your browser, if you remember back to
 
 Try clicking each of the lines of text.  You should notice that they each respond to clicks and also behave independently, each updating the text within their own instance of the *demo-div* WebComponent.
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 ## Adding *Hooks* To *Golgi Components* Within Assemblies
 
@@ -1178,6 +1310,11 @@ is only invoked for the instance of the Component for which it is defined.
 **Note: ** a Component's Hook Method is invoked immediately after the Component's state is
 updated in accordance with any attributes in the Component's *gx* tag,
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 ### An Example Use Case for Hooks
 
@@ -1189,6 +1326,12 @@ You'll frequently have situations where you want to augment just one particular 
 *Golgi Component* within your Assemblies, for example adding a particular handler to it,
 whilst leaving all other instances of the Component as standard.  Hooks
 make this trivially simple.
+
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 ### Specifying A Hook
 
@@ -1206,6 +1349,12 @@ of the *demo-div* tag:
         <demo-div text="I'm inside the other div!" golgi:hook="addHandler" />
       </demo-div>
       `;
+
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 #### The *hooks* Object
 
@@ -1239,6 +1388,11 @@ hooks aren't working!
 
       return {gx, hooks};
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 ### Add A Hook To Our Example Assembly
 
@@ -1261,6 +1415,11 @@ So, let's now add our *addHandler()* Hook to our Assembly:
 
       return {gx, hooks};
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 ### Try It Out!
 
@@ -1270,6 +1429,11 @@ the outer instance of the *demo-div* Component, which is showing the first line 
 be affected by a *mouseover* event.  Both instances still respond to a *click* event, because this
 is defined in the underlying WebComponent used by each instance.
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 ## Customising How *Golgi Component*s Are Appended to their Parent Component
 
@@ -1285,6 +1449,12 @@ component's *childrenTarget* property
 property.
 
 You have control over both of these factors.
+
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 ### Re-assigning the *childrenTarget* Property
 
@@ -1341,6 +1511,12 @@ So, simply by specifying:
 
 within one of the HTML elements in a *Golgi Component* reassigns it as the target element to
 which child Components will be automatically appended.
+
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 ### Multiple Parent Append Target Elements
 
@@ -1407,6 +1583,12 @@ Then reload the *index.html* page in your browser and confirm that it worked by 
 the DOM using the browser's Developer Tools *Elements* tab.  Note how we used the
 default *childrenTarget* property in the parent for the first child *demo-div* *gx* tag.
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
+
 
 ## Using *Golgi Assemblies* within *gx*
 
@@ -1444,6 +1626,12 @@ to the same methods as you would have within a Component.
 **Note 2:** One thing to be careful of - make sure you don't try to load an Assembly that
 also tries to load another instance of itself.  You'll put *Golgi* into an infinite loop if you do!
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
+
 
 ## Using ordinary HTML tags within *gx*
 
@@ -1474,7 +1662,11 @@ Here's an example:
         }
       }
 
-
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 ## Hoisting Classes to the Top-Level Component Element
 
@@ -1522,6 +1714,11 @@ up to the &lt;sbadmin-sidebar-menu&gt; tag, resulting in this Component being ad
 
 Now the styling issues should disappear!
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 ## Dynamically Loading JavaScript and CSS Resources
 
@@ -1601,6 +1798,12 @@ provides you with the mechanism to await or not before proceeding with its Compo
 *crossorigin="anonymous* which, if added, adds this to the actual *script* tag that is added
 to the DOM.
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
+
 ## Dynamically Adding Meta Tags to the DOM
 
 Responsive, mobile-first UI libraries such as Bootstrap 5 require you to add a number
@@ -1631,6 +1834,12 @@ top-level Assembly's *gx*.  For example:
 
 The corresponding &lt;meta&gt; tags will be added dynamically to the DOM by *Golgi* before the
 parent Component is imported and rendered.
+
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 ----
 
@@ -1665,6 +1874,11 @@ Any or all of these methods can be specified as *async* if required.
 should be explicitly destroyed if the Component is removed, you should use the standard
 WebComponent *disconnectedCallback()* lifecycle method.
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 ----
 
@@ -1727,6 +1941,12 @@ within the current Component as *this.context*, should also be specified as the 
   This method will import and load the specified *Golgi Component* and, when ready, will append it to the
 specified target Element (*append_target_element*).  The *Golgi* Context object, available
 within the current Component as *this.context*, should also be specified as the third argument).
+
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 ----
 
@@ -1801,6 +2021,8 @@ Reload the *index.html* page in the browser, and now try running your mouse poin
 second line of text.  As if by magic, the top line will also now change!  This will happen
 every time you mouse over the second line of text.
 
-
-
-
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
