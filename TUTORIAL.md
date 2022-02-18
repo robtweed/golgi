@@ -805,6 +805,12 @@ You'll see it reporting the removal of the *demo-div* element and its *click* ha
 
 # *Golgi Assemblies*
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
+
 ## What Are *Golgi Assemblies*?
 
 So far we've just looked at how to define and use a single *Golgi Component*.  Where things begin
@@ -829,11 +835,17 @@ you use within an *Assembly*.
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#golgi-assemblies">Go Up</a></b>
 </div>
 <br/>
 
 ## Create A Simple Example
+
+<br/>
+<div align="right">
+  <b><a href="#golgi-assemblies">Go Up</a></b>
+</div>
+<br/>
 
 ### Create An Assemblies Directory
 
@@ -844,6 +856,12 @@ web server, create a subdirectory beneath the */golgi* directory you created ear
 *assemblies*, ie you should now have a directory:
 
       /golgi/assemblies
+
+<br/>
+<div align="right">
+  <b><a href="#create-a-simple-example">Go Up</a></b>
+</div>
+<br/>
 
 ### Create Your Assembly File
 
@@ -860,6 +878,12 @@ containing the following:
       
         return {gx};
       };
+
+<br/>
+<div align="right">
+  <b><a href="#create-a-simple-example">Go Up</a></b>
+</div>
+<br/>
 
 ### Edit The Root Application Module
 
@@ -878,6 +902,11 @@ single *Golgi Component* we've been using so far:
 
       await golgi.renderAssembly('demo_assembly', 'body', context);
 
+<br/>
+<div align="right">
+  <b><a href="#create-a-simple-example">Go Up</a></b>
+</div>
+<br/>
 
 ### Run The Example
 
@@ -904,7 +933,7 @@ and nested two of our *demo-div* Components:
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#create-a-simple-example">Go Up</a></b>
 </div>
 <br/>
 
@@ -913,9 +942,21 @@ and nested two of our *demo-div* Components:
 
 Let's analyse in detail what happened and why.
 
+<br/>
+<div align="right">
+  <b><a href="#golgi-assemblies">Go Up</a></b>
+</div>
+<br/>
+
 ### The Root Application Module
 
-Let's start with the root application module.  
+Let's start with the root application module.
+
+<br/>
+<div align="right">
+  <b><a href="#how-and-why-did-the-example-work">Go Up</a></b>
+</div>
+<br/>
 
 #### The Context Object
 
@@ -987,6 +1028,12 @@ each of your *Golgi Assemblies* must match the name by which your refer to it.
 ### Our *Golgi Assembly*
 
 So now let's look at our simple demonstration *Golgi Assembly*.
+
+<br/>
+<div align="right">
+  <b><a href="#how-and-why-did-the-example-work">Go Up</a></b>
+</div>
+<br/>
 
 #### The *Golgi Assembly* Pattern
 
@@ -1069,6 +1116,12 @@ whilst looking at a blank screen.
 Hopefully everything will become clearer if we step through our example Assembly and analyse how
 *Golgi* processed it.
 
+<br/>
+<div align="right">
+  <b><a href="#how-and-why-did-the-example-work">Go Up</a></b>
+</div>
+<br/>
+
 #### The Parent *gx* Tag
 
 It starts with the parent *gx* tag which, in our case is:
@@ -1078,6 +1131,12 @@ It starts with the parent *gx* tag which, in our case is:
 This tells *Golgi* to render our *demo-div* *Golgi Component*.  If it hasn't already been 
 imported, *Golgi* imports it, and once ready, it renders the Component, attaching it to the
 parent DOM node defined by the *renderAssembly()* function's second argument.
+
+<br/>
+<div align="right">
+  <b><a href="#what-happened-when-our-assembly-was-rendered">Go Up</a></b>
+</div>
+<br/>
 
 #### The *demo-div Golgi Component*
 
@@ -1117,7 +1176,7 @@ Let's just remind ourselves what the *demo-div* *Golgi Component*t looked like:
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#what-happened-when-our-assembly-was-rendered">Go Up</a></b>
 </div>
 <br/>
 
@@ -1136,7 +1195,7 @@ At this point, your page's DOM will look like this:
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#what-happened-when-our-assembly-was-rendered">Go Up</a></b>
 </div>
 <br/>
 
@@ -1165,7 +1224,7 @@ Remember that *this.spanTag* was defined by the *golgi:prop* attribute in the *s
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#what-happened-when-our-assembly-was-rendered">Go Up</a></b>
 </div>
 <br/>
 
@@ -1187,7 +1246,7 @@ So that completes the processing of the parent *gx* tag.
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#what-happened-when-our-assembly-was-rendered">Go Up</a></b>
 </div>
 <br/>
 
@@ -1204,7 +1263,7 @@ HTML and then it needs to decide where to append it.
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#what-happened-when-our-assembly-was-rendered">Go Up</a></b>
 </div>
 <br/>
 
@@ -1231,7 +1290,7 @@ first instance's *div* tag.
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#what-happened-when-our-assembly-was-rendered">Go Up</a></b>
 </div>
 <br/>
 
@@ -1281,7 +1340,7 @@ and with that, *Golgi* find no more *gx* tags in our Assembly, so processing of 
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#what-happened-when-our-assembly-was-rendered">Go Up</a></b>
 </div>
 <br/>
 
@@ -1301,11 +1360,17 @@ Try clicking each of the lines of text.  You should notice that they each respon
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#golgi-assemblies">Go Up</a></b>
 </div>
 <br/>
 
 ## Adding *Hooks* To *Golgi Components* Within Assemblies
+
+<br/>
+<div align="right">
+  <b><a href="#golgi-assemblies">Go Up</a></b>
+</div>
+<br/>
 
 ### What Are Hooks?
 
@@ -1324,7 +1389,7 @@ updated in accordance with any attributes in the Component's *gx* tag,
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#adding-hooks-to-golgi-components-within-assemblies">Go Up</a></b>
 </div>
 <br/>
 
@@ -1341,11 +1406,17 @@ make this trivially simple.
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#adding-hooks-to-golgi-components-within-assemblies">Go Up</a></b>
 </div>
 <br/>
 
 ### Specifying A Hook
+
+<br/>
+<div align="right">
+  <b><a href="#adding-hooks-to-golgi-components-within-assemblies">Go Up</a></b>
+</div>
+<br/>
 
 #### The *golgi:hook gx* Attribute
 
@@ -1364,7 +1435,7 @@ of the *demo-div* tag:
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#specifying-a-hook">Go Up</a></b>
 </div>
 <br/>
 
@@ -1402,7 +1473,7 @@ hooks aren't working!
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#specifying-a-hook">Go Up</a></b>
 </div>
 <br/>
 
@@ -1429,7 +1500,7 @@ So, let's now add our *addHandler()* Hook to our Assembly:
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#adding-hooks-to-golgi-components-within-assemblies">Go Up</a></b>
 </div>
 <br/>
 
@@ -1443,7 +1514,7 @@ is defined in the underlying WebComponent used by each instance.
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#adding-hooks-to-golgi-components-within-assemblies">Go Up</a></b>
 </div>
 <br/>
 
@@ -1464,7 +1535,7 @@ You have control over both of these factors.
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#golgi-assemblies">Go Up</a></b>
 </div>
 <br/>
 
@@ -1526,7 +1597,7 @@ which child Components will be automatically appended.
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#customising-how-golgi-components-are-appended-to-their-parent-component">Go Up</a></b>
 </div>
 <br/>
 
@@ -1597,7 +1668,7 @@ default *childrenTarget* property in the parent for the first child *demo-div* *
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#customising-how-golgi-components-are-appended-to-their-parent-component">Go Up</a></b>
 </div>
 <br/>
 
@@ -1640,7 +1711,7 @@ also tries to load another instance of itself.  You'll put *Golgi* into an infin
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#golgi-assemblies">Go Up</a></b>
 </div>
 <br/>
 
@@ -1676,7 +1747,7 @@ Here's an example:
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#golgi-assemblies">Go Up</a></b>
 </div>
 <br/>
 
@@ -1728,7 +1799,7 @@ Now the styling issues should disappear!
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#golgi-assemblies">Go Up</a></b>
 </div>
 <br/>
 
@@ -1812,7 +1883,7 @@ to the DOM.
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#golgi-assemblies">Go Up</a></b>
 </div>
 <br/>
 
@@ -1849,7 +1920,7 @@ parent Component is imported and rendered.
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#golgi-assemblies">Go Up</a></b>
 </div>
 <br/>
 
