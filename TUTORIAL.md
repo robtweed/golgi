@@ -85,6 +85,12 @@ Then create a sub-directory within it named *components*, ie */golgi/components*
 
 # *Golgi* Components
 
+<br/>
+<div align="right">
+    <b><a href="#index">back to top</a></b>
+</div>
+<br/>
+
 ## Create a Simple Demo
 
 Inside the */golgi* directory, create the following two files using the filenames and contents shown below:
@@ -142,7 +148,7 @@ And then, in the */golgi/components directory create:
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#create-a-simple-demo">Go Up</a></b>
 </div>
 <br/>
 
@@ -166,7 +172,7 @@ then *Gogli* is working for you and you're ready to explore it in more detail.
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#golgi-components">Go Up</a></b>
 </div>
 <br/>
 
@@ -176,6 +182,12 @@ Clearly this is a really unremarkable demonstration of *Golgi*'s abilities: all 
 display a *div* tag in your browser!  However, if we now analyse what happened and what we
 specified in those three files, you'll begin to get an initial idea of how the most basic of *Golgi's*
 building blocks - *Golgi Components* - are defined and used.
+
+<br/>
+<div align="right">
+  <b><a href="#golgi-components">Go Up</a></b>
+</div>
+<br/>
 
 ### The *index.html* Page
 
@@ -211,7 +223,7 @@ This tells the browser to load your main root application module, in this case *
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#how-did-it-work">Go Up</a></b>
 </div>
 <br/>
 
@@ -334,7 +346,7 @@ WebComponent, and it is then appended to the specified target element of your HT
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#the-golgi-root-application-module">Go Up</a></b>
 </div>
 <br/>
 
@@ -434,7 +446,7 @@ gradually begin to see how *Golgi* can be used for UI development.
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#the-demo-div-golgi-component">Go Up</a></b>
 </div>
 <br/>
 
@@ -482,7 +494,7 @@ each new version of the demonstration application.
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#how-did-it-work">Go Up</a></b>
 </div>
 <br/>
 
@@ -500,7 +512,7 @@ To inspect its log, use the *Console* tab in the browser's Developer Tools panel
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#how-did-it-work">Go Up</a></b>
 </div>
 <br/>
 
@@ -588,7 +600,7 @@ Instead of the text "This is Golgi!", you should now see the text:
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#golgi-components">Go Up</a></b>
 </div>
 <br/>
 
@@ -661,7 +673,7 @@ access directly to the *span* tag within our instance of the *demo-div* WebCompo
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#golgi-components">Go Up</a></b>
 </div>
 <br/>
 
@@ -725,7 +737,7 @@ and if we needed it to use a different event:
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#golgi-components">Go Up</a></b>
 </div>
 <br/>
 
@@ -785,7 +797,7 @@ You'll see it reporting the removal of the *demo-div* element and its *click* ha
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#golgi-components">Go Up</a></b>
 </div>
 <br/>
 
