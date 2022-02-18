@@ -916,7 +916,7 @@ referenced in your *gx* is dynamically imported and rendered in turn, first star
 are similarly processed.  This process is repeated, recursing down through all the nested *gx* tags that 
 you have specified.
 
-**Note 1: ** Golgi processes each child *gx* tag in strict sequence, to ensure that they
+**Note 1:** Golgi processes each child *gx* tag in strict sequence, to ensure that they
 are correctly appended to their parent element's target(s) in the sequence,
 as defined by the sequencing of your *gx* tags.  The
 importation of each child's associated Golgi Component modules must therefore await completion of its
@@ -926,13 +926,13 @@ have to await the importation and processing of its previous sibling's child Com
 therefore minimises the overall importation time of an application's modules as much as possible,
 allowing as many as possible to be imported in parallel.
 
-**Note 2: ** Each *Golgi Component* that you use is only physically imported once.  Any
+**Note 2:** Each *Golgi Component* that you use is only physically imported once.  Any
 subsequent references to/use of that same *Golgi Component* will use a cached version without
 any noticeable overhead.  Also, of course, the browser itself will thereafter cache the modules
 imported by your application, so any network transport delays will be significantly reduced
 whenever the application is re-run in the browser.  
 
-** Note 3: ** Even if a large UI application involves the
+** Note 3:** Even if a large UI application involves the
 importation of many *Golgi Components*, you should nevertheless find that both perceived and 
 actual performance is very high because (a) the imported modules are typically tiny files;
 (b) the progressive, "only as needed" build-out of an *Golgi* application

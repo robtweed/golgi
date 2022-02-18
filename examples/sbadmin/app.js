@@ -1,4 +1,4 @@
-const {golgi} = await import('../../src/golgi.js');
+const {golgi} = await import('../../src/golgi.min.js');
 
 let context = {
   componentPaths: {
