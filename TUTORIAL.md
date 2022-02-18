@@ -59,7 +59,7 @@
   - [Customising How *Golgi Component*s Are Appended to their Parent Component](#customising-how-golgi-components-are-appended-to-their-parent-component)
     - [Re-assigning the *childrenTarget* Property](#re-assigning-the-childrentarget-property)
     - [Multiple Parent Append Target Elements](#multiple-parent-append-target-elements)
-  - [State management and Data Binding in *Golgi*](state-management-and-data-binding-in-golgi)
+- [State management and Data Binding in *Golgi*](state-management-and-data-binding-in-golgi)
 
 
 # First Steps 
@@ -1390,17 +1390,194 @@ the DOM using the browser's Developer Tools *Elements* tab.  Note how we used th
 default *childrenTarget* property in the parent for the first child *demo-div* *gx* tag.
 
 
-## State Management and Data Binding In *Golgi*
+## Using *Golgi Assemblies* within *gx*
+
+So far we've seen how the *gx* within a *Golgi Assembly* defines the set of *Golgi Components*
+that we want to put together.
+
+You've probably been wondering, is it possible to refer to another *Golgi Assembly* within
+*gx*?
+
+The answer is yes.  You can specify an Assembly in *gx* by prefixing its name with *assembly:*, eg:
+
+      <demo-div>
+        <assembly:my_assembly />
+      </demo-div>
+
+This tells *Golgi* to load and render an Assembly module named *my_assembly.js* and append
+it to the *childrenTarget* element of its parent *demo-div* Component.
+
+Essentially the usual *gx* features apply, eg:
+
+- you can specify the parent target element to which to append the Assembly by using the 
+*gx* *golgi:appendTo* attribute.  By default it will be appended to the parent Component's
+*childrenTarget* element.
+
+- you can specify a *Hook* method by using the *gx* *golgi:hook* attribute.  The *Hook* method
+is invoked immediately after the Assembly has completed loading and being appended to its
+parent element. 
+
+  **Note:** unlike a Component, *this* within an Assembly Hook method refers to the 
+*Golgi* object itself, not an individual WebComponent.  Nevertheless, you still have access
+to the same methods as you would have within a Component.
+
+**Note 1:** A *gx assembly:* tag cannot have child tags.
+
+**Note 2:** One thing to be careful of - make sure you don't try to load an Assembly that
+also tries to load another instance of itself.  You'll put *Golgi* into an infinite loop if you do!
+
+
+## Using ordinary HTML tags within *gx*
+
+Normal HTML markup tags can be used within a *Golgi Assembly*'s *gx*.
+
+You can even use the *golgi-appendTo* and *golgi-hook* attributes, and the
+HTML tag can include *gx* *Golgi Components* or *Assemblies* as child *gx* tags!
+
+Here's an example:
+
+      let gx=`
+      <demo-div text="Welcome to Golgi Assemblies" golgi:stateMap="message:text" >
+        <demo-div text="I'm inside the parent root element" />
+
+        <div class="testing" golgi:appendTo="testTarget" golgi:hook="divhook">
+          <demo-div text="demo-div within html div!" />
+        </div>
+
+        <demo-div text="I'm inside the parent testTarget" golgi:appendTo="testTarget" />
+      </demo-div>
+      `;
+
+      let hooks = {
+        div: {
+          divhook: function() {
+           // do something when div tag has loaded and attached!
+          }
+        }
+      }
+
+## Dynamically Loading JavaScript and CSS Resources
+
+Although many JavaScript UI frameworks are beginning to provide their JavaScript files
+as ES6 modules, many are still only available to a browser by loading them using a
+&lt;script&gt; tag within the HTML page.
+
+Similarly, when using *Golgi* with another UI framework, you'll need to load its CSS stylesheets
+by using a &lt;link&gt; tag within the HTML page's *head* section.
+
+Although you could add these &lt;script&gt; and &lt;link&gt; tags to the *index.html* file that
+you use to start your *Golgi* application, *Golgi* makes it easy for you to load such resources
+dynamically from within a *Golgi Assembly*'s *gx*.
+
+"Why would you want to do this?", you might ask.  
+
+There are several reasons:
+
+- keeping the *index.html* pared down to the bare minimum, with no application dependency needed
+
+- keeping any resource dependencies defined within the associated *Golgi Assemblies* that use them.
+This is extremely useful from a maintenance perspective.
+
+- you might need a specialised UI library, eg a charting library such as 
+[Chart.js](https://www.chartjs.org/), but not until the user clicks a link to generate a chart.  If
+that was a relatively rare occurrence within the application, pre-loading the Chart.js Javascript
+file would be a waste of time for most users.
+
+*Golgi* therefore allows you to dynamically load any resources on a "just in time* basis by adding
+&lt;script&gt; and &lt;css&gt; tags as child *gx* tags of a parent Component *gx* tag.
+
+For example:
+
+      <chart-root>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" await="true" />
+
+        <chart-area-plot golgi:hook="draw" golgi:stateMap="chart:update"/>
+      </chart-root>
+
+This tells *Golgi* to dynamically load the *Chart.js* JavaScript file from a CDN source
+immediately before importing and rendering the *chart-root* *Golgi Component* module.
+
+The *gx script* tag attribute *await="true" forces the importing and rendering of the
+*chart-root* Component to await the completion of the loading of the JavaScript file.
+
+Dynamic loading of such JavaScript files is actually performed by *Golgi* adding a 
+*script* tag to the DOM.
+
+
+Here's another example, dynamically loading resources needed for a Bootstrap 5 application:
+
+      let gx=`
+      <sbadmin-root golgi:hook="loadContent">
+
+        <script src="/golgi/components/sbadmin/js/fontawesome-5.15.3.all.min.js" />
+        <script src="/golgi/components/sbadmin/js/bootstrap.bundle.min.js" await="true" />
+        <css src="/golgi/components/sbadmin/css/styles.css" />
+
+        ... etc
+ 
+      </sbadmin-root>
+  `;
+
+In this example, two JavaScript files and one CSS file are loaded before the *sbadmin-root*
+Component is imported and loaded.  Notice that *Golgi* will wait until the Bootstrap 5
+JavaScript file is fully loaded and ready, but it doesn't need to wait for the
+fontawesome JavaScript.
+
+Similarly, *Golgi* doesn't need to await the completion of the CSS file loading.
+
+Whether or not your Components need to wait for the JavaScript and CSS resources to complete
+loading will vary depending on the UI library you use.  The important thing is that *Golgi*
+provides you with the mechanism to await or not before proceeding with its Component rendering.
+
+**Note:** Both the *gx* *script* and *css* tags allow you to also specify the attribute
+*crossorigin="anonymous* which, if added, adds this to the actual *script* tag that is added
+to the DOM.
+
+## Dynamically Adding Meta Tags to the DOM
+
+Responsive, mobile-first UI libraries such as Bootstrap 5 require you to add a number
+of &lt;meta&gt; tags to your HTML page.
+
+As discussed above for JavaScript and Stylesheet resource loading, you can, of course,
+add these to the *index.html* file that you use to launch your *Golgi* application.
+
+However, to keep any application dependencies localised to your *Golgi Assemblies",
+*Golgi* also allows these &lt;meta&gt; tags to be added to the DOM dynamically from within
+an Assembly's *gx*.
+
+Simply add the required &lt;meta&gt; tags as child *gx* tags of your application's
+top-level Assembly's *gx*.  For example:
+
+      <sbadmin-root>
+        <script src="/golgi/components/sbadmin/js/fontawesome-5.15.3.all.min.js" />
+        <script src="/golgi/components/sbadmin/js/bootstrap.bundle.min.js" await="true" />
+        <css src="/golgi/components/sbadmin/css/styles.css" />
+
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+        ... etc
+
+      </sbadmin-root>
+
+The corresponding &lt;meta&gt; tags will be added dynamically to the DOM by *Golgi* before the
+parent Component is imported and rendered.
+
+----
+
+# State Management and Data Binding In *Golgi*
 
 *Golgi* provides a powerful means of state management and data binding which is deceptively
-simple to use.  The *Golgi* Object includes a property named *state* which is actually a 
+simple to use.  The *Golgi* Object includes a property named *golgi_state* which is actually a 
 Proxy Object that traps any changes you make to it.
 
-Within a *gx* tag in an Assembly, you can define a *State Map* that maps a *Golgi state*
+Within a *gx* tag in an Assembly, you can define a *State Map* that maps a *golgi_state*
 object property name to a *setState()* property within the Component.  You do this by using
 a special *gx* attribute named *golgi:stateMap*.  Its value has two parts, separated by a colon:
 
-- the *Golgi state* object property name to trap.  This can use dot syntax to specify lower sub-levels within the *state* object. 
+- the *golgi_state* object property name to trap.  This can use dot syntax to specify lower sub-levels within the *state* object. 
 - the target Component's *setState* property to which to map the state value
 
 For example:
@@ -1413,8 +1590,7 @@ you can then do the following anywhere else in a component's methods, for exampl
 
       this.golgi_state.message = 'Hello World';
 
-Note that *this.golgi_state* is how *Golgi*'s *state* Proxy is exposed within the context
-of a COmponent.
+Note that *this.golgi_state* is how you access the state object from within a *Golgi Component*.
 
 What will happen is that the instance of the Component to which we applied the *stateMap* will
 invoke its *setState()* method for the property named *text* as follows:
@@ -1447,7 +1623,11 @@ and now modify the hook method we defined for the inner *gx* tag:
           addHandler: function() {
             const fn = () => {
               this.spanTag.textContent = 'You moused over at ' + Date.now();
+
+              // add this line:
+
               this.golgi_state.message = 'I also noticed that at ' + Date.now();
+
             };
             this.addHandler(fn, this.spanTag, 'mouseover');
           }
@@ -1462,13 +1642,8 @@ every time you mouse over the second line of text.
 
 To follow...
 
+## Golgi Methods for use within Components
 
-## golgi:appendTo
-
-
-## Loading assemblies using gx
-
-## Using ordinady HTML tags in gx
 
 # Advanced Stuff
 
