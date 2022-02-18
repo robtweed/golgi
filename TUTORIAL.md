@@ -61,8 +61,11 @@
     - [Multiple Parent Append Target Elements](#multiple-parent-append-target-elements)
   - [Using *Golgi Assemblies* Within *gx*](#using-golgi-assemblies-within-gx)
   - [Using ordinary HTML tags within *gx*](#using-ordinary-html-tags-within-gx)
+  - [Hoisting Classes to the Top-Level Component Element]()
   - [Dynamically Loading JavaScript and CSS Resources](#dynamically-loading-javascript-and-css-resources)
   - [Dynamically Adding Meta Tags to the DOM](#dynamically-adding-meta-tags-to-the-dom)
+- [*Golgi Component* Lifecycle Methods]()
+- [*Golgi* Methods For Use Within *Golgi Components* and *Hook* Methods]()
 - [State management and Data Binding in *Golgi*](state-management-and-data-binding-in-golgi)
 
 
@@ -1460,6 +1463,55 @@ Here's an example:
         }
       }
 
+
+
+## Hoisting Classes to the Top-Level Component Element
+
+When using a UI Library such as Bootstrap 5 with *Golgi*, you will sometimes need to
+specify a particular class or group of classes within the actual Component's outer
+tag.  By default, when you define the HTML for a *Golgi Component*, you're actually
+defining the associated WebComponent's *innerHTML* which is appended to the WebComponent's
+element tag.
+
+In many/most circumstances it won't matter if you apply the required class(es) to the
+*rootElement* of the WebComponent's *innerHTML*, but if the styling gets confused, you'll
+need to hoist the class(es) to the WebComponent's own element tag.
+
+For example, suppose we needed to define a particular class in a *Golgi Component*
+(*sbadmin-sidebar-menu*) that defined a Bootstrap 5 sidebar menu as follows:
+
+      const html = `
+      <div class="sb-sidenav-menu">
+        <div class="nav" golgi:prop="childrenTarget" />
+      </div>
+      `;
+
+If we find that the styling inside this menu doesn't work properly, it's probably because that
+*sb-sidenav-menu* class needs to be on the &lt;sbadmin-sidebar-menu&gt; tag rather than the
+&lt;div&gt; tag of its *innerHTML*.
+
+Now we could easily fix that programmatically within the Component's *onBeforeState()* lifecycle
+method, but you can instead do it declaratively within the HTML as follows:
+
+
+      const html = `
+      <div golgi:component-class="sb-sidenav-menu">
+        <div class="nav" golgi:prop="childrenTarget" />
+      </div>
+      `;
+
+The special *golgi:component-class* attribute allows you to tell *Golgi* to hoist the class value
+up to the &lt;sbadmin-sidebar-menu&gt; tag, resulting in this Component being added to the DOM as:
+
+      <sbadmin-sidebar-menu class="sb-sidenav-menu">
+        <div>
+          <div class="nav"></div>
+        </div>
+      </sbadmin-sidebar-menu>
+
+Now the styling issues should disappear!
+
+
 ## Dynamically Loading JavaScript and CSS Resources
 
 Although many JavaScript UI frameworks are beginning to provide their JavaScript files
@@ -1571,6 +1623,102 @@ parent Component is imported and rendered.
 
 ----
 
+# *Golgi Component* Lifecycle Methods
+
+*Golgi* provides a number of lifecycle methods that you can specify within the WebComponent
+definition of a *Golgi Component*.  In lifecycle sequence they are:
+
+- onBeforeState() {...}
+
+  This is invoked immediately after the *Golgi* Component is loaded into the DOM, and before
+any state values (as specified as *gx* attributes) are applied.
+
+  This is a useful lifecycle method to use for additional custom augmentation of the
+Component's WebComponent's methods and/or properties.
+
+- onBeforeHooks() {...}
+
+  This is invoked after any state values (as specified as *gx* attributes) are applied to
+the WebComponent, but before the Component's Hook Method (if defined) is invoked
+
+
+- onAfterHooks() {...}
+
+  This is invoked after the Component's Hook Method (if defined) is invoked.  This is the last
+lifecycle method to fire before *Golgi* moves on to process the next *gx* tag.
+
+Any or all of these methods can be specified as *async* if required.
+
+
+**Note:** If you have augmented the WebComponent with anything else that *Golgi* is unaware of, and that
+should be explicitly destroyed if the Component is removed, you should use the standard
+WebComponent *disconnectedCallback()* lifecycle method.
+
+
+----
+
+# *Golgi* Methods For Use Within *Golgi Components* and *Hook* Methods
+
+
+The WebComponents that underpin your *Golgi Components* are automatically augmented
+with a number of methods that allow you to manipulate and navigate about within your
+rendered Components in the DOM.  They are all accessed as *this.{{methodName)).
+
+- this.addHandler(fn [, targetElement] [, eventName])
+
+  This method should always be used to add event handlers to your Components, because
+the *remove()* method will automatically destroy the handler methods if the Component is
+removed (either directly or via a removed parent Component).
+
+  The handler function should always be specified
+
+  If the second argument (*targetElement) is not specified, the handler will be added
+to the Component's *rootElement*.
+
+  If the third argument (*eventName*) is not specified, a 'click' event is assumed.
+
+- *this.getComponentByName(componentName [, name_property_value] [, parentElement])
+
+  This method is used to find and return one or more Components matching the
+specified name.  What it returns will depend on the arguments you specify:
+
+  - if you just specify the first argument (*componentName), then a NodeList of
+all Components in the DOM with the specified *tagName* is returned.
+
+  - if you specify a second argument (*name_property_value*), then it will return
+the first Component it finds whose *name* property matches the specified value.  For this
+to work you must make sure that such Components include a *setState()* condition to allow
+the *name* property to be set.
+
+  - if you specify a third argument (*parentElement), the search for matching Components
+is limited to descendant nodes of the specified parent Element.
+
+
+- *this.getParentComponent(componentName)*
+
+  This method recurses up through the DOM, starting from the current Component, until it finds an
+element whose *tagName* matches the specified Component Name.  It then returns that Component Element.
+
+- *this.remove()*
+
+  Removes the current Component and all of its child Components.  This method also removes any
+handlers that were added to the removed Components, provided those handlers were added using the
+*this.addHandler()* method
+
+- this.renderAssembly(assembly_name, append_target_element, context)
+
+  This method will import and load the specified *Golgi Assembly* and, when ready, will append it to the
+specified target Element (*append_target_element*).  The *Golgi* Context object, available
+within the current Component as *this.context*, should also be specified as the third argument).
+
+- this.renderComponent(component_name, append_target_element, context)
+
+  This method will import and load the specified *Golgi Component* and, when ready, will append it to the
+specified target Element (*append_target_element*).  The *Golgi* Context object, available
+within the current Component as *this.context*, should also be specified as the third argument).
+
+----
+
 # State Management and Data Binding In *Golgi*
 
 *Golgi* provides a powerful means of state management and data binding which is deceptively
@@ -1642,16 +1790,6 @@ Reload the *index.html* page in the browser, and now try running your mouse poin
 second line of text.  As if by magic, the top line will also now change!  This will happen
 every time you mouse over the second line of text.
 
-
-
-To follow...
-
-## Golgi Methods for use within Components
-
-
-# Advanced Stuff
-
-## golgi:component-class in components
 
 
 
