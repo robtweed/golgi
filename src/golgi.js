@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 16 February 2022
+ 18 February 2022
 
  */
 
@@ -195,8 +195,9 @@ let golgi = {
   },
   loadGroup: async function(configArr, targetElement, context) {
 
-    // The array of components share the same target and must be appended
+    // The array of child components share the same target and must be appended
     // in strict sequence, so this is enforced by this logic..
+
     targetElement = targetElement || 'body';
     if (targetElement === 'body') targetElement = document.getElementsByTagName('body')[0];
     context = context || {};
@@ -204,282 +205,282 @@ let golgi = {
     if (!Array.isArray(configArr)) {
       configArr = [configArr];
     }
-
+    //console.log('loadGroup - configArr:');
     //console.log(configArr);
 
     let assemblyName = configArr[0].assemblyName;
 
-    let _this = this;
-    let noOfComponents = configArr.length;
+    for (const config of configArr) {
+      await this.processComponent(config, assemblyName, targetElement, context);
+    }
+    return;
+  },
 
-    async function loadComponent(no) {
-      //console.log('!!! no = ' + no + '; noOfComponents: ' + noOfComponents);
-      if (no === noOfComponents) {
-        return;
+  processComponent: async function(component, assemblyName, targetElement, context) {
+    //console.log('processComponent');
+    //console.log(component);
+
+    let targetEl = targetElement;
+
+    // optional target override
+    if (component.targetElement) {
+      let parent = this.getParentComponent.call(targetEl, component.targetElement.componentName);
+
+      //console.log('parent = ');
+      //console.log(parent);
+
+      if (parent && parent[component.targetElement.target]) {
+        targetEl = parent[component.targetElement.target];
       }
-      let config = Object.assign({}, configArr[no]);
-      //console.log('config:');
-      //console.log(config);
-      //console.log('targetElement:');
-      //console.log(targetElement);
-      let targetEl = targetElement;
-      // optional target override
-      if (config.targetElement) {
-        let parent = _this.getParentComponent.call(targetEl, config.targetElement.componentName);
-        //console.log('parent = ');
-        //console.log(parent);
-        if (parent[config.targetElement.target]) {
-          targetEl = parent[config.targetElement.target];
+
+    }
+
+    // this is actually an assembly, so needs loading using
+    // renderAssembly instead
+
+    if (component.componentName.split(':')[0] === 'assembly') {
+      let aName = component.componentName.split('assembly:')[1];
+      //console.log('**** call renderAssembly for ' + aName);
+      await this.renderAssembly(aName, targetEl, context);
+
+      // invoke any hooks applied to the assembly
+
+      if (component.hook) {
+        try {
+          // note that the Golgi object will be the context for an assembly hook!
+          component.hook.call(this);
         }
-      }
-      if (config.componentName) {
-
-        if (typeof config.if === 'function') {
-          if (!config.if(context)) {
-            await loadComponent(no + 1);
-            return;
+        catch(err) {
+          if (log) {
+            console.log('Unable to execute hook ' + name + ' for ' + config.componentName);
+            console.log(err);
           }
         }
+      }
 
-        if (!config.componentName.includes('-') && !config.componentName.includes(':')) {
-          if (!['script', 'css', 'meta'].includes(config.componentName)) {
+      // assembly processing complete
 
-            let element = document.createElement(config.componentName);
-            element.textContent = config.textContent;
-            for (let attr in config.attributes) {
-              element.setAttribute(attr, config.attributes[attr]);
+      return;
+    }
+
+    // load and render the component,
+    //  then process its children if it has any
+
+    let element = await this.loadComponent(component, assemblyName, targetEl, context);
+    if (component.children && component.children[0] && element.childrenTarget) {
+      component.children.forEach(function(c, index) {
+        component.children[index].assemblyName = assemblyName;
+      });
+
+      // Having loaded and rendered the parent, no need to await processing of its children
+      // but within loadGroup, the children will be loaded in strict sequence
+
+      this.loadGroup(component.children, element.childrenTarget, context);
+    }
+    return;
+  },
+
+  loadComponent: async function(component, assemblyName, targetElement, context) {
+
+    let config = Object.assign({}, component);
+
+    //console.log('*** loadComponent:');
+    //console.log('config:');
+    //console.log(config)
+    //console.log('targetElement:');
+    //console.log(targetElement);
+
+    // is the component actually just a standard HTML tag?
+
+    if (!config.componentName.includes('-') && !config.componentName.includes(':')) {
+      let element = document.createElement(config.componentName);
+      element.textContent = config.textContent;
+      for (let attr in config.attributes) {
+        element.setAttribute(attr, config.attributes[attr]);
+      }
+      element.childrenTarget = element;
+      targetElement.appendChild(element);
+      return element;
+    }
+
+    // process the Golgi Component
+
+
+    // load any meta tag definitions into <head>
+
+    if (config.meta) {
+      config.meta.forEach(function(meta) {
+        golgi.addMetaTag(meta);
+      });
+    }
+
+    // load any script or css tags
+
+    // Use nested promises to await overall, but load in parallel
+
+    let tagArr = ['script', 'css'];
+
+    await Promise.all(tagArr.map(async (tagName) => {
+      if (tagName === 'script' && config.script) {
+        await Promise.all(config.script.map(async (script) => {
+          if (!golgi.resourceLoaded.has(script.src)) {
+            let obj;
+            if (script.crossorigin) {
+              obj = {crossorigin: script.crossorigin};
             }
-            element.childrenTarget = element;
-            targetEl.appendChild(element);
-            if (config.children && config.children[0] && element.childrenTarget) {
-              if (assemblyName) {
-                //console.log('assemblyName: ' + assemblyName);
-                //console.log(config.children);
-                config.children.forEach(function(c, index) {
-                  config.children[index].assemblyName = assemblyName;
-                });
-              }
-              await _this.loadGroup(config.children, element.childrenTarget, context);
-              await loadComponent(no + 1);
+            if (!script.await) {
+              golgi.loadJS(script.src, obj)
             }
             else {
-              await loadComponent(no + 1);
+              await golgi.loadJSAsync(script.src, obj);
             }
-          }
-          else {
-            await loadComponent(no + 1);
-          }
-          return;
-        }
-
-        if (config.componentName.split(':')[0] === 'assembly') {
-          let assemblyName = config.componentName.split('assembly:')[1];
-          //console.log(assemblyName);
-          //console.log(targetEl);
-          await _this.renderAssembly(assemblyName, targetEl, context);
-
-          // invoke any hooks applied to the assembly
-
-          if (config.hook) {
-            try {
-              // note that the Golgi object will be the context for an assembly hook!
-              config.hook.call(_this);
-            }
-            catch(err) {
-              if (log) {
-                console.log('Unable to execute hook ' + name + ' for ' + config.componentName);
-                console.log(err);
-              }
-            }
-          }
-          await loadComponent(no + 1);
- 
-          return;
-        }
-
-        // load any meta tag definitions into <head>
-
-        if (config.meta) {
-          config.meta.forEach(function(meta) {
-            golgi.addMetaTag(meta);
-          });
-        }
-
-        // load any script or css tags
-
-        // Use nested promises to await overall, but load in parallel
-
-        let tagArr = ['script', 'css'];
-
-        await Promise.all(tagArr.map(async (tagName) => {
-          if (tagName === 'script' && config.script) {
-            await Promise.all(config.script.map(async (script) => {
-              if (!golgi.resourceLoaded.has(script.src)) {
-                let obj;
-                if (script.crossorigin) {
-                  obj = {crossorigin: script.crossorigin};
-                }
-                if (!script.await) {
-                  golgi.loadJS(script.src, obj)
-                }
-                else {
-                  await golgi.loadJSAsync(script.src, obj);
-                }
-                golgi.resourceLoaded.set(script.src, true);
-              }
-            }));
-          }
-          if (tagName === 'css' && config.css) {
-            await Promise.all(config.css.map(async (css) => {
-              if (!golgi.resourceLoaded.has(css.src)) {
-                let obj;
-                if (css.crossorigin) {
-                  obj = {crossorigin: css.crossorigin};
-                }
-                if (!css.await) {
-                  golgi.loadCSS(css.src, obj)
-                }
-                else {
-                  await golgi.loadCSSAsync(css.src, obj);
-                }
-                golgi.resourceLoaded.set(css.src, true);
-              }
-            }));
+            golgi.resourceLoaded.set(script.src, true);
           }
         }));
+      }
+      if (tagName === 'css' && config.css) {
+        await Promise.all(config.css.map(async (css) => {
+          if (!golgi.resourceLoaded.has(css.src)) {
+            let obj;
+            if (css.crossorigin) {
+              obj = {crossorigin: css.crossorigin};
+            }
+            if (!css.await) {
+              golgi.loadCSS(css.src, obj)
+            }
+            else {
+              await golgi.loadCSSAsync(css.src, obj);
+            }
+            golgi.resourceLoaded.set(css.src, true);
+          }
+        }));
+      }
+    }));
 
-        let element = await _this.load(config.componentName, targetEl, context);
+    let element = await this.renderWebComponent(config, targetElement, context);
+
+    return element;
+
+  },
+
+  renderWebComponent: async function(config, targetElement, context) {
+    let element = await this.load(config.componentName, targetElement, context);
+    if (log) {
+      //console.log('load element: ' + config.componentName);
+      //console.log(element);
+      //console.log(targetElement);
+    }
+    if (typeof element.html !== 'undefined') {
+      element.innerHTML = element.html;
+      element.rootElement = element.firstElementChild;
+      //let targets = element.querySelectorAll('[class*=golgi-]');
+      let targets = element.querySelectorAll('*');
+      targets.forEach(function(el) {
+        if (el.hasAttribute('golgi:prop')) {
+          let prop = el.getAttribute('golgi:prop');
+          element[prop] = el;
+          el.removeAttribute('golgi:prop');
+        } 
+      });
+      if (!element.childrenTarget) {
+        element.childrenTarget = element.rootElement;
+      }
+      let attrName = 'golgi:component-class';
+      let parentClass = element.rootElement.getAttribute(attrName);
+      if (parentClass) {
+        let classes = parentClass.split(' ');
+        classes.forEach(function(cls) {
+          element.classList.add(cls);
+        });
+        element.rootElement.removeAttribute(attrName);
+      }
+    }
+    element.getParentComponent = this.getParentComponent.bind(element);
+    element.onUnload = this.onUnload.bind(element);
+    element.registerUnloadMethod = this.registerUnloadMethod.bind(element);
+    element.remove = this.remove.bind(element);
+    element.getComponentByName = this.getComponentByName.bind(this); 
+    element.addHandler = this.addHandler.bind(element);
+    element.addMetaTag = this.addMetaTag;
+    element.loadResources = this.loadResources;
+    element.loadJSAsync = this.loadJSAsync
+    element.loadJS = this.loadJS;
+    element.loadCSSAsync = this.loadCSSAsync;
+    element.loadCSS = this.loadCSS;
+    element.loadGroup = this.loadGroup.bind(this);
+    element.renderAssembly = this.renderAssembly.bind(this);
+    element.renderComponent = this.renderComponent.bind(this);
+    element.observerStart = this.observerStart;
+    element.methodsToRemove = [];
+    element.golgi_state = this.golgi_state;
+
+    if (log) {
+      console.log('Golgi Component instantiated and ready for use:');
+      console.log(element);
+    }
+
+    if (element.onBeforeState) {
+      if (element.onBeforeState.constructor.name === 'AsyncFunction') {
+        await element.onBeforeState();
+      }
+      else {
+        element.onBeforeState();
+      }
+    }
+
+    if (config.state  && element.setState) {
+      for (let sname in config.state) {
+        if (typeof config.state[sname] === 'function') {
+          config.state[sname] = config.state[sname].call(element);
+        }
+      }
+
+      element.setState(config.state);
+    }
+
+    if (config.stateMap) {
+      config.state_map = new Map();
+      for (let key in config.stateMap) {
+        config.state_map.set(key, config.stateMap[key]);
+      }
+    }
+    if (config.state_map) {
+      config.state_map.forEach(function(method, path) {
+        if (!golgi.stateMap.has(path)) {
+          golgi.stateMap.set(path, []);
+        }
+        golgi.stateMap.get(path).push({
+          component: element,
+          method: method
+        });
+      });
+    }
+
+    if (element.onBeforeHooks) {
+      element.onBeforeHooks();
+    }
+
+    // invoke hook if present
+
+    if (config.hook) {
+      try {
+        config.hook.call(element);
+      }
+      catch(err) {
         if (log) {
-          console.log('load element: ' + config.componentName);
-          //console.log(element);
-          //console.log(targetElement);
-        }
-        if (typeof element.html !== 'undefined') {
-          element.innerHTML = element.html;
-          element.rootElement = element.firstElementChild;
-          //let targets = element.querySelectorAll('[class*=golgi-]');
-          let targets = element.querySelectorAll('*');
-          targets.forEach(function(el) {
-            if (el.hasAttribute('golgi:prop')) {
-              let prop = el.getAttribute('golgi:prop');
-              element[prop] = el;
-              el.removeAttribute('golgi:prop');
-            } 
-          });
-          if (!element.childrenTarget) {
-            element.childrenTarget = element.rootElement;
-          }
-          let attrName = 'golgi:component-class';
-          let parentClass = element.rootElement.getAttribute(attrName);
-          if (parentClass) {
-            let classes = parentClass.split(' ');
-            classes.forEach(function(cls) {
-              element.classList.add(cls);
-            });
-            element.rootElement.removeAttribute(attrName);
-          }
-        }
-        element.getParentComponent = _this.getParentComponent.bind(element);
-        element.onUnload = _this.onUnload.bind(element);
-        element.registerUnloadMethod = _this.registerUnloadMethod.bind(element);
-        element.remove = _this.remove.bind(element);
-        element.getComponentByName = _this.getComponentByName.bind(_this); 
-        element.addHandler = _this.addHandler.bind(element);
-        element.addMetaTag = _this.addMetaTag;
-        element.loadResources = _this.loadResources;
-        element.loadJSAsync = _this.loadJSAsync
-        element.loadJS = _this.loadJS;
-        element.loadCSSAsync = _this.loadCSSAsync;
-        element.loadCSS = _this.loadCSS;
-        element.loadGroup = _this.loadGroup.bind(_this);
-        element.renderAssembly = _this.renderAssembly.bind(_this);
-        element.renderComponent = _this.renderComponent.bind(_this);
-        element.observerStart = _this.observerStart;
-        element.methodsToRemove = [];
-        element.golgi_state = _this.state;
-
-        if (log) {
-          console.log('Golgi Component instantiated and ready for use:');
-          console.log(element);
-        }
-
-        if (element.onBeforeState) {
-          if (element.onBeforeState.constructor.name === 'AsyncFunction') {
-            await element.onBeforeState();
-          }
-          else {
-            element.onBeforeState();
-          }
-        }
-
-        if (config.state  && element.setState) {
-          for (let sname in config.state) {
-            if (typeof config.state[sname] === 'function') {
-              config.state[sname] = config.state[sname].call(element);
-            }
-          }
-
-          element.setState(config.state);
-        }
-
-        if (config.stateMap) {
-          config.state_map = new Map();
-          for (let key in config.stateMap) {
-            config.state_map.set(key, config.stateMap[key]);
-          }
-        }
-        if (config.state_map) {
-          config.state_map.forEach(function(method, path) {
-            if (!_this.stateMap.has(path)) {
-              _this.stateMap.set(path, []);
-            }
-            _this.stateMap.get(path).push({
-              component: element,
-              method: method
-            });
-          });
-        }
-
-        if (element.onBeforeHooks) {
-          element.onBeforeHooks();
-        }
-
-        // invoke hook if present
-
-        if (config.hook) {
-          try {
-            config.hook.call(element);
-          }
-          catch(err) {
-            if (log) {
-              console.log('Unable to execute hook ' + name + ' for ' + config.componentName);
-              console.log(err);
-            }
-          }
-        }
-
-        if (element.onAfterHooks) {
-          element.onAfterHooks();
-        }
-
-        if (config.children && config.children[0] && element.childrenTarget) {
-          if (assemblyName) {
-            //console.log('assemblyName: ' + assemblyName);
-            //console.log(config.children);
-            config.children.forEach(function(c, index) {
-              config.children[index].assemblyName = assemblyName;
-            });
-          }
-          await _this.loadGroup(config.children, element.childrenTarget, context);
-          await loadComponent(no + 1);
-        }
-        else {
-          await loadComponent(no + 1);
+          console.log('Unable to execute hook ' + name + ' for ' + config.componentName);
+          console.log(err);
         }
       }
     }
-    await loadComponent(0);
+
+    if (element.onAfterHooks) {
+      element.onAfterHooks();
+    }
+
+    return element;
   },
+
   renderAssembly: async function(args, targetElement, context) {
     let name;
     if (!targetElement && !context && typeof args === 'object') {
@@ -789,7 +790,7 @@ let golgi = {
   })
 };
 
-golgi.state = new Proxy(golgi.dataStore, {
+golgi.golgi_state = new Proxy(golgi.dataStore, {
 
     get: function(target, prop, receiver) {
 

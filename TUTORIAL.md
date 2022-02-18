@@ -916,14 +916,30 @@ referenced in your *gx* is dynamically imported and rendered in turn, first star
 are similarly processed.  This process is repeated, recursing down through all the nested *gx* tags that 
 you have specified.
 
-**Note: ** Golgi processes each child *gx* tag in a simple *forEach()* loop, meaning that 
-the asynchronous processing of each child
-*gx* tag occurs in parallel, so they don't wait for each other to load.  That's nice and efficient,
-as, by definition, sibling Components have no dependency on each other.
+**Note 1: ** Golgi processes each child *gx* tag in strict sequence, to ensure that they
+are correctly appended to their parent element's target(s) in the sequence,
+as defined by the sequencing of your *gx* tags.  The
+importation of each child's associated Golgi Component modules must therefore await completion of its
+previous sibling before it can begin its own importation and processing.  However, once a *Golgi Component* is loaded, the processing of
+any of its child components begins immediately: ie a next sibling Component does not
+have to await the importation and processing of its previous sibling's child Components.  This
+therefore minimises the overall importation time of an application's modules as much as possible,
+allowing as many as possible to be imported in parallel.
 
-However, a *gx* tag's child tags aren't processed until the parent tag's Component has completed its 
-asynchronous load sequence.  That ensures that all the necessary DOM elements are in already place ready 
-for any child Components to be appended to them.
+**Note 2: ** Each *Golgi Component* that you use is only physically imported once.  Any
+subsequent references to/use of that same *Golgi Component* will use a cached version without
+any noticeable overhead.  Also, of course, the browser itself will thereafter cache the modules
+imported by your application, so any network transport delays will be significantly reduced
+whenever the application is re-run in the browser.  
+
+** Note 3: ** Even if a large UI application involves the
+importation of many *Golgi Components*, you should nevertheless find that both perceived and 
+actual performance is very high because (a) the imported modules are typically tiny files;
+(b) the progressive, "only as needed" build-out of an *Golgi* application
+means that only those Component modules needed at any point within your application
+ are actually physically imported; and (c) Your UI elements should appear in sequence as soon
+as they are loaded, so the user shouldn't typically see any significant delays 
+whilst looking at a blank screen.
 
 
 ### What Happened When Our Assembly Was Rendered?
