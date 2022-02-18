@@ -46,7 +46,7 @@
       - [The DOM After State Is Set](#the-dom-after-state-is-set)
       - [The Child *gx* Tag](#the-child-gx-tag)
       - [The *childrenTarget* Property](#the-childrentarget-property)
-      - [The DOM After the Child *gx* Tag is Rendered](the-dom-after-the-child-gx-tag-is-rendered)
+      - [The DOM After the Child *gx* Tag is Rendered](#the-dom-after-the-child-gx-tag-is-rendered)
   - [Try Out the *demo-div* Component Click Handler](#try-out-the-demo-div-component-click-handler)
   - [Adding *Hooks* To *Golgi COmponents* Within Assemblies](#adding-hooks-to-golgi-components-within-assemblies)
     - [What Are Hooks?](#what-are-hooks)
