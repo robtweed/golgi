@@ -56,6 +56,11 @@
       - [The *hooks* Object](#the-hooks-object)
     - [Add A Hook To Our Example Assembly](#add-a-hook-to-our-example-assembly)
     - [Try It Out!](#try-it-out)
+  - [Customising How *Golgi Component*s Are Appended to their Parent Component](#customising-how-golgi-components-are-appended-to-their-parent-component)
+    - [Re-assigning the *childrenTarget* Property](#re-assigning-the-childrentarget-property)
+    - [Multiple Parent Append Target Elements](#multiple-parent-append-target-elements)
+  - [State management and Data Binding in *Golgi*](state-management-and-data-binding-in-golgi)
+
 
 # First Steps 
 
