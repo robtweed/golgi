@@ -1248,6 +1248,143 @@ be affected by a *mouseover* event.  Both instances still respond to a *click* e
 is defined in the underlying WebComponent used by each instance.
 
 
+## Customising How *Golgi Component*s Are Appended to their Parent Component
+
+As you've seen earlier, by default, child Components are appended to the *rootElement* of
+their parent Component.
+
+This is because:
+
+- by default, a child *Golgi Component* is appended to the element denoted by its parent
+component's *childrenTarget* property
+
+- unless told otherwise, *Golgi* assigns a Component's root element to its *childrenTarget*
+property.
+
+You have control over both of these factors.
+
+### Re-assigning the *childrenTarget* Property
+
+You've seen previously how you can assign a property name to an element within a *Golgi Component*
+by adding the special *golgi:prop* attribute to it.  For example, in our *demo-div* component
+we assigned its *span* tag to its *spanTag* property:
+
+      const html = `
+      <div>
+        <span golgi:prop="spanTag">Click Me!</span>
+      </div>
+      `;
+
+Let's amend the *demo-div* Component definition as follows:
+
+     const html = `
+      <div>
+        <span golgi:prop="spanTag">Click Me!</span>
+        <pre>+++++++++</pre>
+        <div class="test" golgi:prop="childrenTarget"></div>
+        <pre>---------</pre>
+      </div>
+      `;
+
+and try reloading the *index.html* page in your browser.  You'll see that it now looks
+a little different.  Take a look at the DOM using the browser's Developer Tools *Elements* tab,
+and you'll see that it now looks like this:
+
+      <body>
+        <demo-div>
+          <div>
+            <span>Welcome To Golgi Assemblies</span>
+            <pre>+++++++++</pre>
+            <div class="test">
+
+              <demo-div>
+                <div>
+                  <span>I'm inside the other div!</span>
+                  <pre>+++++++++</pre>
+                  <div class="test"></div>
+                  <pre>---------</pre>
+                </div>
+              </demo-div>
+
+            </div>
+            <pre>---------</pre>
+          </div>
+        </demo-div>
+      </body>
+
+So, simply by specifying:
+
+      golgi:prop="childrenTarget"
+
+within one of the HTML elements in a *Golgi Component* reassigns it as the target element to
+which child Components will be automatically appended.
+
+### Multiple Parent Append Target Elements
+
+Sometimes you might want to define more than one element in a parent Component as target elements
+for child Components to be appended to.  For example, you might design a UI Component 
+named *my-card* that
+defines within it an empty head, body and footer section.  It would be nice to be able to do the following with such a Component:
+
+      <my-card>
+        <my-card-header-content />
+        <my-card-body-content />
+        <my-card-footer-content />      
+      </my-card>
+
+but how would *Golgi* know not to simply append all three child components to the *my-card* Component's *childrenTarget* element?
+
+It's actually a very simple two-step process:
+
+- within the parent Component, *my-card* in the example above, specify property names to the
+three elements that need to act as the header, body and footer targets, eg:
+
+      ...
+      <div class="header" golgi:prop="headerTarget" />
+      ....
+      <div class="body" golgi:prop="bodyTarget" />
+      ...
+      <div class="footer" golgi:prop="footerTarget" />
+      ...
+
+- in each of the child Component *gx* tags, add the special *golgi:appendTo* property, with
+its name specifying the relevant parent property name, eg:
+
+
+      <my-card>
+        <my-card-header-content golgi:appendTo="headerTarget" />
+        <my-card-body-content golgi:appendTo="bodyTarget" />
+        <my-card-footer-content golgi:appendTo="footerTarget" />      
+      </my-card>
+
+
+Let's try something similar with our *demo-div* example.  
+
+Edit its HTML definition to the following:
+
+     const html = `
+      <div>
+        <span golgi:prop="spanTag">Click Me!</span>
+        <pre>+++++++++</pre>
+        <div class="test" golgi:prop="testTarget"></div>
+        <pre>---------</pre>
+      </div>
+      `;
+
+And now change the *gx* tags within the *demo_assembly* to this:
+
+      let gx=`
+      <demo-div text="Welcome to Golgi Assemblies" golgi:stateMap="message:text" >
+        <demo-div text="I'm attached to the parent's root element" golgi:hook="addHandler" />
+        <demo-div text="I'm attached to the parent's testTarget" golgi:appendTo="testTarget" />
+      </demo-div>
+      `;
+
+Then reload the *index.html* page in your browser and confirm that it worked by examining
+the DOM using the browser's Developer Tools *Elements* tab.  Note how we used the
+default *childrenTarget* property in the parent for the first child *demo-div* *gx* tag.
+
+
 ## State Management and Data Binding In *Golgi*
 
 *Golgi* provides a powerful means of state management and data binding which is deceptively
