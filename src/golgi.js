@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 18 February 2022
+ 19 February 2022
 
  */
 
@@ -293,6 +293,9 @@ let golgi = {
     // is the component actually just a standard HTML tag?
 
     if (!config.componentName.includes('-') && !config.componentName.includes(':')) {
+
+      //console.log('**** html tag: ****');
+      //console.log(config);
       let element = document.createElement(config.componentName);
       element.textContent = config.textContent;
       for (let attr in config.attributes) {
@@ -300,6 +303,22 @@ let golgi = {
       }
       element.childrenTarget = element;
       targetElement.appendChild(element);
+
+      // invoke any hooks applied to the assembly
+
+      if (config.hook) {
+        try {
+          // note that the Golgi object will be the context for an HTML tag hook!
+          config.hook.call(this);
+        }
+        catch(err) {
+          if (log) {
+            console.log('Unable to execute hook ' + name + ' for ' + config.componentName);
+            console.log(err);
+          }
+        }
+      }
+
       return element;
     }
 
@@ -654,7 +673,18 @@ let golgi = {
               component.attributes = {};
               let attrs = [...child.attributes];
               attrs.forEach(function(attr) {
-                component.attributes[attr.name] = attr.value;
+                if (attr.name === 'golgi:appendTo') {
+                  component.targetElement = {
+                    componentName: element.tagName,
+                    target: attr.value
+                  }
+                }
+                if (attr.name === 'golgi:hook' && hooks && hooks[child.tagName] && hooks[child.tagName][attr.value]) {
+                  component.hook = hooks[child.tagName][attr.value];
+                }
+                else {
+                  component.attributes[attr.name] = attr.value;
+                }
               });
             }
             else {
