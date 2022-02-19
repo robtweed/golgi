@@ -1970,7 +1970,7 @@ WebComponent *disconnectedCallback()* lifecycle method.
 
 The WebComponents that underpin your *Golgi Components* are automatically augmented
 with a number of methods that allow you to manipulate and navigate about within your
-rendered Components in the DOM.  They are all accessed as *this.{{methodName)).
+rendered Components in the DOM.  They are all accessed as *this.{{methodName))*.
 
 - *this.addHandler(fn [, targetElement] [, eventName])*
 
