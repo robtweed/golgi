@@ -20,10 +20,19 @@ demonstrating how *Golgi* turns the [SB Admin ](https://startbootstrap.com/templ
 theme into an actual framework that you can quickly and
 easily customise to meet your needs.
 
-**NOTE: ** You must use a modern browser that supports WebComponents!
+You can also try out [this live example](https://robtweed.github.io/golgi/examples/conduit/),
+demonstrating the [RealWorld Conduit](https://github.com/gothinkster/realworld) 
+front-end, implemented as a single-page application
+using *Golgi*.
 
-See the [*./examples/sbadmin*](./examples/sbadmin) folder for the actual *Golgi* source code
-files that run the live example.
+**NOTE:** You must use a modern browser that supports WebComponents to run these examples!
+
+**NOTE 2:** Due to issues with Safari's *fetch API* authenticated redirections, the Conduit demonstration will
+not currently work in Safari (desktop or mobile) if you try to sign up and sign in to the application. 
+These issues are nothing to do with *Golgi*.
+
+See the [*./examples*](./examples) folder for the actual *Golgi* source code
+files that run the live examples.
 
 # About Golgi
 
