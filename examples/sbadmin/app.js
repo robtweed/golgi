@@ -1,13 +1,17 @@
-const {golgi} = await import('../../src/golgi.min.js');
+(async () => () {
 
-let context = {
-  componentPaths: {
-    sbadmin: '../examples/sbadmin/components/sbadmin/',
-    chart: '../examples/sbadmin/components/chart/'
-  },
-  assemblyPath: '../examples/sbadmin/assemblies/'
-};
+  const {golgi} = await import('../../src/golgi.min.js');
 
-//golgi.setLog(true);
+  let context = {
+    componentPaths: {
+      sbadmin: '../examples/sbadmin/components/sbadmin/',
+      chart: '../examples/sbadmin/components/chart/'
+    },
+    assemblyPath: '../examples/sbadmin/assemblies/'
+  };
 
-await golgi.renderAssembly('root_assembly', 'body', context);
+  //golgi.setLog(true);
+
+  await golgi.renderAssembly('root_assembly', 'body', context);
+
+})();

@@ -1,0 +1,12 @@
+.collapse:not(.show) {
+    display: none;
+}
+.collapse.show {
+    display: block;
+}
+.nav-link.disabled {
+  display: none;
+}
+.nav-link.active {
+  display: block;
+}

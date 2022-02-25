@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 19 February 2022
+ 25 February 2022
 
  */
 
@@ -272,10 +272,9 @@ let golgi = {
         component.children[index].assemblyName = assemblyName;
       });
 
-      // Having loaded and rendered the parent, no need to await processing of its children
-      // but within loadGroup, the children will be loaded in strict sequence
+      // load component's child components
 
-      this.loadGroup(component.children, element.childrenTarget, context);
+      await this.loadGroup(component.children, element.childrenTarget, context);
     }
     return;
   },
@@ -309,7 +308,12 @@ let golgi = {
       if (config.hook) {
         try {
           // note that the Golgi object will be the context for an HTML tag hook!
-          config.hook.call(this);
+          if (config.hook.constructor.name === 'AsyncFunction') {
+            await config.hook.call(this);
+          }
+          else {
+            config.hook.call(this);
+          }
         }
         catch(err) {
           if (log) {
@@ -377,6 +381,9 @@ let golgi = {
     }));
 
     let element = await this.renderWebComponent(config, targetElement, context);
+    if (element.parentComponent && element.parentComponent.onChildComponentReady) {
+      element.parentComponent.onChildComponentReady.call(element.parentComponent, element);
+    }
 
     return element;
 
@@ -392,6 +399,7 @@ let golgi = {
     if (typeof element.html !== 'undefined') {
       element.innerHTML = element.html;
       element.rootElement = element.firstElementChild;
+      element.databinding = [];
       //let targets = element.querySelectorAll('[class*=golgi-]');
       let targets = element.querySelectorAll('*');
       targets.forEach(function(el) {
@@ -399,11 +407,69 @@ let golgi = {
           let prop = el.getAttribute('golgi:prop');
           element[prop] = el;
           el.removeAttribute('golgi:prop');
-        } 
+          el.ownerComponent = element;
+        }
+        if (el.textContent.startsWith('golgi:bind')) {
+          let prop = el.textContent.split('golgi:bind=')[1] || 'dummy';
+          let fn = function(dataObj) {
+            console.log(dataObj);
+            console.log(el);
+            let value = dataObj;
+            if (typeof dataObj === 'object') value = dataObj[prop];
+            el.innerHTML = value;
+          };
+          element.databinding.push(fn);
+          el.textContent = '';
+        }
+        [...el.attributes].forEach(function(attr) {
+          if (attr.name.startsWith('golgi:on_')) {
+            let eventName = attr.name.split('golgi:on_')[1];      
+            let funcName = attr.value
+            if (element[funcName] && typeof element[funcName] === 'function') {
+              let fn;
+              if (element[funcName].constructor.name === 'AsyncFunction') {
+                fn = async function(evt) {
+                  await element[funcName](evt);
+                };
+              }
+              else {
+                fn = function(evt) {
+                  element[funcName](evt);
+                };
+              }
+              golgi.addHandler.call(element, fn, el, eventName);
+            }
+            el.removeAttribute(attr.name);
+          }  
+
+          if (attr.value.startsWith('golgi:bind')) {
+            let prop = attr.value.split('golgi:bind=')[1];
+            let fn;
+            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' && attr.name === 'value') {
+              fn = function(dataObj) {
+                let value = dataObj;
+                if (typeof dataObj === 'object') value = dataObj[prop];
+                el.value = value;
+              };
+            }
+            else {
+              fn = function(dataObj) {
+                let value = dataObj;
+                if (typeof dataObj === 'object') value = dataObj[prop];
+                el.setAttribute(attr.name, value);
+              };
+            }
+            element.databinding.push(fn);
+            el.removeAttribute(attr.name);
+            //el.setAttribute(attr.name, '');
+          }
+        });
+
       });
       if (!element.childrenTarget) {
         element.childrenTarget = element.rootElement;
       }
+      element.childrenTarget.ownerComponent = element;
       let attrName = 'golgi:component-class';
       let parentClass = element.rootElement.getAttribute(attrName);
       if (parentClass) {
@@ -418,6 +484,7 @@ let golgi = {
     element.onUnload = this.onUnload.bind(element);
     element.registerUnloadMethod = this.registerUnloadMethod.bind(element);
     element.remove = this.remove.bind(element);
+    element.removeAllByName = this.removeAllByName;
     element.getComponentByName = this.getComponentByName.bind(this); 
     element.addHandler = this.addHandler.bind(element);
     element.addMetaTag = this.addMetaTag;
@@ -429,9 +496,18 @@ let golgi = {
     element.loadGroup = this.loadGroup.bind(this);
     element.renderAssembly = this.renderAssembly.bind(this);
     element.renderComponent = this.renderComponent.bind(this);
+    element.renderComponentMap = this.renderComponentMap.bind(this);
     element.observerStart = this.observerStart;
     element.methodsToRemove = [];
     element.golgi_state = this.golgi_state;
+    element.addStateMap = this.addStateMap.bind(element);
+    element.applyDataBinding = this.applyDataBinding.bind(element);
+
+    if (!context.rootComponent) {
+      context.rootComponent = element;
+    }
+    element.rootComponent = context.rootComponent;
+    element.parentComponent = targetElement.ownerComponent;
 
     if (log) {
       console.log('Golgi Component instantiated and ready for use:');
@@ -483,7 +559,12 @@ let golgi = {
 
     if (config.hook) {
       try {
-        config.hook.call(element);
+        if (config.hook.constructor.name === 'AsyncFunction') {
+          await config.hook.call(element);
+        }
+        else {
+          config.hook.call(element);
+        }
       }
       catch(err) {
         if (log) {
@@ -498,6 +579,26 @@ let golgi = {
     }
 
     return element;
+  },
+
+  renderComponentMap: async function(componentName, targetElement, context, controlArray, stateMapDef, callback) {
+    let ix = -1;
+    let pieces = stateMapDef.split(':');
+    let arrayName = pieces[0];
+    let methodName = pieces[1];
+    if (typeof methodName === 'undefined' || methodName === '') {
+      methodName = 'applyDataBinding';
+    }
+    for (let value of controlArray) {
+      let comp = await this.renderComponent(componentName, targetElement, context);
+      if (callback) {
+        callback.call(comp, comp, value);
+      }
+      ix++;
+      let path = arrayName + '.' + ix;
+      comp.addStateMap(path, methodName);
+    }
+    this.golgi_state[arrayName] = controlArray;
   },
 
   renderAssembly: async function(args, targetElement, context) {
@@ -648,6 +749,22 @@ let golgi = {
     this.onUnload();
     this.parentNode.removeChild(this);
   },
+
+  removeAllByName: function(componentName, parentElement) {
+    let comps;
+    if (parentElement) {
+      comps = [...parentElement.getElementsByTagName(componentName)];
+    }
+    else {
+      comps = [...document.getElementsByTagName(componentName)];
+    }
+    if (comps) {
+      comps.forEach((component) => {
+        component.remove();
+      });
+    }
+  },
+ 
   parse: function(input, hooks) {
     let xml = '<xml xmlns="http://mgateway.com" xmlns:assembly="http://mgateway.com" xmlns:golgi="http://mgateway.com">' + input + '</xml>';
     //console.log(xml);
@@ -714,7 +831,11 @@ let golgi = {
                   if (!component.state_map) {
                     component.state_map = new Map();
                   }
-                  component.state_map.set(stateKey, value.split(':')[1]);
+                  let method = value.split(':')[1];
+                  if (typeof method === 'undefined' || method === '') {
+                    method = 'applyDataBinding';
+                  }
+                  component.state_map.set(stateKey, method);
                 }
 
                 else if (attr.name === 'golgi:appendTo') {
@@ -817,7 +938,27 @@ let golgi = {
         ownerComponent.observerCallback(mutation);
       }
     });
-  })
+  }),
+  addStateMap(path, stateMethod) {
+    stateMethod = stateMethod || 'applyDataBinding';
+    if (!golgi.stateMap.has(path)) {
+      golgi.stateMap.set(path, []);
+    }
+    golgi.stateMap.get(path).push({
+      component: this,
+      method: stateMethod
+    });
+  },
+  applyDataBinding(obj) {
+    //console.log(this.databinding);
+    //console.log(obj);
+    this.databinding.forEach(function(fn) {
+      fn(obj);
+    });
+    if (this.onDataUpdated) {
+      this.onDataUpdated(obj);
+    }
+  }
 };
 
 golgi.golgi_state = new Proxy(golgi.dataStore, {
@@ -830,10 +971,26 @@ golgi.golgi_state = new Proxy(golgi.dataStore, {
         //console.log('trying to apply state for mapKey ' + mapKey + ' = ' + value);
         //console.log(golgi.stateMap);
         if (golgi.stateMap.has(mapKey)) {
-          golgi.stateMap.get(mapKey).forEach((mapObj) => {
-            let state = {};
-            state[mapObj.method] = value;
-            mapObj.component.setState(state); 
+          let mapArr = golgi.stateMap.get(mapKey);
+          mapArr.forEach((mapObj, index) => {
+
+            //if the component no longer exists, remove it from the state map array
+
+            if (!mapObj.component) {
+              mapArr.splice(index, 1);
+              return;
+            }
+
+            // use named method in component if the method exists
+            //  otherwise fall back to use its setState() method
+            if (mapObj.component[mapObj.method]) {
+              mapObj.component[mapObj.method](value);
+            }
+            else {
+              let state = {};
+              state[mapObj.method] = value;
+              mapObj.component.setState(state);
+            } 
           });
         }
       }
@@ -853,10 +1010,26 @@ golgi.golgi_state = new Proxy(golgi.dataStore, {
           console.log(golgi.stateMap);
         }
         if (golgi.stateMap.has(mapKey)) {
-          golgi.stateMap.get(mapKey).forEach((mapObj) => {
-            let state = {};
-            state[mapObj.method] = value;
-            mapObj.component.setState(state); 
+          let mapArr = golgi.stateMap.get(mapKey);
+          mapArr.forEach((mapObj, index) => {
+
+            //if the component no longer exists, remove it from the state map array
+
+            if (!mapObj.component) {
+              mapArr.splice(index, 1);
+              return;
+            }
+
+            // use named method in component if the method exists
+            //  otherwise fall back to use its setState() method
+            if (mapObj.component[mapObj.method]) {
+              mapObj.component[mapObj.method](value);
+            }
+            else {
+              let state = {};
+              state[mapObj.method] = value;
+              mapObj.component.setState(state);
+            }
           });
         }
       }
