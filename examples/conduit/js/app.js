@@ -18,6 +18,5 @@
 
 
   await golgi.renderAssembly('root_assembly', 'body', context);
-}
 
 })();
