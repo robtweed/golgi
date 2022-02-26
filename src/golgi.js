@@ -526,14 +526,17 @@ let golgi = {
       }
     }
 
-    if (config.state  && element.setState) {
+    if (config.state) {
       for (let sname in config.state) {
-        if (typeof config.state[sname] === 'function') {
-          config.state[sname] = config.state[sname].call(element);
+        if (element[sname] && typeof element[sname] === 'function') {
+          element[sname].call(element, config.state[sname]);
+          delete config.state[sname];
         }
       }
 
-      element.setState(config.state);
+      if (config.state && element.setState && typeof element.setState === 'function') {
+        element.setState(config.state);
+      }
     }
 
     if (config.stateMap) {

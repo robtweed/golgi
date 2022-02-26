@@ -111,15 +111,18 @@ Inside the */golgi* directory, create the following two files using the filename
 
 ### *demo.js*
 
-      const {golgi} = await import('https://cdn.jsdelivr.net/gh/robtweed/golgi/src/golgi.min.js');
+      (async () => {
+        const {golgi} = await import('https://cdn.jsdelivr.net/gh/robtweed/golgi/src/golgi.min.js');
       
-      let context = {
-        componentPaths: {
-          demo: window.location.origin + '/golgi/components/'
-        }
-      };
+        let context = {
+          componentPaths: {
+            demo: window.location.origin + '/golgi/components/'
+          }
+        };
       
-      golgi.renderComponent('demo-div', 'body', context);
+        golgi.renderComponent('demo-div', 'body', context);
+
+      })();
 
 
 And then, in the */golgi/components directory create:
@@ -140,7 +143,7 @@ And then, in the */golgi/components directory create:
       <div>This is Golgi!</div>
             `;
       
-             this.html = `${html}`;
+            this.html = `${html}`;
             this.name = componentName + '-' + count;
           }
         });
@@ -232,7 +235,19 @@ This tells the browser to load your main root application module, in this case *
 The *demo.js* Module is an extremely simple example of a *Golgi* main or root application module.
 
 Your root application module is where you define the main shape and starting point of your
-UI and its application logic.  It must be defined as an ES6 Module using the following pattern
+UI and its application logic.
+
+To make it work with all modern browsers, it should be wrapped as a self-loading
+*async* function.  Safari, in particular, needs this due to the way it handles what's known as
+*top-level await*.  So that's this piece:
+
+      (async () => {
+
+        ...etc
+
+      })();
+
+The contents of this self-loading function should adhere to the following pattern
 
 - load the *Golgi* Module
 - define the paths where your *Golgi Components* and *Golgi Assemblies* reside
@@ -318,13 +333,13 @@ method:
 As you can see, this takes three arguments:
 
 - the name of the *Golgi Component*
-- the target element within your HTML page to which it will be appended.  We want to append it
+- the target element within your HTML page DOM to which it will be appended.  We want to append it
 to the *body* tag, so instead of specifying it in full, ie:
 
       golgi.renderComponent('demo-div', document.getElementsByTagName('body')[0], context);
 
-  ... and because the *body* tag is a very common one to use as a target, the *renderComponent()*
-method allows you to simply specify it as the *string* value *'body'*.
+  ... and because the *body* tag is a very common one to use as an initial target, the 
+*renderComponent()* method allows you to simply specify it as the *string* value *'body'*.
 
 - the context object which then becomes available for use by *Golgi* and also for use
 in your *Golgi Components* if you need or want it.
@@ -363,7 +378,8 @@ definition of the *demo-div Golgi Component*.
         // define the WebComponent
       };
 
-In other words, they are simple ES6 Modules that wrap a single WebComponent within a *load()* method.
+In other words, they are simple ES6 Modules that wrap a single WebComponent within an
+exported *load()* method.
 
 I recommend the following pattern for defining the WebComponent:
 
@@ -407,7 +423,9 @@ adhere to the pattern and conventions shown here:
 
             this.html = `${html}`;
 
-            // assign a default name property to the WebComponent
+            // assign a default, unique name property to the WebComponent
+            //  you may later decide to redefine the name property with a
+            //  more memorable name
 
             this.name = componentName + '-' + count;
           }
@@ -685,55 +703,37 @@ always present.
 
 Once again, *Golgi* makes this very simple.  Let's add an *onClick* handler to our *demo-div* Component.
 
-Edit the */golgi/components/demo-div.js* file once more, and add the following method to its
+Edit the */golgi/components/demo-div.js* file once more, and change the HTML assignment within the
 WebComponent:
 
-      onBeforeState() {
-        const fn = () => {
-          this.setState({text: 'You clicked the div at ' + Date.now()});
-        };
-        this.addHandler(fn);
-      }
+
+      <div>
+        <span golgi:prop="spanTag" golgi:on_click="report"></span>
+      </div>
+
+
+and within the body of the WebComponent, add a method named *report*:
+
+      report() {
+        this.setState({text: 'You clicked the div at ' + Date.now()});
+      };
+
 
 Save the file and reload the *index.html* file in the browser, and now whenever you click
 the text, you'll see it updating the *span* tag's text content.
 
 Let's examine why this happened.
 
-Whilst WebComponents provide built-in lifecycle methods (eg *connectedCallback* and 
-*disconnectedCallback*), *Golgi* augments the WebComponent with several more, one of which is
-*onBeforeState()*.
+When running the *renderComponent()* method, one of the things *Golgi* looks for within the
+HTML that you define in each of your WebComponents is a special attribute: *golgi:on{{eventName}},
+where *eventName* is any applicable DOM event (eg *click*, *mouseover*, *submit* etc).  In our
+example we want a *click* event, hence we specified the attribute name *golgi:on_click*.  The value
+you specify is used by *Golgi* to add an event listener to the DOM element, invoking the specified
+WebComponent method.  In our example, this is a method named *report* which we added to the
+WebComponent, and which, when invoked, updates the Component's *text* state property.
 
-As its name implies, the *onBeforeState()* lifecycle method is invoked by *Golgi* before 
-applying any state changes (the latter
-being something that will begin to make sense when we later look at *Golgi Assemblies*).  
-For now, consider it as a
-good lifecycle method to use for situations where you want to add custom configurations to the
-WebComponent, immediately after *Golgi* has activated and appended it to the DOM and before anything
-else happens.
-
-You'll also see that we're making use of a method - *addHandler* - that *Golgi* automatically adds
-to every WebComponent.  For now, assume that it's a handy shortcut for the *addEventListener()* DOM
-method, but, as you'll see later, there's a good reason for using *this.addHandler()* in preference to
-the underlying raw DOM method.
-
-By default, *addHandler()* assumes that you want to add an *onClick* handler which is probably what
-you'll want in the majority of cases.  If you want a diffeent handler, eg *mouseover*, then you can
-specify it as a second argument, eg:
-
-      this.addHandler(fn, 'mouseover');
-
-Also by default, *addHandler()* assumes you want the handler to be applied to the WebComponent as
-a whole.  In a complex WebComponent consisting of a lot of HTML tags, you may want to be more
-specific and apply it to a particular tag within the component.  If so, specify the target element 
-as the second argument, eg to apply our 'click' handler specifically to the *span* tag in our
-WebComponent, we could specify:
-
-      this.addHandler(fn, this.spanTag);
-
-and if we needed it to use a different event:
-
-      this.addHandler(fn, this.spantag, 'mouseover');
+**Note:** *Golgi* ensures that the *this* context within the method is the WebComponent itself,
+as you'd expect.
 
 <br/>
 <div align="right">
@@ -759,11 +759,10 @@ be cleanly and explicitly removed too in order to avoid memory leaks.
 our previous example), and these will be left hanging about in memory if you simply use *removeChild()*
 to delete the WebComponent from your DOM.
 
-Let's deal with these in reverse sequence.  As you saw in the previous example, we used *Golgi*'s
-*addHandler()* method rather than the raw *addEventListener()* DOM method.  The *addHandler()* method
-registers the handler in a Map that is maintained within the WebComponent.
+Let's deal with these in reverse sequence.  When adding handlers via the *golgi:on_* attribute,
+*Golgi* registers the handler in a Map that is maintained within the WebComponent.
 
-Dealing with the first issue, by using *Golgi*'s *remove()* method, it will recurse down through any
+Then, dealing with the first issue, by using *Golgi*'s *remove()* method, it will recurse down through any
 lower-level nested *Golgi Component*s, starting at the lowest-level leaf Components, first removing 
 any registered handlers and then deleting the WebComponent before moving up to its parent and repeating the
 process.  The *remove()* method, together with the *addHandler()* method, therefore ensure that memory leaks
@@ -774,18 +773,20 @@ So, let's put all these together into our example.
 Edit your root Module (*/golgi/demo.js*), and add a *setTimeout* function that 
 will remove the *demo-div* Component from the DOM after 5 seconds:
 
-      const {golgi} = await import('./golgi.min.js');
-      let context = {
-        componentPaths: {
-          demo: './components/'
-        }
-      };
-      golgi.setLog(true);
-      let demoComponent = await golgi.renderComponent('demo-div', 'body', context);
-
-      setTimeout(function() {
-        demoComponent.remove();
-      }, 5000);
+      (async () => {
+        const {golgi} = await import('./golgi.min.js');
+        let context = {
+          componentPaths: {
+            demo: './components/'
+          }
+        };
+        golgi.setLog(true);
+        let demoComponent = await golgi.renderComponent('demo-div', 'body', context);
+        
+        setTimeout(function() {
+          demoComponent.remove();
+        }, 5000);
+      })();
 
 Now reload the *index.html* page.  After 5 seconds, the text will disappear, and if you examine
 the DOM using the browser's Developer Tools *elements* tab, you'll see confirmation that the
@@ -890,17 +891,19 @@ containing the following:
 Next, edit your root application module (ie */golgi/demo.js*) to render this assembly rather than the
 single *Golgi Component* we've been using so far:
 
-      const {golgi} = await import('./golgi.min.js');
-      let context = {
-        componentPaths: {
-          demo: './components/'
-        },
-        assemblies: './assemblies'
-      };
-
-      golgi.setLog(true);
-
-      await golgi.renderAssembly('demo_assembly', 'body', context);
+      (async () => {
+        const {golgi} = await import('./golgi.min.js');
+        let context = {
+          componentPaths: {
+            demo: './components/'
+          },
+          assemblies: './assemblies'
+        };
+        
+        golgi.setLog(true);
+       
+        await golgi.renderAssembly('demo_assembly', 'body', context);
+      })();
 
 <br/>
 <div align="right">
@@ -1084,11 +1087,9 @@ you have specified.
 are correctly appended to their parent element's target(s) in the sequence,
 as defined by the sequencing of your *gx* tags.  The
 importation of each child's associated *Golgi Component* modules must therefore await completion of its
-previous sibling before it can begin its own importation and processing.  However, once a *Golgi Component* is loaded, the processing of
-any of its child components begins immediately: ie a next sibling Component does not
-have to await the importation and processing of its previous sibling's child Components.  This
-therefore minimises the overall importation time of an application's modules as much as possible,
-allowing as many as possible to be imported in parallel.
+previous sibling before it can begin its own importation and processing. All of the previous sibling's
+descendent Components also have to complete rendering before the next sibling Component's rendering can
+complete.
 
 **Note 2:** Each *Golgi Component* that you use is only physically imported once.  Any
 subsequent references to/use of that same *Golgi Component* will use a cached version without
@@ -1151,7 +1152,7 @@ Let's just remind ourselves what the *demo-div* *Golgi Component*t looked like:
             count++;
             const html = `
       <div>
-        <span golgi:prop="spanTag">Click Me!</span>
+        <span golgi:prop="spanTag" golgi:on_click="report"></span>
       </div>
             `;
             this.html = `${html}`;
@@ -1164,12 +1165,9 @@ Let's just remind ourselves what the *demo-div* *Golgi Component*t looked like:
             }
           }
 
-          onBeforeState() {
-            const fn = (e) => {
-              e.stopPropagation();
-              this.setState({text: 'You clicked the div at ' + Date.now()});
-            };
-            this.addHandler(fn, this.spanTag);
+          report(e) {
+            e.stopPropagation();
+            this.setState({text: 'You clicked the div at ' + Date.now()});;
           }
         });
       };
@@ -1202,25 +1200,35 @@ At this point, your page's DOM will look like this:
 #### Setting State Using *gx* Tag Attributes
 
 The next thing that happens is that *Golgi* looks through the *gx* tag's attributes.  Unless
-prefixed with *golgi:*, each one is used to specify initial state for the *Component*, using
-the *setState()* methods that are defined within its underlying WebComponent.
+prefixed with *golgi:*, each one is used to specify initial state for the *Component*.
 
-So, this attribute:
+The logic used by *Golgi* is as follows:
+
+- if a method with the same name as the attribute name exists within the WebComponent, 
+it is invoked and the attribute's value is used as the argument for that method
+
+- if no matching method is found, *Golgi* will try to use the WebComponent's *setState()* method.
+
+So, on finding this attribute:
 
       text="Welcome to Golgi Assemblies"
 
-is converted into:
+... then, if a method named *test()* exists within the WebComponent, it is executed, ie:
+
+      component.text("Welcome to Golgi Assemblies")
+
+...and if not, the Component's *setState()* method is used, ie:
 
       component.setState({text: "Welcome to Golgi Assemblies"});
 
-So you can see in the *demo-div* WebComponent definition that setting 
-*state.text* will result in:
+So you can see in the *demo-div* WebComponent definition it will use the latter, which 
+will result in:
 
       this.spanTag.textContent = state.text;
 
 Remember that *this.spanTag* was defined by the *golgi:prop* attribute in the *span* tag here:
 
-        <span golgi:prop="spanTag">Click Me!</span>
+        <span golgi:prop="spanTag" golgi:on_click="report"></span>
 
 <br/>
 <div align="right">
@@ -1346,14 +1354,12 @@ and with that, *Golgi* find no more *gx* tags in our Assembly, so processing of 
 
 ## Try Out the *demo-div* Component Click Handler
 
-Now that the completed page is rendered in your browser, if you remember back to when we created the *demo-div* component, we added a *click* handler to its *span* tag:
+Now that the completed page is rendered in your browser, if you remember back to when we created the *demo-div* component, we added a *click* handler to its *span* tag which invoked a method named
+*report*:
 
-          onBeforeState() {
-            const fn = (e) => {
-              e.stopPropagation();
-              this.setState({text: 'You clicked the div at ' + Date.now()});
-            };
-            this.addHandler(fn, this.spanTag);
+          report(e) {
+            e.stopPropagation();
+            this.setState({text: 'You clicked the div at ' + Date.now()});
           }
 
 Try clicking each of the lines of text.  You should notice that they each respond to clicks and also behave independently, each updating the text within their own instance of the *demo-div* WebComponent.
@@ -1498,6 +1504,21 @@ So, let's now add our *addHandler()* Hook to our Assembly:
 
       return {gx, hooks};
 
+You'll notice that we're using a special method - *this.addHandler()* - that *Golgi* has
+automatically added to the WebComponent for you during rendering.  The *addHandler()*
+method adds the DOM EventListener, but also registers the handler within *Golgi*, and,
+in doing so, it ensures that if this Component is destroyed using *this.remove()*, then
+the handler will also be removed from memory.  
+
+You should **always** use *this.addHandler()* when dynamically adding event listeners to any
+*Golgi Components*.
+
+*this.addHandler()* takes up to 3 arguments:
+
+- the function to be executed when the handler is triggered
+- the DOM element to which the listener should be attached
+- the event to be listened for.  If not specified, *click* is assumed.
+
 <br/>
 <div align="right">
   <b><a href="#adding-hooks-to-golgi-components-within-assemblies">Go Up</a></b>
@@ -1555,7 +1576,7 @@ Let's amend the *demo-div* Component definition as follows:
 
      const html = `
       <div>
-        <span golgi:prop="spanTag">Click Me!</span>
+        <span golgi:prop="spanTag" golgi:on_click="report">Click Me!</span>
         <pre>+++++++++</pre>
         <div class="test" golgi:prop="childrenTarget"></div>
         <pre>---------</pre>
@@ -1646,7 +1667,7 @@ Edit its HTML definition to the following:
 
      const html = `
       <div>
-        <span golgi:prop="spanTag">Click Me!</span>
+        <span golgi:prop="spanTag" golgi:on_click="report">Click Me!</span>
         <pre>+++++++++</pre>
         <div class="test" golgi:prop="testTarget"></div>
         <pre>---------</pre>
@@ -1656,7 +1677,7 @@ Edit its HTML definition to the following:
 And now change the *gx* tags within the *demo_assembly* to this:
 
       let gx=`
-      <demo-div text="Welcome to Golgi Assemblies" golgi:stateMap="message:text" >
+      <demo-div text="Welcome to Golgi Assemblies" >
         <demo-div text="I'm attached to the parent's root element" golgi:hook="addHandler" />
         <demo-div text="I'm attached to the parent's testTarget" golgi:appendTo="testTarget" />
       </demo-div>
@@ -1950,7 +1971,18 @@ the WebComponent, but before the Component's Hook Method (if defined) is invoked
   This is invoked after the Component's Hook Method (if defined) is invoked.  This is the last
 lifecycle method to fire before *Golgi* moves on to process the next *gx* tag.
 
-Any or all of these methods can be specified as *async* if required.
+- *onChildComponentReady(childComponent) {...}*
+
+  This is invoked if the Component, when rendered as part of an Assembly, has one or more
+child Components.  If so, each Child Component will trigger a call to its parent Component's
+*onChildComponentReady()* method (if present).  The instance of the Child Component is passed
+to this method as its argument.
+
+  This method is useful in situations where the parent Component's methods need later access
+to its Child Component's properties or methods.
+
+
+Note that any or all of these lifecycle methods can be specified as *async* if required.
 
 
 **Note:** If you have augmented the WebComponent with anything else that *Golgi* is unaware of, and that
@@ -1974,7 +2006,7 @@ rendered Components in the DOM.  They are all accessed as *this.{{methodName}}*.
 
 - *this.addHandler(fn [, targetElement] [, eventName])*
 
-  This method should always be used to add event handlers to your Components, because
+  This method should always be used to dynamically add event handlers to your Components, because
 the *remove()* method will automatically destroy the handler methods if the Component is
 removed (either directly or via a removed parent Component).
 
@@ -2025,6 +2057,12 @@ within the current Component as *this.context*, should also be specified as the 
 specified target Element (*append_target_element*).  The *Golgi* Context object, available
 within the current Component as *this.context*, should also be specified as the third argument).
 
+- *this.addStateMap(state_property_name)*
+
+  This method is described in detail in the next section. It is used to add a
+data-binding state map to the component.  Note that the *state_property_name* value
+should be unique to the specific instance of the Component.
+
 <br/>
 <div align="right">
   <b><a href="#index">back to top</a></b>
@@ -2035,6 +2073,14 @@ within the current Component as *this.context*, should also be specified as the 
 
 # State Management and Data Binding In *Golgi*
 
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
+
+## Defining A State Map in an Assembly
+
 *Golgi* provides a powerful means of state management and data binding which is deceptively
 simple to use.  The *Golgi* Object includes a property named *golgi_state* which is actually a 
 Proxy Object that traps any changes you make to it.
@@ -2044,7 +2090,7 @@ object property name to a *setState()* property within the Component.  You do th
 a special *gx* attribute named *golgi:stateMap*.  Its value has two parts, separated by a colon:
 
 - the *golgi_state* object property name to trap.  This can use dot syntax to specify lower sub-levels within the *state* object. 
-- the target Component's *setState* property to which to map the state value
+- the target Component's method or *setState* property to which to map the state value
 
 For example:
 
@@ -2059,7 +2105,13 @@ you can then do the following anywhere else in a component's methods, for exampl
 Note that *this.golgi_state* is how you access the state object from within a *Golgi Component*.
 
 What will happen is that the instance of the Component to which we applied the *stateMap* will
-invoke its *setState()* method for the property named *text* as follows:
+invoke:
+
+- a WebComponent method named *text* if it is defined:
+
+      component.text('Hello World');
+
+- if not, the WebComponent's *setState()* method for the property named *text* as follows:
 
       component.setState({text: 'Hello World'});
 
@@ -2106,6 +2158,112 @@ every time you mouse over the second line of text.
 
 <br/>
 <div align="right">
-  <b><a href="#index">back to top</a></b>
+  <b><a href="#state-management-and-data-binding-in-golgi">Go Up</a></b>
 </div>
 <br/>
+
+## Defining Data Binding Within A Component
+
+Rather than having to define lots of methods within a Component, each of which controls the
+state of DOM elements within your WebComponent, *Golgi* provides a further, declarative
+approach which allows you to define the specific data binding used in the Component's state map.
+
+First, you can specify the state map that the Component should use with the *addStateMap()*
+method.  You'd usually define this in the Component's *onBeforeState()* lifecycle method, eg:
+
+      onBeforeState() {
+        this.addStateMap('article');
+      }
+
+If you did this, and then, at some later point, assigned an object to this state property, eg:
+
+      this.golgi_state.article = {
+        author: 'Rob',
+        title: 'My Great Article',
+        description: 'An amazing piece of work!',
+        image: 'https://static.productionready.io/images/smiley-cyrus.jpg'
+      };
+
+... you can declaratively specify how and where to bind those three properties (author, title
+and description) within the Component's HTML assignment by using the special keyword
+*golgi:bind={{property_name}}*, eg:
+
+      let html = `
+      <div class="article-page">
+        <div class="banner">
+          <div class="container">
+            <h1>golgi:bind=title</h1>
+            <div>
+              <h2>Author</h2>
+              <img src="golgi:bind=image" />
+              <span class="follow-author">golgi:bind=author</span>
+            </div>
+            <div>
+              <h2>Description</h2>
+              <span class="desc">golgi:bind=description</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      `;
+
+You can see that you can apply the *golgi-bind* keyword as either an attribute value or
+as a tag's text content.
+
+You can even apply it to an &lt;input&gt; or &lt;textarea&gt; field by specifying it as 
+a *value* attribute, eg:
+
+              <fieldset class="form-group">
+                <input golgi:prop="image" value="golgi:bind=image" class="form-control" type="text" placeholder="URL of profile picture">
+              </fieldset>
+
+
+The result is that whenever the appropriate *golgi_state* property is set, if its value is
+an object, then the object's properties are automatically set to the corresponding DOM element
+attributes or text content, as defined with the *golgi:bind* keyword.
+
+In the case of an &lt;input&gt; or &lt;textarea&gt; field, its *value* property is assigned
+the value, making it appear in the form.
+
+
+You'll see examples of this use of *golgi:bind* within the examples provided in this
+repository.
+
+
+- **Note:** If you have multiple instances of a Component within your application at any time,
+and if you have used the *golgi:bind* keyword within it, then you need to ensure that each
+Component instance uses its own unique *golgi_state* property.
+
+  Here's how you could achieve this:
+
+  - within the Component's *onBeforeState()* lifecycle method, assign a unique name to the
+instance, and then use that as the state map name, eg:
+
+      onBeforeState() {
+        this.stateMapName = 'acticle-' + this.name;
+        this.addStateMap(this.stateMapName);
+      }
+
+
+  - then when it comes to mapping/binding state values:
+
+      this.golgi_state[specificComponent.stateMapName] = {
+        author: 'Rob',
+        title: 'My Great Article',
+        description: 'An amazing piece of work!',
+        image: 'https://static.productionready.io/images/smiley-cyrus.jpg'
+      }
+
+    where *specificComponent* is the instance of the Component you want to upate with these
+values.
+
+<br/>
+<div align="right">
+  <b><a href="#state-management-and-data-binding-in-golgi">Go Up</a></b>
+</div>
+<br/>
+
+
+
+
+
