@@ -725,7 +725,7 @@ the text, you'll see it updating the *span* tag's text content.
 Let's examine why this happened.
 
 When running the *renderComponent()* method, one of the things *Golgi* looks for within the
-HTML that you define in each of your WebComponents is a special attribute: *golgi:on{{eventName}},
+HTML that you define in each of your WebComponents is a special attribute: *golgi:on{{eventName}}*,
 where *eventName* is any applicable DOM event (eg *click*, *mouseover*, *submit* etc).  In our
 example we want a *click* event, hence we specified the attribute name *golgi:on_click*.  The value
 you specify is used by *Golgi* to add an event listener to the DOM element, invoking the specified
