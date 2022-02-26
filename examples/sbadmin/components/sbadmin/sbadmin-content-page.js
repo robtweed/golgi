@@ -15,27 +15,10 @@ export function load() {
       this.name = componentName + '-' + count;
     }
     
-   onAfterHooks() {
-      this.ui_root = this.getParentComponent('sbadmin-root');
-      this.ui_root.contentPages.set(this.name, this);
-    }
-
-    //onSelected() {
-    //  console.log('page ' + this.name + ' selected');
-    //}
 
     setState(state) {
       if (state.name) {
         this.name = state.name;
-      }
-      if (state.hide) {
-        this.hide()
-      }
-      if (state.show && !this.rootElement.classList.contains('show')) {
-        for (let component of this.ui_root.contentPages.values()) {
-          component.hide();
-        }
-        this.show();
       }
     }
 
@@ -45,6 +28,10 @@ export function load() {
 
     hide() {
       this.rootElement.classList.remove('show');
+    }
+
+    onBeforeHooks() {
+      this.rootComponent.contentPages.set(this.name, this);
     }
     
   });

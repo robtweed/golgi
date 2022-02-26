@@ -29,8 +29,12 @@ export function load() {
         this.name = state.name;
       }
       if (state.update) {
-        this.chart.data.datasets[0].data = state.update;
-        this.chart.update();
+        console.log('*** *** *** updating chart with state:');
+        console.log(state);
+        if (Array.isArray(state.update) && state.update.length !== 0) {
+          this.chart.data.datasets[0].data = state.update;
+          this.chart.update();
+        }
       }
       if (state.width) {
         this.canvasTag.style.width = state.width;

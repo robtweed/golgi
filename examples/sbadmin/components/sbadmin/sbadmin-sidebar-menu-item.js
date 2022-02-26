@@ -9,7 +9,7 @@ export function load() {
       count++;
 
       const html = `
-<a class="nav-link" golgi:prop="aTag" href="#">
+<a class="nav-link" golgi:prop="aTag" href="#" golgi:on_click="switchPage">
   <div class="sb-nav-link-icon">
     <i class="fas" golgi:prop="iconElement"></i>
   </div>
@@ -24,6 +24,9 @@ export function load() {
       if (state.name) {
         this.name = state.name;
       }
+      if (state.contentPage) {
+        this.contentPage = state.contentPage;
+      }
       if (state.text) {
         this.textTarget.textContent = state.text;
       }
@@ -37,17 +40,10 @@ export function load() {
       if (state.href) {
         this.rootElement.href = state.href;
       }
-      if (state.contentPage) {
-        this.contentPage = state.contentPage;
-      }
     }
-    
-    onBeforeState() {
-      this.ui_root = this.getParentComponent('sbadmin-root');
-      let fn = () => {
-        this.ui_root.switchToPage(this.contentPage);
-      };
-      this.addHandler(fn, this.aTag);
+
+    switchPage() {
+      this.rootComponent.switchToPage(this.contentPage);
     }
     
   });

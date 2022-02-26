@@ -9,7 +9,7 @@ export function load() {
       count++;
 
       const html = `
-<h1 class="mt-4" />
+<h1 class="mt-4"></h1>
       `;
       this.html = `${html}`;
       this.name = componentName + '-' + count;

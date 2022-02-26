@@ -29,10 +29,8 @@ export function load() {
   let hooks = {
     'sbadmin-content-page': {
       configure: function() {
-        this.getComponentByName('sbadmin-root')[0].contentPages.set('dashboard', this);
-        let _this = this;
-        this.onSelected = function() {
-          console.log('Page ' + _this.name + ' selected');
+        this.onSelected = function(obj) {
+          console.log(this.name + ' selected');
         }
       }
     },

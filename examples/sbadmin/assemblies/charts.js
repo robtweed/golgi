@@ -8,11 +8,8 @@ export function load(args) {
   let hooks = {
     'sbadmin-content-page': {
       configure: function() {
-        console.log('**** configuring sbadmin-content-page ' + this.name);
-        console.log(this.context);
-        let _this = this;
         this.onSelected = function() {
-          console.log('Page ' + _this.name + ' selected');
+          console.log('Page ' + this.name + ' selected');
         }
       }
     }

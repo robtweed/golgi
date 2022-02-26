@@ -34,18 +34,23 @@ export function load() {
        this.html = `${html}`;
     }
 
-    setPageActive(pageName) {
+    setPageActive(pageName, obj) {
       // set selected page to active
-      let page = this.contentPages.get(pageName);
-      page.setState({show: true});
-      if (page.onSelected) page.onSelected();
+      // first hide allcontent  pages
+      let page;
+      for (page of this.contentPages.values()) {
+        page.hide();
+      }
+      page = this.contentPages.get(pageName);
+      page.show();
+      page.onSelected(obj);
     }
 
-    async switchToPage(pageName) {
+    async switchToPage(pageName, obj) {
       if (!this.contentPages.has(pageName)) {
         await this.renderAssembly(pageName, this.contentTarget, this.context);
       }
-      this.setPageActive(pageName);
+      this.setPageActive(pageName, obj);
     }
 
     setState(state) {

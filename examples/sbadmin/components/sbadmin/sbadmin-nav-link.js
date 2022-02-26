@@ -9,7 +9,7 @@ export function load() {
       count++;
 
       const html = `
-<a class="nav-link" href=""#"></a>
+<a class="nav-link" href="golgi:bind=href">golgi:bind=text</a>
       `;
 
       this.html = `${html}`;
@@ -20,12 +20,14 @@ export function load() {
       if (state.name) {
         this.name = state.name;
       }
-      if (state.text) {
-        this.rootElement.textContent = state.text;
+      else {
+        this.golgi_state[this.stateMapName] = state;
       }
-      if (state.href) {
-        this.rootElement.href = state.href;
-      }
+    }
+
+    onBeforeState() {
+      this.stateMapName = 'nav-link-' + this.name;
+      this.addStateMap(this.stateMapName);
     }
 
   });

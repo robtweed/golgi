@@ -21,7 +21,6 @@ export function load() {
         this.name = state.name;
       }
       if (state.text) {
-        console.log('text fired in sbadmin-span');
         this.rootElement.textContent = state.text;
       }
     }

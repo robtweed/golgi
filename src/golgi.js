@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 25 February 2022
+ 26 February 2022
 
  */
 
@@ -153,11 +153,14 @@ let golgi = {
       element.path = jsPath;
       element.rootPath = jsRootPath;
       element.isComponent = true;
+      /*
+      element.golgi = this;
       if (element.setState) {
         element.setState({
           golgi: _this,
         });
       }
+      */
       return element;
     }
 

@@ -26,6 +26,7 @@ export function load() {
       if (state.name) {
         this.name = state.name;
       }
+
       if (state.title) {
         this.titleTag.textContent = state.title;
       }
@@ -68,6 +69,7 @@ export function load() {
     }
 
     onBeforeState() {
+
       this.allowedColors = [
         'primary',
         'secondary',

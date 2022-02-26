@@ -25,11 +25,9 @@ export function load() {
       // Chart.js should be loaded using a child <script> tag
 
       if (!this.context.chartInitialised) {
-        console.log('Chart configuration');
         Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
         Chart.defaults.global.defaultFontColor = '#292b2c';
         this.context.chartInitialised = true;
-        console.log('***** Chart initialised *****');
       }
     }
     
