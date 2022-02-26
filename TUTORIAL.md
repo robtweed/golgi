@@ -65,8 +65,11 @@
   - [Dynamically Loading JavaScript and CSS Resources](#dynamically-loading-javascript-and-css-resources)
   - [Dynamically Adding Meta Tags to the DOM](#dynamically-adding-meta-tags-to-the-dom)
 - [*Golgi Component* Lifecycle Methods](#golgi-component-lifecycle-methods)
+- [*Golgi* Properties for Navigation between *Golgi Components*](#golgi-properties-for-navigation-between-golgi-components)
 - [*Golgi* Methods For Use Within *Golgi Components* and *Hook* Methods](#golgi-methods-for-use-within-golgi-components-and-hook-methods)
 - [State management and Data Binding in *Golgi*](#state-management-and-data-binding-in-golgi)
+  - [Defining A State Map in an Assembly](#defining-a-state-map-in-an-assembly)
+  - [Defining Data Binding Within A Component](#defining-data-binding-within-a-component)
 
 
 # First Steps 
@@ -1996,6 +1999,35 @@ WebComponent *disconnectedCallback()* lifecycle method.
 <br/>
 
 ----
+
+# *Golgi* Properties for Navigation between *Golgi Components*
+
+During Component rendering, *Golgi* adds a number of useful properties to Components and Elements
+within Components.  These allow you to quickly and efficiently navigate between your rendered
+Components:
+
+- *this.rootComponent*
+
+  The value of this property, assigned to every *Golgi Component*, is your application's
+*root Component*, ie the first one you render within your application root module, and
+which you will have appended to the DOM's *body* tag.
+
+- *this.parentComponent*
+
+  Every Component, except the *root Component* has this property whose value is the
+Component to which it has been appended
+
+- *this.ownerComponent*
+
+  Every HTML Element within a Component is given this property whose value is the
+Component containing the Element
+
+
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
 
 # *Golgi* Methods For Use Within *Golgi Components* and *Hook* Methods
 
