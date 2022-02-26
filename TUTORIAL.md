@@ -2271,20 +2271,20 @@ Component instance uses its own unique *golgi_state* property.
   - within the Component's *onBeforeState()* lifecycle method, assign a unique name to the
 instance, and then use that as the state map name, eg:
 
-      onBeforeState() {
-        this.stateMapName = 'acticle-' + this.name;
-        this.addStateMap(this.stateMapName);
-      }
+          onBeforeState() {
+            this.stateMapName = 'acticle-' + this.name;
+            this.addStateMap(this.stateMapName);
+          }
 
 
   - then when it comes to mapping/binding state values:
 
-      this.golgi_state[specificComponent.stateMapName] = {
-        author: 'Rob',
-        title: 'My Great Article',
-        description: 'An amazing piece of work!',
-        image: 'https://static.productionready.io/images/smiley-cyrus.jpg'
-      }
+          this.golgi_state[specificComponent.stateMapName] = {
+            author: 'Rob',
+            title: 'My Great Article',
+            description: 'An amazing piece of work!',
+            image: 'https://static.productionready.io/images/smiley-cyrus.jpg'
+          }
 
     where *specificComponent* is the instance of the Component you want to upate with these
 values.
