@@ -9,9 +9,16 @@ Google Group for discussions, support, advice etc: [http://groups.google.co.uk/g
 
 # What is Golgi?
 
-*Golgi* (pronounced Gol-jee) is a new approach to browser-based UI development that
+*Golgi* (pronounced Gol-jee) is a new approach to browser-based User Interface (UI) development that
 makes use of the latest Web Technologies, in particular WebComponents, ES6 Modules, Proxies and
 MutuationObserver.
+
+*Golgi* allows you to build UIs using WebComponents as composable units, abstracted as 
+XML/XHTML tags and delivered progressively
+on-demand, without the need for a time-consuming bundling/compilation step, and without
+the need for Node.js, WebPack or large, complex build chains during development or deployment.
+
+Just develop and go, edit and go!
 
 # Try It Out!
 
