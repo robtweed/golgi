@@ -70,6 +70,7 @@
 - [State management and Data Binding in *Golgi*](#state-management-and-data-binding-in-golgi)
   - [Defining A State Map in an Assembly](#defining-a-state-map-in-an-assembly)
   - [Defining Data Binding Within A Component](#defining-data-binding-within-a-component)
+  - [Rendering Multiple Copies of a Component Mapped to a State Array](#rendering-multiple-copies-of-a-component-mapped-to-a-state-array)
 
 
 # First Steps 
@@ -2296,6 +2297,50 @@ values.
 <br/>
 
 
+## Rendering Multiple Copies of a Component Mapped to a State Array
+
+Suppose you want to render error messages returned from a back-end system, and the layout/presentation
+of each error message is defined in a *Golgi Component*.
+
+Alternatively, imaging the back-end returns an array of results, each element in the array
+being an object whose key/value pairs represent columns in a table row that you want to display.
+The layout/presentation of each row might be defined in a *Golgi Component*.
+
+Essentially, therefore, in both example scenarios, for each member of the
+data array, you want to do two things:
+
+- render an instance of a *Golgi Component* that will display the array member
+
+- map the data in the array member's key/value pairs to fields defined in the *Golgi Component*
+using the *golgi:bind* keyword.
+
+*Golgi* makes this very simple, and you can see examples of its use in the *RealWorld Conduit UI*
+example that is included in this repository.
+
+Within any Component, you have access to the *Golgi*-provided method: *this.renderComponentMap()*
+
+It has the following arguments:
+
+
+- *componentName*: the name of the *Golgi Component* to be rendered for each data array member
+- *targetElement*: the DOM element to which each instance of the Component is to be appended
+- *context*: the *Golgi* Content object (accessible as *this.context* within all Components)
+- *dataArray*: the array containing the data you want to map to each Component Instance
+- *stateMapPropertyName*: the name of the *this.golgi_state* property to be used for data binding.
+- *callback*: an optional callback function that is invoked after each Component is rendered and
+after databinding has occurred.  The callback function has two arguments:
+
+  - *component*: the instance of the Component that has been rendered and populated
+  - *datArrayRow*: the data array member that has been used to populate the instance of the Component
+
+You'll see numerous examples of this method in use 
+[within this example Component](./examples/conduit/components/conduit/conduit-root.js).
+
+<br/>
+<div align="right">
+  <b><a href="#state-management-and-data-binding-in-golgi">Go Up</a></b>
+</div>
+<br/>
 
 
 
