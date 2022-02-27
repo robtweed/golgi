@@ -2331,7 +2331,7 @@ It has the following arguments:
 after databinding has occurred.  The callback function has two arguments:
 
   - *component*: the instance of the Component that has been rendered and populated
-  - *datArrayRow*: the data array member that has been used to populate the instance of the Component
+  - *dataArrayRow*: the data array member that has been used to populate the instance of the Component
 
 You'll see numerous examples of this method in use 
 [within this example Component](./examples/conduit/components/conduit/conduit-root.js).
