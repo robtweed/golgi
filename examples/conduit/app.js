@@ -8,8 +8,8 @@
     },
     assemblyPath: '../examples/conduit/assemblies/',
     conduit: {
-      //rest_host: 'https://conduit.productionready.io',
-      rest_host: '//178.62.26.29:3000',
+      rest_host: 'https://conduit.productionready.io',
+      //rest_host: '//178.62.26.29:3000',
       defaultImage: 'https://static.productionready.io/images/smiley-cyrus.jpg'
     },
     stateMap: golgi.stateMap
