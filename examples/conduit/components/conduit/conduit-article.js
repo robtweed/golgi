@@ -357,6 +357,10 @@ export function load() {
         this.show(this.loggedInEl);
         this.hide(this.loggedOutEl);
       }
+      else {
+        this.hide(this.loggedInEl);
+        this.show(this.loggedOutEl);
+      }
 
       if (this.context.return_to === 'article') {
         // returned here after login so no need to update the article content

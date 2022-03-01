@@ -70,7 +70,7 @@ export function load() {
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#" golgi:prop="userLink" golgi:on_click="profile">
-            <img class="user-img" src="golgi:bind=userImage" golgi:prop="userImg">
+            <img class="user-img" src="golgi:bind=userImage" golgi:prop="userImg" />
             <span golgi:prop="username">golgi:bind=username</span>
           </a>
         </li>
@@ -319,9 +319,15 @@ export function load() {
         else {
           //fetch user data and establish user context
           let results = await this.apis.getUser(jwt);
+
           // if JWT signature is invalid, secret must have changed
           // so remove the JWT from storage
-          if (results.errors && results.errors.JWT) {
+
+          if (results.status === 'error' || results.errors || results.error) {
+            if (log) {
+              console.log('getUser error:');
+              console.log(results);
+            }
             jwt = null;
             localStorage.removeItem('conduit-jwt');
             delete this.rootComponent.jwt;
@@ -350,7 +356,6 @@ export function load() {
       delete this.context.jwt;
       delete this.user;
       localStorage.removeItem('conduit-jwt');
-
       let pages = ['home_page', 'new_article', 'article', 'profile', 'signup', 'login', 'settings'];
       pages.forEach((page) => {
         let content_page = this.getComponentByName('CONDUIT-CONTENT-PAGE', page);

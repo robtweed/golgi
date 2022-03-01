@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 25 February 2022
+ 01 March 2022
 
 */
 
@@ -33,113 +33,74 @@ export function apis(context) {
   context = context || {};
 
   let host = context.conduit.rest_host || '';
+  let authHeader = 'X-CustomHeader';
+
+  async function send(method, url, prop, body, useJWT) {
+    if (typeof useJWT === 'undefined') useJWT = true;
+    method = method || 'GET';
+    let options = {
+      method: method.toUpperCase(),
+      headers: {
+        'Content-type': 'application/json'
+      }
+    };
+    if (context.jwt && useJWT) {
+      options.headers[authHeader] = 'Token ' + context.jwt;
+    }
+    if (body) {
+      options.body = JSON.stringify(body);
+    }
+
+    //options.withCredentials = true;
+
+    let response = await fetch(url, options);
+    let results = await response.json();
+    if (!results.error && prop) return results[prop];
+    return results;
+  }
 
   let apis = {
     getArticlesList: async function(offset, limit, param) {
       offset = offset || 0;
       limit = limit || 10;
-      let fetch_url = host + '/api/articles?offset=' + offset + '&limit=' + limit;
+      let url = host + '/api/articles?offset=' + offset + '&limit=' + limit;
       if (param) {
         if (param.author) {
-          fetch_url = fetch_url + '&author=' + param.author;
+          url = url + '&author=' + param.author;
         }
         if (param.favourited) {
-          fetch_url = fetch_url + '&favorited=' + param.favourited;
+          url = url + '&favorited=' + param.favourited;
         }
         if (param.tag) {
-          fetch_url = fetch_url + '&tag=' + encodeURIComponent(param.tag);
+          url = url + '&tag=' + encodeURIComponent(param.tag);
         }
       }
-      let options = {
-        method: 'GET',
-        headers: {
-          'Content-type': 'application/json',
-        }
-      };
-      if (context.jwt) {
-        options.headers.authorization = 'Token ' + context.jwt;
-      }
-      let response = await fetch(fetch_url, options);
-      let results = await response.json();
-      return results;
+      return await send('get', url);
     },
     getArticlesFeed: async function(offset, limit) {
       offset = offset || 0;
       limit = limit || 10;
-      let fetch_url = host + '/api/articles/feed?offset=' + offset + '&limit=' + limit;
-      let options = {
-        method: 'GET',
-        headers: {
-          'Content-type': 'application/json',
-        }
-      };
-      if (context.jwt) {
-        options.headers.authorization = 'Token ' + context.jwt;
-      }
-      let response = await fetch(fetch_url, options);
-      let results = await response.json();
-      return results;
+      let url = host + '/api/articles/feed?offset=' + offset + '&limit=' + limit;
+      return await send('get', url);
     },
-    getTags: async function(x) {
-      let fetch_url = host + '/api/tags';
-      if (x) fetch_url = fetch_url + '?x=' + x;
-      let options = {
-        method: 'GET',
-        headers: {
-          'Content-type': 'application/json',
-        }
-      };
-      let response = await fetch(fetch_url, options);
-      let results = await response.json();
-      return results.tags;
+    getTags: async function() {
+      let url = host + '/api/tags';
+      return await send('get', url, 'tags', null, null, false);
     },
     getProfile: async function(author) {
       author = author || context.author;
-      let fetch_url = host + '/api/profiles/' + author;
-      let options = {
-        method: 'GET',
-        headers: {
-          'Content-type': 'application/json',
-        }
-      };
-      if (context.jwt) {
-        options.headers.authorization = 'Token ' + context.jwt;
-      }
-      let response = await fetch(fetch_url, options);
-      let results = await response.json();
-      return results.profile;
+      let url = host + '/api/profiles/' + author;
+      return await send('get', url, 'profile');
     },
     getArticleBySlug: async function(slug) {
       slug = slug || context.slug;
-      let fetch_url = host + '/api/articles/' + slug;
-      let options = {
-        method: 'GET',
-        headers: {
-          'Content-type': 'application/json',
-        }
-      };
-      if (context.jwt) {
-        options.headers.authorization = 'Token ' + context.jwt;
-      }
-      let response = await fetch(fetch_url, options);
-      let results = await response.json();
-      return results.article;
+      let url = host + '/api/articles/' + slug;
+      return await send('get', url, 'article');
     },
     getComments: async function(slug) {
       slug = slug || context.slug;
-      let fetch_url = host + '/api/articles/' + slug + '/comments';
-      let options = {
-        method: 'GET',
-        headers: {
-          'Content-type': 'application/json',
-        }
-      };
-      if (context.jwt) {
-        options.headers.authorization = 'Token ' + context.jwt;
-      }
-      let response = await fetch(fetch_url, options);
-      let results = await response.json();
-      return results.comments;
+      let url = host + '/api/articles/' + slug + '/comments';
+      return await send('get', url, 'comments');
     },
     registerUser: async function(username, email, password) {
       let errors;
@@ -158,23 +119,15 @@ export function apis(context) {
       if (errors) {
         return {errors: errors};
       }
-      let fetch_url = host + '/api/users';
-      let options = {
-        method: 'POST',
-        headers: {
-          'Content-type': 'application/json'
-        },
-        body: JSON.stringify({
-          user: {
-            username: username,
-            email: email,
-            password: password 
-          }
-        })
+      let url = host + '/api/users';
+      let body = {
+        user: {
+          username: username,
+          email: email,
+          password: password 
+        }
       };
-      let response = await fetch(fetch_url, options);
-      let results = await response.json();
-      return results;
+      return await send('post', url, null, body, false);
     },
     authenticateUser: async function(email, password) {
       let errors;
@@ -186,92 +139,44 @@ export function apis(context) {
         };
         return {errors: errors};
       }
-      let fetch_url = host + '/api/users/login';
-      let options = {
-        method: 'POST',
-        headers: {
-          'Content-type': 'application/json'
-        },
-        body: JSON.stringify({
-          user: {
-            email: email,
-            password: password 
-          }
-        })
+      let url = host + '/api/users/login';
+      let body = {
+        user: {
+          email: email,
+          password: password 
+        }
       };
-      let response = await fetch(fetch_url, options);
-      let results = await response.json();
-      return results;
+      return await send('post', url, null, body, false);
     },
     getUser: async function(jwt) {
       jwt = jwt || context.jwt;
-      let fetch_url = host + '/api/user';
+      let url = host + '/api/user';
       let options = {
         method: 'GET',
         headers: {
-          'Content-type': 'application/json',
-          'Authorization': 'Token ' + jwt
+          'Content-type': 'application/json'
         }
       };
-      let response = await fetch(fetch_url, options);
+      options.headers[authHeader] = 'Token ' + jwt;
+      let response = await fetch(url, options);
       let results = await response.json();
       return results;
     },
     follow: async function(author) {
-      let jwt = context.jwt;
-      let fetch_url = host + '/api/profiles/' + author + '/follow';
-      let options = {
-        method: 'POST',
-        headers: {
-          'Content-type': 'application/json',
-          'Authorization': 'Token ' + jwt
-        }
-      };
-      let response = await fetch(fetch_url, options);
-      let results = await response.json();
-      return results;
+      let url = host + '/api/profiles/' + author + '/follow';
+      return await send('post', url);
     },
     unfollow: async function(author) {
-      let jwt = context.jwt;
-      let fetch_url = host + '/api/profiles/' + author + '/follow';
-      let options = {
-        method: 'DELETE',
-        headers: {
-          'Content-type': 'application/json',
-          'Authorization': 'Token ' + jwt
-        }
-      };
-      let response = await fetch(fetch_url, options);
-      let results = await response.json();
-      return results;
+      let url = host + '/api/profiles/' + author + '/follow';
+      return await send('delete', url);
     },
     favourite: async function(slug) {
-      let jwt = context.jwt;
-      let fetch_url = host + '/api/articles/' + slug + '/favorite';
-      let options = {
-        method: 'POST',
-        headers: {
-          'Content-type': 'application/json',
-          'Authorization': 'Token ' + jwt
-        }
-      };
-      let response = await fetch(fetch_url, options);
-      let results = await response.json();
-      return results;
+      let url = host + '/api/articles/' + slug + '/favorite';
+      return await send('post', url);
     },
     unfavourite: async function(slug) {
-      let jwt = context.jwt;
-      let fetch_url = host + '/api/articles/' + slug + '/favorite';
-      let options = {
-        method: 'DELETE',
-        headers: {
-          'Content-type': 'application/json',
-          'Authorization': 'Token ' + jwt
-        }
-      };
-      let response = await fetch(fetch_url, options);
-      let results = await response.json();
-      return results;
+      let url = host + '/api/articles/' + slug + '/favorite';
+      return await send('delete', url);
     },
     addComment: async function(slug, text) {
       let errors;
@@ -288,22 +193,13 @@ export function apis(context) {
         };
         return {errors: errors};
       }
-      let fetch_url = host + '/api/articles/' + slug + '/comments';
-      let options = {
-        method: 'POST',
-        headers: {
-          'Content-type': 'application/json',
-          'Authorization': 'Token ' + jwt
-        },
-        body: JSON.stringify({
-          comment: {
-            body: text 
-          }
-        })
+      let url = host + '/api/articles/' + slug + '/comments';
+      let body = {
+        comment: {
+          body: text 
+        }
       };
-      let response = await fetch(fetch_url, options);
-      let results = await response.json();
-      return results;
+      return await send('post', url, null, body);
     },
     deleteComment: async function(slug, id) {
       let errors;
@@ -314,15 +210,15 @@ export function apis(context) {
         };
         return {errors: errors};
       }
-      let fetch_url = host + '/api/articles/' + slug + '/comments/' + id;
+      let url = host + '/api/articles/' + slug + '/comments/' + id;
       let options = {
         method: 'DELETE',
         headers: {
-          'Content-type': 'application/json',
-          'Authorization': 'Token ' + jwt
+          'Content-type': 'application/json'
         }
       };
-      let response = await fetch(fetch_url, options);
+      options.headers[authHeader] = 'Token ' + jwt;
+      let response = await fetch(url, options);
       let results;
       try {
         results = await response.json();
@@ -354,25 +250,16 @@ export function apis(context) {
       if (errors) {
         return {errors: errors};
       }
-      let fetch_url = host + '/api/articles';
-      let options = {
-        method: 'POST',
-        headers: {
-          'Content-type': 'application/json',
-          'Authorization': 'Token ' + jwt
-        },
-        body: JSON.stringify({
-          article: {
-            title: title,
-            description: description,
-            body: body,
-            tagList: tagList || []
-          }
-        })
+      let url = host + '/api/articles';
+      let bodyObj = {
+        article: {
+          title: title,
+          description: description,
+          body: body,
+          tagList: tagList || []
+        }
       };
-      let response = await fetch(fetch_url, options);
-      let results = await response.json();
-      return results;
+      return await send('post', url, null, bodyObj);
     },
     deleteArticle: async function(slug) {
       let errors;
@@ -383,15 +270,15 @@ export function apis(context) {
         };
         return {errors: errors};
       }
-      let fetch_url = host + '/api/articles/' + slug;
+      let url = host + '/api/articles/' + slug;
       let options = {
         method: 'delete',
         headers: {
-          'Content-type': 'application/json',
-          'Authorization': 'Token ' + jwt
+          'Content-type': 'application/json'
         }
       };
-      let response = await fetch(fetch_url, options);
+      options.headers[authHeader] = 'Token ' + jwt;
+      let response = await fetch(url, options);
       let results;
       try {
         results = await response.json();
@@ -423,25 +310,16 @@ export function apis(context) {
       if (errors) {
         return {errors: errors};
       }
-      let fetch_url = host + '/api/articles/' + slug;
-      let options = {
-        method: 'PUT',
-        headers: {
-          'Content-type': 'application/json',
-          'Authorization': 'Token ' + jwt
-        },
-        body: JSON.stringify({
-          article: {
-            title: title,
-            description: description,
-            body: body,
-            tagList: tagList || []
-          }
-        })
+      let url = host + '/api/articles/' + slug;
+      let bodyObj = {
+        article: {
+          title: title,
+          description: description,
+          body: body,
+          tagList: tagList || []
+        }
       };
-      let response = await fetch(fetch_url, options);
-      let results = await response.json();
-      return results;
+      return await send('put', url, null, bodyObj);
     },
     updateUser: async function(params) {
       let email = params.email;
@@ -463,20 +341,11 @@ export function apis(context) {
       if (errors) {
         return {errors: errors};
       }
-      let fetch_url = host + '/api/user';
-      let options = {
-        method: 'PUT',
-        headers: {
-          'Content-type': 'application/json',
-          'Authorization': 'Token ' + jwt
-        },
-        body: JSON.stringify({
-          user: params
-        })
+      let url = host + '/api/user';
+      let body = {
+        user: params
       };
-      let response = await fetch(fetch_url, options);
-      let results = await response.json();
-      return results;
+      return await send('put', url, null, body);
     }
 
   };

@@ -104,7 +104,9 @@ export function load() {
         this.rootComponent.loggedIn(results.user);
 
         if (this.returnTo) {
-          let obj = {returnTo: this.returnTo};
+          let obj = {
+            author: results.user.username
+          }
           this.rootComponent.switchToPage(this.returnTo, obj);
         }
         else {

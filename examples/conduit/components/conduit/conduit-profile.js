@@ -253,7 +253,7 @@ export function load() {
         profile.followToggle = 'Unfollow';
       }
       if (!profile.bio) profile.bio = '';
-      if (!profile.image) profile.image = '';
+      if (!profile.image) profile.image = this.rootComponent.defaultImage;
       return profile;
     }
 
@@ -295,13 +295,7 @@ export function load() {
     }
 
     onSelected(obj) {
-      if (obj && obj.return_to === 'profile') {
-        // returned after logging in, so don't bother updating the profile data
-      }
-      else {
         this.getAndDisplayProfile(obj.author);
-      }
-
     }
 
   });

@@ -32,7 +32,9 @@ export function load(ctx) {
 
   const gx=`
 <conduit-content-page name="article">
-  <conduit-article />
+  <conduit-article>
+    <script src="../conduit/js/showdown/showdown.min.js" await="true" />
+  </conduit-article>
 </conduit-content-page>
   `;
 

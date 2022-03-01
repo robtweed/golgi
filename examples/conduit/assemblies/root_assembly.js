@@ -17,6 +17,7 @@ export function load(ctx) {
       initialise: async function() {
         let {apis} = await import('../js/rest-apis.js');
         this.apis = apis(ctx).apis;
+
         await this.loginWithJWT();
         await this.switchToPage('home_page');
       }
