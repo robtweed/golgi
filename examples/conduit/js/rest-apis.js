@@ -42,7 +42,6 @@ export function apis(context) {
     let options = {
       method: method.toUpperCase(),
       headers: {
-        mode: 'no-cors',
         'Content-type': 'application/json'
       }
     };
@@ -155,7 +154,6 @@ export function apis(context) {
       let url = host + '/api/user';
       let options = {
         method: 'GET',
-        mode: 'no-cors',
         headers: {
           'Content-type': 'application/json'
         }
