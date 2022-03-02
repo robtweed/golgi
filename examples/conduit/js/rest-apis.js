@@ -42,6 +42,7 @@ export function apis(context) {
     let options = {
       method: method.toUpperCase(),
       headers: {
+        mode: 'no-cors',
         'Content-type': 'application/json'
       }
     };
