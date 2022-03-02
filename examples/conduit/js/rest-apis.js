@@ -33,8 +33,8 @@ export function apis(context) {
   context = context || {};
 
   let host = context.conduit.rest_host || '';
-  //let authHeader = 'X-CustomHeader';
-  let authHeader = 'Authorization';
+  let authHeader = 'X-CustomHeader';
+  //let authHeader = 'Authorization';
 
   async function send(method, url, prop, body, useJWT) {
     if (typeof useJWT === 'undefined') useJWT = true;
