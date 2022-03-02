@@ -34,10 +34,6 @@ using *Golgi*.
 
 **NOTE:** You must use a modern browser that supports WebComponents to run these examples!
 
-**NOTE 2:** Due to issues with Safari's *fetch API* authenticated redirections, the Conduit demonstration will
-not currently work in Safari (desktop or mobile) if you try to sign up and sign in to the application. 
-These issues are nothing to do with *Golgi*.
-
 See the [*./examples*](./examples) folder for the actual *Golgi* source code
 files that run the live examples.
 
