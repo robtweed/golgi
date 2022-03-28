@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 26 February 2022
+ 28 March 2022
 
  */
 
@@ -399,12 +399,20 @@ let golgi = {
       //console.log(element);
       //console.log(targetElement);
     }
-    if (typeof element.html !== 'undefined') {
+
+    let targets;
+    if (element.shadowRoot) {
+      element.rootElement = element.shadowRoot.firstElementChild;
+      targets = element.shadowRoot.querySelectorAll('*');
+    }
+    else if (typeof element.html !== 'undefined') {
       element.innerHTML = element.html;
       element.rootElement = element.firstElementChild;
+      targets = element.querySelectorAll('*');
+    }
+
+    if (typeof element.rootElement !== 'undefined') {
       element.databinding = [];
-      //let targets = element.querySelectorAll('[class*=golgi-]');
-      let targets = element.querySelectorAll('*');
       targets.forEach(function(el) {
         if (el.hasAttribute('golgi:prop')) {
           let prop = el.getAttribute('golgi:prop');
@@ -1067,7 +1075,7 @@ golgi.golgi_state = new Proxy(golgi.dataStore, {
       if (typeof value === 'object') {
         getProps(prop, value);
       }
-      if (typeof value === 'string') {
+      if (typeof value === 'string' || typeof value === 'number') {
         applyState(prop, value);
       }      
 
