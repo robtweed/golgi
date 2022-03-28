@@ -33,6 +33,7 @@ let count = 0;
 
 let golgi = {
   dataStore: {},
+  components: [],
   stateMap: new Map(),
   resourceLoaded: new Map(),
 
@@ -148,7 +149,12 @@ let golgi = {
 
     function invokeComponent(elementClass) {
       let element = new elementClass();
-      targetElement.appendChild(element);
+      if (targetElement) {
+        targetElement.appendChild(element);
+      }
+      else {
+        golgi.components.push(element);
+      }
       element.context = context;
       element.path = jsPath;
       element.rootPath = jsRootPath;
@@ -183,17 +189,21 @@ let golgi = {
         //if (log) console.log('** component ' + componentName + ' loaded by another loop');
       }
 
+      let element = invokeComponent(elementClass);
+      return element;
+
+      /*
       if (targetElement) {
         //console.log('*** componentName: ' + componentName);
         //console.log('*** targetElement = ' );
         //console.log(targetElement);
-        let element = invokeComponent(elementClass);
-        return element;
+
       }
       else {
         // just pre-loading
         return;
       }
+      */
     }
   },
   loadGroup: async function(configArr, targetElement, context) {
@@ -201,7 +211,7 @@ let golgi = {
     // The array of child components share the same target and must be appended
     // in strict sequence, so this is enforced by this logic..
 
-    targetElement = targetElement || 'body';
+    //targetElement = targetElement || 'body';
     if (targetElement === 'body') targetElement = document.getElementsByTagName('body')[0];
     context = context || {};
 
@@ -304,7 +314,7 @@ let golgi = {
         element.setAttribute(attr, config.attributes[attr]);
       }
       element.childrenTarget = element;
-      targetElement.appendChild(element);
+      if (targetElement) targetElement.appendChild(element);
 
       // invoke any hooks applied to the assembly
 
@@ -410,6 +420,7 @@ let golgi = {
       element.rootElement = element.firstElementChild;
       targets = element.querySelectorAll('*');
     }
+    
 
     if (typeof element.rootElement !== 'undefined') {
       element.databinding = [];
@@ -423,8 +434,8 @@ let golgi = {
         if (el.textContent.startsWith('golgi:bind')) {
           let prop = el.textContent.split('golgi:bind=')[1] || 'dummy';
           let fn = function(dataObj) {
-            console.log(dataObj);
-            console.log(el);
+            //console.log(dataObj);
+            //console.log(el);
             let value = dataObj;
             if (typeof dataObj === 'object') value = dataObj[prop];
             el.innerHTML = value;
@@ -518,7 +529,7 @@ let golgi = {
       context.rootComponent = element;
     }
     element.rootComponent = context.rootComponent;
-    element.parentComponent = targetElement.ownerComponent;
+    if (targetElement) element.parentComponent = targetElement.ownerComponent;
 
     if (log) {
       console.log('Golgi Component instantiated and ready for use:');
@@ -627,7 +638,7 @@ let golgi = {
     }
 
 
-    if (!targetElement) return;
+    //if (!targetElement) return;
     if (!context) return;
     if (!name) return;
     if (name === '') return;
@@ -662,12 +673,14 @@ let golgi = {
       targetElement = document.getElementsByTagName('body')[0];
     }
 
-    let noOfInstances = targetElement.getElementsByTagName(componentName).length;
+    let noOfInstances = 0;
+    if (targetElement) noOfInstances = targetElement.getElementsByTagName(componentName).length;
 
     let assembly = [{
       componentName: componentName
     }];
     await this.loadGroup(assembly, targetElement, context);
+    if (!targetElement) return golgi.components;
     return targetElement.getElementsByTagName(componentName)[noOfInstances];
   },
   getParentComponent(options) {
@@ -982,8 +995,8 @@ golgi.golgi_state = new Proxy(golgi.dataStore, {
       let jpath = [];
 
       function applyState(mapKey, value) {
-        //console.log('trying to apply state for mapKey ' + mapKey + ' = ' + value);
-        //console.log(golgi.stateMap);
+        console.log('trying to apply state for mapKey ' + mapKey + ' = ' + value);
+        console.log(golgi.stateMap);
         if (golgi.stateMap.has(mapKey)) {
           let mapArr = golgi.stateMap.get(mapKey);
           mapArr.forEach((mapObj, index) => {
