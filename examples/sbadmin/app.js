@@ -12,6 +12,7 @@
 
   //golgi.setLog(true);
 
+  golgi.prefetchAssembly('dashboard', context);
   await golgi.renderAssembly('root_assembly', 'body', context);
 
 })();

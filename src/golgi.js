@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 28 March 2022
+ 4 April 2022
 
  */
 
@@ -129,6 +129,133 @@ let golgi = {
     document.getElementsByTagName('head')[0].appendChild(meta);
   },
 
+  prefetchAssemblies: function(assemblyNames, context) {
+    assemblyNames.forEach(function(name) {
+      golgi.prefetchAssembly(name, context);
+    });
+  },
+
+  prefetchAssembly: async function(name, context) {
+
+    let path = context.assemblyPath;
+    if (path === '') path = './';
+    if (path.slice(-1) !== '/') {
+      path = path + '/';
+    }
+    let _module = await import(path + name + '.js');
+    let assemblyObj = _module.load.call(this, context);
+    let json = assemblyObj.json || {};
+    if (assemblyObj.gx) {
+      json = this.parse(assemblyObj.gx, assemblyObj.hooks);
+    }
+
+    if (json) {
+      if (!Array.isArray(json)) {
+        json = [json];
+      }
+      json.forEach(function(component, index) {
+        json[index].assemblyName = name;
+      });
+    }
+
+    this.preloadAssembly(json, context);
+
+  },
+
+  preloadComponent: async function(component, context) {
+
+    // this is actually an assembly, so needs loading using
+    // renderAssembly instead
+
+    let name = component.componentName;
+
+    if (name.split(':')[0] === 'assembly') {
+      let aName = name.split('assembly:')[1];
+      this.prefetchAssembly(aName, context);
+      return;
+    }
+
+    
+    if (name.includes('-')) {
+      this.preload(name, context);
+    }
+    else if (name === 'script') {
+      if (!golgi.resourceLoaded.has(component.src)) {
+        let obj;
+        if (component.crossorigin) {
+          obj = {crossorigin: component.crossorigin};
+        }
+        golgi.loadJS(component.src, obj)
+        golgi.resourceLoaded.set(component.src, true);
+      }
+    }
+    else if (name === 'css') {
+      if (!golgi.resourceLoaded.has(component.src)) {
+        let obj;
+        if (component.crossorigin) {
+          obj = {crossorigin: component.crossorigin};
+        } 
+        golgi.loadCSS(component.src, obj);
+        golgi.resourceLoaded.set(component.src, true);
+      }
+    }
+    if (component.children && component.children[0]) {
+
+      // preload component's child components
+
+      this.preloadAssembly(component.children, context);
+    }
+    return;
+  },
+
+  preloadAssembly: function(configArr, context) {
+
+    console.log('preloadAssmbly: configArr:');
+    console.log(configArr);
+
+    for (const config of configArr) {
+      console.log('preloadAssembly loop - config=');
+      console.log(config);
+      this.preloadComponent(config, context);
+    }
+
+  },
+
+  preload: async function(componentName, context) {
+
+    let namespace = componentName.split('-')[0];
+
+    if (log) console.log('*** preload ' + componentName);
+    let _this = this;
+
+    //console.log('context: ');
+    //console.log(context);
+    let jsPath = context.componentPath || './';
+    if (context.componentPaths && context.componentPaths[namespace]) {
+      jsPath = context.componentPaths[namespace];
+    }
+    let jsRootPath = jsPath;
+    if (jsRootPath.slice(-1) !== '/') {
+      jsRootPath = jsPath + '/';
+    }
+
+    let elementClass = customElements.get(componentName);
+    if (!elementClass) {
+      let _module = await import(jsPath + componentName + '.js');
+      // check again in case loaded in the meantime by another async loop
+      let elementClass = customElements.get(componentName);
+      if (!elementClass) {
+        _module.load.call(this);
+        elementClass = customElements.get(componentName);
+        if (log) console.log('** preload: component ' + componentName + ' had to be imported');
+      }
+      else {
+        if (log) console.log('** preload: component ' + componentName + ' loaded by another loop');
+      }
+    }
+  },
+
+
   load: async function(componentName, targetElement, context) {
 
     let namespace = componentName.split('-')[0];
@@ -206,6 +333,7 @@ let golgi = {
       */
     }
   },
+
   loadGroup: async function(configArr, targetElement, context) {
 
     // The array of child components share the same target and must be appended
@@ -663,6 +791,8 @@ let golgi = {
         json[index].assemblyName = name;
       });
     }
+
+    this.preloadAssembly(json, context);
 
     return await this.loadGroup(json, targetElement, context);
   },

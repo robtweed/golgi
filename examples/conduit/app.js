@@ -18,6 +18,17 @@
   golgi.setLog(true);
 
 
-  golgi.renderAssembly('root_assembly', 'body', context);
+  golgi.prefetchAssembly('home_page', context);
+
+  await golgi.renderAssembly('root_assembly', 'body', context);
+
+  golgi.prefetchAssemblies([
+    'article',
+    'new_article',
+    'signup',
+    'settings',
+    'profile',
+    'login'
+  ], context);
 
 })();

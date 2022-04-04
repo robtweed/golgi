@@ -108,7 +108,7 @@ export function load() {
               <textarea golgi:prop="commentFormText" class="form-control" placeholder="Write a comment..." rows="3"></textarea>
             </div>
             <div class="card-footer">
-              <img src="golgi:bind=userImage" class="comment-author-img" />
+              <img src="golgi:bind=image" class="comment-author-img" />
               <button class="btn btn-sm btn-primary">Post Comment</button>
             </div>
           </form>
@@ -336,6 +336,7 @@ export function load() {
     normaliseComment(comment) {
       comment.date = this.rootComponent.formatDate(comment.updatedAt);
       comment.image = comment.author.image;
+      if (typeof comment.image === 'undefined' || comment.image === '') comment.image = this.rootComponent.defaultImage;
       comment.author = comment.author.username;
       comment.slug = this.slug;
       return comment;
