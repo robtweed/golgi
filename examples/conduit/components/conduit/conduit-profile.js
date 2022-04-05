@@ -44,7 +44,7 @@ export function load() {
       <div class="row">
 
         <div class="col-xs-12 col-md-10 offset-md-1">
-          <img src="golgi:bind=image" class="user-img" />
+          <img src="golgi:bind=image" class="user-img" decoding="async" />
           <h4>golgi:bind=username</h4>
           <p>golgi:bind=bio</p>
           <button class="btn btn-sm btn-outline-secondary action-btn" golgi:prop="followBtn" golgi:on_click="followToggle">

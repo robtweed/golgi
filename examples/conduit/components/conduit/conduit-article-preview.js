@@ -42,7 +42,7 @@ export function load() {
 <div class="article-preview">
   <div class="article-meta">
     <a href="#" golgi:prop="authorImgLink" golgi:on_click="profile">
-      <img src="golgi:bind=image" />
+      <img src="golgi:bind=image" decoding="async" />
     </a>
     <div class="info">
       <a href="#" golgi:prop="authorEl" golgi:on_click="profile">golgi:bind=author</a>

@@ -70,7 +70,7 @@ export function load() {
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#" golgi:prop="userLink" golgi:on_click="profile">
-            <img class="user-img" src="golgi:bind=userImage" golgi:prop="userImg" />
+            <img class="user-img" src="golgi:bind=userImage" golgi:prop="userImg" decoding="async" />
             <span golgi:prop="username">golgi:bind=username</span>
           </a>
         </li>

@@ -43,7 +43,7 @@ export function load() {
   </div>
   <div class="card-footer">
     <a href="#" class="comment-author" golgi:on_click="profile">
-      <img src="golgi:bind=image" class="comment-author-img" alt="golgi:bind=author" />
+      <img src="golgi:bind=image" class="comment-author-img" alt="golgi:bind=author" decoding="async" />
     </a>
     &nbsp;
     <a href="#" class="comment-author" golgi:on_click="profile">golgi:bind=author</a>

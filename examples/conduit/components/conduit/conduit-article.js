@@ -45,7 +45,7 @@ export function load() {
 
       <div class="article-meta">
         <a golgi:prop="authorImgLink" href="#" golgi:on_click="profile">
-          <img golgi:prop="authorImg" src="golgi:bind=image" />
+          <img golgi:prop="authorImg" src="golgi:bind=image" decoding="async" />
         </a>
         <div class="info">
           <a href="#" golgi:prop="authorEl" golgi:on_click="profile">golgi:bind=author</a>
@@ -108,7 +108,7 @@ export function load() {
               <textarea golgi:prop="commentFormText" class="form-control" placeholder="Write a comment..." rows="3"></textarea>
             </div>
             <div class="card-footer">
-              <img src="golgi:bind=image" class="comment-author-img" />
+              <img src="golgi:bind=image" class="comment-author-img" decoding="async" />
               <button class="btn btn-sm btn-primary">Post Comment</button>
             </div>
           </form>
