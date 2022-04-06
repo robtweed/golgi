@@ -22,13 +22,19 @@
 
   await golgi.renderAssembly('root_assembly', 'body', context);
 
-  golgi.prefetchAssemblies([
-    'article',
-    'new_article',
-    'signup',
-    'settings',
-    'profile',
-    'login'
-  ], context);
+  // behind the scenes, while nothing else is happening,
+  //  quietly pre-fetch all the other assemblies, so the components
+  //  are already available when needed by the user
+
+  setTimeout(function() {
+    golgi.prefetchAssemblies([
+      'article',
+      'new_article',
+      'signup',
+      'settings',
+      'profile',
+      'login'
+    ], context);
+  }, 2000);
 
 })();
