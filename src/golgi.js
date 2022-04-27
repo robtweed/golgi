@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 4 April 2022
+ 27 April 2022
 
  */
 
@@ -129,6 +129,24 @@ let golgi = {
     document.getElementsByTagName('head')[0].appendChild(meta);
   },
 
+  fetch_ssr: async function(namespace, context) {
+
+    // Fetch pre-built SSR version of all components for a namespace, ie single file minimised import
+
+    let filename = context.componentPaths[namespace] + 'golgi-ssr.js';
+    if (log) console.log('fetching SSR file: ' + filename);
+
+    try {
+      const {golgi_components} = await import(filename);
+      golgi_components.forEach(function(fn) {
+        fn();
+      });
+    }
+    catch(err) {
+      if (log) console.log('Unable to fetch SSR module for ' + namespace);
+    }
+  },
+
   prefetchAssemblies: function(assemblyNames, context) {
     assemblyNames.forEach(function(name) {
       golgi.prefetchAssembly(name, context);
@@ -144,7 +162,7 @@ let golgi = {
     }
     let _module = await import(path + name + '.js');
     let assemblyObj = _module.load.call(this, context);
-    let json = assemblyObj.json || {};
+    let json = assemblyObj.gjson || {};
     if (assemblyObj.gx) {
       json = this.parse(assemblyObj.gx, assemblyObj.hooks);
     }
@@ -210,15 +228,18 @@ let golgi = {
 
   preloadAssembly: function(configArr, context) {
 
-    console.log('preloadAssmbly: configArr:');
-    console.log(configArr);
-
     for (const config of configArr) {
-      console.log('preloadAssembly loop - config=');
-      console.log(config);
+      //console.log('preloadAssembly loop - config=');
+      //console.log(config);
       this.preloadComponent(config, context);
     }
 
+  },
+
+  preloadComponents: function(componentNames, context) {
+    componentNames.forEach(function(name) {
+      golgi.preload(name, context);
+    });
   },
 
   preload: async function(componentName, context) {
@@ -544,11 +565,12 @@ let golgi = {
       targets = element.shadowRoot.querySelectorAll('*');
     }
     else if (typeof element.html !== 'undefined') {
+
       element.innerHTML = element.html;
       element.rootElement = element.firstElementChild;
+
       targets = element.querySelectorAll('*');
     }
-    
 
     if (typeof element.rootElement !== 'undefined') {
       element.databinding = [];
@@ -559,11 +581,26 @@ let golgi = {
           el.removeAttribute('golgi:prop');
           el.ownerComponent = element;
         }
+
+        el.childNodes.forEach(function(child) {
+          if (child.nodeType === 3 && child.nodeValue.startsWith('golgi:bind')) {
+            let prop = child.nodeValue.split('golgi:bind=')[1] || 'dummy';
+            let span = document.createElement('span');
+            el.insertBefore(span, child);
+            let fn = function(dataObj) {
+              let value = dataObj;
+              if (typeof dataObj === 'object') value = dataObj[prop];
+              //span.parentNode.innerHTML = value;
+              span.innerHTML = value;              
+            };
+            element.databinding.push(fn);
+            child.nodeValue = '';
+          }
+        });
+        /*
         if (el.textContent.startsWith('golgi:bind')) {
           let prop = el.textContent.split('golgi:bind=')[1] || 'dummy';
           let fn = function(dataObj) {
-            //console.log(dataObj);
-            //console.log(el);
             let value = dataObj;
             if (typeof dataObj === 'object') value = dataObj[prop];
             el.innerHTML = value;
@@ -571,6 +608,7 @@ let golgi = {
           element.databinding.push(fn);
           el.textContent = '';
         }
+        */
         [...el.attributes].forEach(function(attr) {
           if (attr.name.startsWith('golgi:on_')) {
             let eventName = attr.name.split('golgi:on_')[1];      
@@ -616,6 +654,7 @@ let golgi = {
         });
 
       });
+
       if (!element.childrenTarget) {
         element.childrenTarget = element.rootElement;
       }
@@ -765,7 +804,6 @@ let golgi = {
       name = args;
     }
 
-
     //if (!targetElement) return;
     if (!context) return;
     if (!name) return;
@@ -778,7 +816,7 @@ let golgi = {
     }
     let _module = await import(path + name + '.js');
     let assemblyObj = _module.load.call(this, context);
-    let json = assemblyObj.json || {};
+    let json = assemblyObj.gjson || {};
     if (assemblyObj.gx) {
       json = this.parse(assemblyObj.gx, assemblyObj.hooks);
     }
@@ -1125,8 +1163,10 @@ golgi.golgi_state = new Proxy(golgi.dataStore, {
       let jpath = [];
 
       function applyState(mapKey, value) {
-        console.log('trying to apply state for mapKey ' + mapKey + ' = ' + value);
-        console.log(golgi.stateMap);
+        if (log) {
+          console.log('trying to apply state for mapKey ' + mapKey + ' = ' + value);
+          console.log(golgi.stateMap);
+        }
         if (golgi.stateMap.has(mapKey)) {
           let mapArr = golgi.stateMap.get(mapKey);
           mapArr.forEach((mapObj, index) => {

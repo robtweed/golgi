@@ -16,3 +16,17 @@
   border-radius: 100px;
   margin-bottom: 1rem;
 }
+.article-preview .preview-link span{
+    max-width:inherit;
+    font-size:inherit;
+    font-weight:inherit;
+    color:inherit;
+    vertical-align:inherit
+}
+.article-preview .preview-link .preview-readmore{
+    max-width:30%;
+    font-size:.8rem;
+    font-weight:300;
+    color:#bbb;
+    vertical-align:middle
+}

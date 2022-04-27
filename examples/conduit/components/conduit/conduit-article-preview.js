@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 20 February 2022
+ 27 April 2022
 
 */
 
@@ -56,7 +56,7 @@ export function load() {
   <a href="#" class="preview-link" golgi:prop="articleLink" golgi:on_click="displayArticle">
     <h1>golgi:bind=title</h1>
     <p>golgi:bind=text</p>
-    <span>Read more...</span>
+    <span class="preview-readmore">Read more...</span>
     <ul class="tag-list" golgi:prop="tagListEl"></ul>
   </a>
 </div>
