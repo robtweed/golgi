@@ -1,0 +1,1 @@
+function load(){let t="conduit-article-tag",e=-1;customElements.define(t,class extends HTMLElement{constructor(){super(),e++;this.html='<li class="tag-default tag-pill tag-outline"><span>golgi:bind</span></li>',this.name=t+"-"+e}setState(t){t.name&&(this.name=t.name)}})}export{load};

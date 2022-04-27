@@ -1,0 +1,1 @@
+function load(){let t="conduit-error",e=-1;customElements.define(t,class extends HTMLElement{constructor(){super(),e++;this.html='<li><span golgi:prop="text"></span></li>',this.name=t+"-"+e}setState(t){t.name&&(this.name=t.name)}setText(t){this.text.textContent=t}})}export{load};

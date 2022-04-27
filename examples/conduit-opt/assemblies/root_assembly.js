@@ -1,0 +1,1 @@
+function load(a){return{gjson:{componentName:"conduit-root",state:{"golgi:hook":"initialise"},hook:async function(){this.apis=a.apis(a).apis,await this.loginWithJWT(),this.switchToPage("home_page")},state_map:new Map([["user","applyDataBinding"]]),assemblyName:"root_assembly"}}}export{load};
