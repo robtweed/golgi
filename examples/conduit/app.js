@@ -25,7 +25,7 @@
     'conduit-article-preview',
     'conduit-tag',
     'conduit-article-tag'
-  ]);
+  ], context);
 
   // manually optimise by pre-fetching/processing home_page assembly asynchonously
 
