@@ -1,9 +1,8 @@
 (async () => {
 
-  const p1 = import('../../src/golgi.min.js');
-  const p2 = import('./js/rest-apis.min.js');
-
-  const [{golgi}, {apis}] = await Promise.all([p1, p2]);
+  document.addEventListener('apisReady', () => {
+    console.log('*** apis are ready!');
+  });
 
   let context = {
     componentPaths: {
@@ -15,12 +14,22 @@
       rest_host: 'https://demos.mgateway.com',
       defaultImage: 'https://static.productionready.io/images/smiley-cyrus.jpg'
     },
-    stateMap: golgi.stateMap
+    apisReady: new Event('apisReady'),
   };
 
-  context.apis = apis;
+  setTimeout(async function() {
+    const {apis} = await import('./js/rest-apis.min.js');
+    context.apis = apis;
+    document.dispatchEvent(context.apisReady);
+  }, 0);
+
+  const {golgi} = await import('../../src/golgi.min.js');
+
+  context.stateMap = golgi.stateMap;
 
   //golgi.setLog(true);
+
+  golgi.fetch_ssr('conduit', context);
 
   // manually optimise initial performance by asynchronously pre-loading key components
   golgi.preloadComponents([
