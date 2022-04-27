@@ -7,9 +7,9 @@
 
   let context = {
     componentPaths: {
-      conduit: '../examples/conduit/components/conduit/',
+      conduit: '../examples/conduit-opt/components/conduit/',
     },
-    assemblyPath: '../examples/conduit/assemblies/',
+    assemblyPath: '../examples/conduit-opt/assemblies/',
     conduit: {
       //rest_host: 'https://conduit.productionready.io',
       rest_host: 'https://demos.mgateway.com',
