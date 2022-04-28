@@ -7,12 +7,11 @@ export function load(ctx) {
   const hooks = {
     'conduit-root': {
       initialise: async function() {
-        //let {apis} = await import('/golgi-conduit/js/rest-apis.min.js');
-        this.apis = ctx.apis(ctx).apis;     
-        //this.apis = apis(ctx).apis;
-        await this.loginWithJWT();
-        //await this.switchToPage('home_page');
-        this.switchToPage('home_page');
+        if (ctx.apis && ctx.jwt_decode) {
+          this.apis = ctx.apis(ctx).apis;     
+          await this.loginWithJWT();
+          this.switchToPage('home_page');
+        }
       }
     }
   };

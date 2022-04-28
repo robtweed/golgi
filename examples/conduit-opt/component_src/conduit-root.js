@@ -65,6 +65,14 @@ module.exports = {
         this.defaultImage = this.context.conduit.defaultImage;
       }
 
+      this.addEventListener('apisReady', async () => {
+        if (this.context.apis && this.context.jwt_decode) {
+          this.apis = this.context.apis(this.context).apis;     
+          await this.loginWithJWT();
+          this.switchToPage('home_page');
+        }
+      });
+
       // set up map of navlinks
 
       this.navLinks.set('homeLink', this.homeLink);
@@ -267,7 +275,7 @@ module.exports = {
     async loginWithJWT() {
       let jwt = localStorage.getItem('conduit-jwt');
       if (jwt) {
-        let jwt_dec = jwt_decode(jwt);
+        let jwt_dec = this.context.jwt_decode(jwt);
         let exp = jwt_dec.exp * 1000;
         if (exp < Date.now()) {
           // JWT has expired, so get rid of it
