@@ -21,7 +21,7 @@
   }, 0);
 
   setTimeout(async function() {
-    await import('js/auth0/jwt-decode.min.js');
+    await import('./js/auth0/jwt-decode.min.js');
     context.jwt_decode = jwt_decode;
     let el = document.querySelector('conduit-root');
     if (el) el.dispatchEvent(context.apisReady);
