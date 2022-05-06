@@ -24,11 +24,10 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 27 April 2022
+ 6 May 2022
 
  */
 
-let log = false;
 let count = 0;
 
 let golgi = {
@@ -36,9 +35,10 @@ let golgi = {
   components: [],
   stateMap: new Map(),
   resourceLoaded: new Map(),
+  logging: false,
 
   setLog: function (state) {
-    log = state;
+    this.logging = state;
   },
 
   loadJSAsync: async function(src, attrs) {
@@ -67,8 +67,9 @@ let golgi = {
     let script = document.createElement("script");
     script.type = "text/javascript";
     script.src = src
+    let _this = this;
     script.onload = function(){
-      if (log) console.log('script ' + src + ' loaded');
+      _this.logMessage('script ' + src + ' loaded');
       if (callback) callback(src);
     };
 	if (crossorigin) {
@@ -114,8 +115,9 @@ let golgi = {
 	if (crossorigin) {
       link.setAttribute('crossorigin', crossorigin);;
     }
+    let _this = this;
     link.onload = function() {
-      if (log) console.log('CSS file ' + src + ' loaded');
+      _this.logMessage('CSS file ' + src + ' loaded');
       if (callback) callback(src);
     };
     head.appendChild(link);
@@ -134,7 +136,7 @@ let golgi = {
     // Fetch pre-built SSR version of all components for a namespace, ie single file minimised import
 
     let filename = context.componentPaths[namespace] + 'golgi-ssr.js';
-    if (log) console.log('fetching SSR file: ' + filename);
+    this.logMessage('fetching SSR file: ' + filename);
 
     try {
       const {golgi_components} = await import(filename);
@@ -143,7 +145,7 @@ let golgi = {
       });
     }
     catch(err) {
-      if (log) console.log('Unable to fetch SSR module for ' + namespace);
+      this.logMessage('Unable to fetch SSR module for ' + namespace);
     }
   },
 
@@ -246,7 +248,7 @@ let golgi = {
 
     let namespace = componentName.split('-')[0];
 
-    if (log) console.log('*** preload ' + componentName);
+    this.logMessage('*** preload ' + componentName);
     let _this = this;
 
     //console.log('context: ');
@@ -268,10 +270,10 @@ let golgi = {
       if (!elementClass) {
         _module.load.call(this);
         elementClass = customElements.get(componentName);
-        if (log) console.log('** preload: component ' + componentName + ' had to be imported');
+        this.logMessage('** preload: component ' + componentName + ' had to be imported');
       }
       else {
-        if (log) console.log('** preload: component ' + componentName + ' loaded by another loop');
+        this.logMessage('** preload: component ' + componentName + ' loaded by another loop');
       }
     }
   },
@@ -281,7 +283,7 @@ let golgi = {
 
     let namespace = componentName.split('-')[0];
 
-    if (log) console.log('*** load ' + componentName);
+    this.logMessage('*** load ' + componentName);
     let _this = this;
 
     //console.log('context: ');
@@ -320,7 +322,7 @@ let golgi = {
 
     let elementClass = customElements.get(componentName);
     if (elementClass) {
-      if (log) console.log('** component ' + componentName + ' already imported');
+      this.logMessage('** component ' + componentName + ' already imported');
       let element = invokeComponent(elementClass);
       return element;
     }
@@ -331,7 +333,7 @@ let golgi = {
       if (!elementClass) {
         _module.load.call(this);
         elementClass = customElements.get(componentName);
-        if (log) console.log('** component ' + componentName + ' had to be imported');
+        this.logMessage('** component ' + componentName + ' had to be imported');
       }
       else {
         //if (log) console.log('** component ' + componentName + ' loaded by another loop');
@@ -413,8 +415,8 @@ let golgi = {
           component.hook.call(this);
         }
         catch(err) {
-          if (log) {
-            console.log('Unable to execute hook ' + name + ' for ' + config.componentName);
+          if (this.logging) {
+            this.logMessage('Unable to execute hook ' + name + ' for ' + config.componentName);
             console.log(err);
           }
         }
@@ -478,8 +480,8 @@ let golgi = {
           }
         }
         catch(err) {
-          if (log) {
-            console.log('Unable to execute hook ' + name + ' for ' + config.componentName);
+          if (this.logging) {
+            this.logMessage('Unable to execute hook ' + name + ' for ' + config.componentName);
             console.log(err);
           }
         }
@@ -553,7 +555,7 @@ let golgi = {
 
   renderWebComponent: async function(config, targetElement, context) {
     let element = await this.load(config.componentName, targetElement, context);
-    if (log) {
+    if (this.logging) {
       //console.log('load element: ' + config.componentName);
       //console.log(element);
       //console.log(targetElement);
@@ -679,9 +681,11 @@ let golgi = {
     element.addMetaTag = this.addMetaTag;
     element.loadResources = this.loadResources;
     element.loadJSAsync = this.loadJSAsync
-    element.loadJS = this.loadJS;
+    element.loadJS = this.loadJS.bind(this);
     element.loadCSSAsync = this.loadCSSAsync;
-    element.loadCSS = this.loadCSS;
+    element.loadCSS = this.loadCSS.bind(this);
+    element.logging = this.logging;
+    element.logMessage = this.logMessage.bind(this);
     element.loadGroup = this.loadGroup.bind(this);
     element.renderAssembly = this.renderAssembly.bind(this);
     element.renderComponent = this.renderComponent.bind(this);
@@ -691,6 +695,10 @@ let golgi = {
     element.golgi_state = this.golgi_state;
     element.addStateMap = this.addStateMap.bind(element);
     element.applyDataBinding = this.applyDataBinding.bind(element);
+    element.registeredListenerTypes = new Map();
+    element.on = this.on.bind(element);
+    element.off = this.off.bind(element);
+    element.emit = this.emit.bind(element);
 
     if (!context.rootComponent) {
       context.rootComponent = element;
@@ -698,8 +706,8 @@ let golgi = {
     element.rootComponent = context.rootComponent;
     if (targetElement) element.parentComponent = targetElement.ownerComponent;
 
-    if (log) {
-      console.log('Golgi Component instantiated and ready for use:');
+    if (this.logging) {
+      this.logMessage('Golgi Component instantiated and ready for use:');
       console.log(element);
     }
 
@@ -759,8 +767,8 @@ let golgi = {
         }
       }
       catch(err) {
-        if (log) {
-          console.log('Unable to execute hook ' + name + ' for ' + config.componentName);
+        if (this.logging) {
+          this.logMessage('Unable to execute hook ' + name + ' for ' + config.componentName);
           console.log(err);
         }
       }
@@ -769,6 +777,8 @@ let golgi = {
     if (element.onAfterHooks) {
       element.onAfterHooks();
     }
+
+    element.emit('componentReady');
 
     return element;
   },
@@ -904,22 +914,27 @@ let golgi = {
   },
 
   onUnload: function() {
-    if (log) {
-      console.log('removing Golgi COmponent:');
+    if (this.logging) {
+      this.logMessage('removing Golgi COmponent:');
       console.log(this);
     }
+    for (const type of this.registeredListenerTypes.keys()) {
+      this.logMessage('removing customHandler for type ' + type);
+      this.off(type);
+    }
+    let _this = this;
     if (this.listeners) {
       this.listeners.forEach(function(listener) {
-        if (log) {
-          console.log('removing listener');
+        if (_this.logging) {
+          _this.logMessage('removing listener');
           console.log(listener);
         }
         listener.target.removeEventListener(listener.type, listener.fn);
       });
     }
     this.methodsToRemove.forEach(function(method) {
-      if (log) {
-        console.log('invoking custom unload method');
+      if (_this.logging) {
+        _this.logMessage('invoking custom unload method');
         console.log(method);
       }
       method();
@@ -959,7 +974,40 @@ let golgi = {
       });
     }
   },
- 
+
+  on: function(type, callback) {
+    if (!this.registeredListenerTypes.has(type)) {
+      let handler = function(e) {
+        callback(e.detail);
+      };    
+      this.addEventListener(type, handler);
+      this.registeredListenerTypes.set(type, handler);
+    }
+  },
+
+  emit: function(type, data) {
+    if (this.registeredListenerTypes.has(type)) {     
+      let evt = new CustomEvent(type, {
+        detail: data
+      });
+      this.dispatchEvent(evt);
+    }
+  },
+
+  off: function(type) {
+    if (this.registeredListenerTypes.has(type)) {
+      let handler =  this.registeredListenerTypes.get(type);
+      this.removeEventListener(type, handler);
+      this.registeredListenerTypes.delete(type);
+    }
+  },
+
+  logMessage: function(message) {
+    if (this.logging) {
+      console.log(Date.now() + ': ' + message);
+    }
+  },
+
   parse: function(input, hooks) {
     let xml = '<xml xmlns="http://mgateway.com" xmlns:assembly="http://mgateway.com" xmlns:golgi="http://mgateway.com">' + input + '</xml>';
     //console.log(xml);
@@ -1098,8 +1146,8 @@ let golgi = {
     return component;
   },
   observerStart() {
-    if (log) {
-      console.log('running observerStart on this:');
+    if (this.logging) {
+      this.logMessage('running observerStart on this:');
       console.log(this);
     }
     if (this.observerCallback) {
@@ -1163,8 +1211,8 @@ golgi.golgi_state = new Proxy(golgi.dataStore, {
       let jpath = [];
 
       function applyState(mapKey, value) {
-        if (log) {
-          console.log('trying to apply state for mapKey ' + mapKey + ' = ' + value);
+        if (golgi.logging) {
+          golgi.logMessage('trying to apply state for mapKey ' + mapKey + ' = ' + value);
           console.log(golgi.stateMap);
         }
         if (golgi.stateMap.has(mapKey)) {
@@ -1202,8 +1250,8 @@ golgi.golgi_state = new Proxy(golgi.dataStore, {
       let jpath = [];
 
       function applyState(mapKey, value) {
-        if (log) {
-          console.log('trying to apply state for mapKey ' + mapKey + ' = ' + value);
+        if (golgi.logging) {
+          golgi.logMessage('trying to apply state for mapKey ' + mapKey + ' = ' + value);
           console.log(golgi.stateMap);
         }
         if (golgi.stateMap.has(mapKey)) {
@@ -1232,8 +1280,8 @@ golgi.golgi_state = new Proxy(golgi.dataStore, {
       }
 
       function getProps(parentProp, obj) {
-        if (log) {
-          console.log('getProps called for ' + parentProp);
+        if (golgi.logging) {
+          golgi.logMessage('getProps called for ' + parentProp);
           console.log(obj);
         }
         jpath.push(parentProp);
