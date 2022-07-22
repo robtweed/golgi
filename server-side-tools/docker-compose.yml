@@ -1,0 +1,25 @@
+version: '3.3'
+
+services:
+  optimise_assemblies:
+    image: rtweed/node-runner
+    container_name: node-runner
+    network_mode: host
+    stdin_open: true
+    tty: true
+    environment:
+      node_script: optimise_assemblies
+    volumes:
+      - ./:/node
+
+  build_components:
+    image: rtweed/node-runner
+    container_name: node-runner
+    network_mode: host
+    stdin_open: true
+    tty: true
+    environment:
+      node_script: build_components
+    volumes:
+      - ./:/node
+

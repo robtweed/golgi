@@ -1,0 +1,21 @@
+{
+  "name": "golgi",
+  "version": "1.2.1",
+  "description": "Dynamically-loading WebComponent Assembly Framework",
+  "main": "/src/golgi.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robtweed/golgi.git"
+  },
+  "author": "Rob Tweed, M/Gateway Developments Ltd",
+  "license": "Apache-2.0",
+  "dependencies": {
+  },
+  "bugs": {
+    "url": "https://github.com/robtweed/golgi/issues"
+  },
+  "homepage": "https://github.com/robtweed/golgi#readme"
+}

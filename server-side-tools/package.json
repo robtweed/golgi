@@ -1,0 +1,22 @@
+{
+  "name": "golgi-ssr",
+  "version": "0.1.1",
+  "description": "Server-side Golgi Modules",
+  "author": "Rob Tweed <rob.tweed@gmail.com>",
+  "dependencies": {
+    "fs-extra": "",
+    "html-minifier": "^4.0.0",
+    "jsdom": "^19.0.0",
+    "module-exists": "",
+    "qewd-transform-json": "",
+    "readline-sync": "",
+    "uglify-js": "^3.15.4",
+    "golgi": ""
+  },
+
+  "main": "index.js",
+  "scripts": {
+    "optimise_assemblies": "node optimiseAssemblies.js",
+    "build_components": "node buildComponents.js"
+  }
+}
