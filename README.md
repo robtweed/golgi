@@ -32,14 +32,6 @@ demonstrating the [RealWorld Conduit](https://github.com/gothinkster/realworld)
 front-end, implemented as a single-page application
 using *Golgi*.
 
-If you want to see the potential ultra-high performance of Golgi, without the need for 
-complex techniques such as server-side
-rendered (SSR) HTML and hydration, but just simply by applying some straightforward optimisations
-of the loading of resources and simple pre-optimisations of the WebComponents and Golgi Assemblies,
-take a look at this optimised version of the same 
-[RealWorld Conduit application](https://robtweed.github.io/golgi/examples/conduit-opt/).
-My own testing shows this version achieves Lighthouse performance scores of between 95 and 100!
-
 **NOTE:** You must use a modern browser that supports WebComponents to run these examples!
 
 See the [*./examples*](./examples) folder for the actual *Golgi* source code
