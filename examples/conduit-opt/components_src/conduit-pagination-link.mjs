@@ -1,4 +1,4 @@
-module.exports = {
+let def = {
   name: 'conduit-pagination-link',
   html: `
 <li class="page-item">
@@ -48,3 +48,4 @@ module.exports = {
 
   `
 };
+export {def};

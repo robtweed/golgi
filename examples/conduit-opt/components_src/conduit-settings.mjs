@@ -1,4 +1,4 @@
-module.exports = {
+let def = {
   name: 'conduit-settings',
   html: `
 <div class="settings-page">
@@ -116,3 +116,4 @@ module.exports = {
 
   `
 };
+export {def};

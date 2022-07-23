@@ -1,4 +1,4 @@
-module.exports = {
+let def = {
   name: 'conduit-article-tag',
   html: `
 <li class="tag-default tag-pill tag-outline">
@@ -15,3 +15,4 @@ module.exports = {
 
   `
 };
+export {def};

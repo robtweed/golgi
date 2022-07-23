@@ -1,4 +1,4 @@
-module.exports = {
+let def = {
   name: 'conduit-tag',
   html: `
 <a class="tag-pill tag-default" href="#">golgi:bind</a>
@@ -12,3 +12,4 @@ module.exports = {
     }
   `
 };
+export {def};

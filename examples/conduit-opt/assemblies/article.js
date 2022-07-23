@@ -1,1 +1,1 @@
-function load(o){return{gjson:{componentName:"conduit-content-page",state:{name:"article"},children:[{componentName:"conduit-article",script:[{src:"/golgi-conduit/js/showdown/showdown.min.js",await:"true"}]}],assemblyName:"root_assembly"}}}export{load};
+function load(e){return{gjson:{componentName:"conduit-content-page",state:{name:"article"},children:[{componentName:"conduit-article",state:{},script:[{src:"/golgi-conduit/js/showdown/showdown.min.js",await:"true"}],assemblyName:"article"}],assemblyName:"article"}}}export{load};

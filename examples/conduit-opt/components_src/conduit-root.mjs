@@ -1,4 +1,4 @@
-module.exports = {
+let def = {
   name: 'conduit-root',
   html: `
 <div class="d-flex flex-column">
@@ -343,3 +343,4 @@ module.exports = {
     }
   `
 };
+export {def};

@@ -1,4 +1,4 @@
-module.exports = {
+let def = {
   name: 'conduit-error',
   html: `
 <li>
@@ -19,4 +19,5 @@ module.exports = {
 
   `
 };
+export {def};
 

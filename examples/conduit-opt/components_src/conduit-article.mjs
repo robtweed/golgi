@@ -1,4 +1,4 @@
-module.exports = {
+let def = {
   name: 'conduit-article',
   html: `
 <div class="article-page">
@@ -343,4 +343,5 @@ module.exports = {
     }
   `
 };
+export {def};
 

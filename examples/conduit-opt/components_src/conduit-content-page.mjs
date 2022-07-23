@@ -1,4 +1,4 @@
-module.exports = {
+let def = {
   name: 'conduit-content-page',
   html: `
 <div class="collapse"></div>
@@ -32,4 +32,5 @@ module.exports = {
     }
   `
 };
+export {def};
 
