@@ -45,6 +45,9 @@ My own testing shows this version achieves Lighthouse performance scores of betw
 See the [*./examples*](./examples) folder for the actual *Golgi* source code
 files that run the live examples.
 
+The [Optimisation Techniques are described here](./SERVER-SIDE-TOOLS.md).
+
+
 # About Golgi
 
 *Golgi* can only be used where you know that the very latest browsers
@@ -128,9 +131,13 @@ module will be with respect to its original path, in this case
 [Follow this tutorial](./TUTORIAL.md) to quickly learn how to use *Golgi*.
 
 
-# Further Documentation to follow
-....
+# Optimising *Golgi* Applications
 
+This repository includes a set of optional server-side tools for optimising the performance and initial load-times of *Golgi* applications, and also for simplifying how you can build your Golgi Components.
+
+[Read all about these Optimisation Tools and Techniques here](./SERVER-SIDE-TOOLS).
+
+You'll find that by using these simple, lightweight server-side tools, you can achieve extremely fast initial load times for Golgi applications without having to resort to Server-Side Rendering (SSR) or complex hydration techniques, and without the need for huge and complex build chains.
 
 ## License
 

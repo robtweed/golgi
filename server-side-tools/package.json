@@ -1,7 +1,7 @@
 {
-  "name": "golgi-ssr",
+  "name": "golgi-ss-tools",
   "version": "0.1.1",
-  "description": "Server-side Golgi Modules",
+  "description": "Server-side Golgi Build/Optimisation Tools",
   "author": "Rob Tweed <rob.tweed@gmail.com>",
   "dependencies": {
     "fs-extra": "",
