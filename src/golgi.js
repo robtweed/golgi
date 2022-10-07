@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 07 July 2022
+ 6 October 2022
 
  */
 
@@ -502,12 +502,14 @@ let golgi = {
 
       if (config.hook) {
         try {
+          let _this = {...this};
+          _this.element = element;
           // note that the Golgi object will be the context for an HTML tag hook!
           if (config.hook.constructor.name === 'AsyncFunction') {
-            await config.hook.call(this);
+            await config.hook.call(_this);
           }
           else {
-            config.hook.call(this);
+            config.hook.call(_this);
           }
         }
         catch(err) {
@@ -907,6 +909,10 @@ let golgi = {
     options = options || {};
     if (typeof options === 'string') {
       options = {match: options};
+    }
+    if (this.element) {
+      this.tagName = this.element.tagName;
+      this.parentNode = this.element.parentNode;
     }
     let prefix = options.prefix || this.tagName.split('-')[0];
     function findParent(node) {
