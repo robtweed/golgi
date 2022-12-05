@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 6 October 2022
+ 01 December 2022
 
  */
 
@@ -614,8 +614,8 @@ let golgi = {
           let prop = el.getAttribute('golgi:prop');
           element[prop] = el;
           el.removeAttribute('golgi:prop');
-          el.ownerComponent = element;
         }
+        el.ownerComponent = element;
 
         el.childNodes.forEach(function(child) {
           if (child.nodeType === 3 && child.nodeValue.startsWith('golgi:bind')) {
@@ -916,7 +916,13 @@ let golgi = {
     }
     let prefix = options.prefix || this.tagName.split('-')[0];
     function findParent(node) {
-      node = node.parentNode;
+      if (node.nodeType === 11) {
+        // #shadowRoot node
+        node = node.host;
+      }
+      else {
+        node = node.parentNode;
+      }
       if (!node) return null;
       if (options.match) {
         if (node.tagName === options.match.toUpperCase()) return node;
@@ -1233,7 +1239,8 @@ let golgi = {
       console.log(this);
     }
     if (this.observerCallback) {
-      golgi.observer.observe(this, {
+      let target = this.shadowRoot || this;
+      golgi.observer.observe(target, {
         attributes: true, 
         attributeOldValue: true, 
         characterData: true, 
@@ -1248,7 +1255,8 @@ let golgi = {
       let found = false;
       let el = element;
       do {
-        el = el.parentElement;
+        el = el.parentNode;
+        if (el.nodeType === 11) el = el.host;
         if (!el || el.tagName.includes('-')) {
           found = true;
         }
@@ -1260,6 +1268,7 @@ let golgi = {
     mutations.forEach(function(mutation) {
       let ownerComponent = getOwnerComponent(mutation.target);
       if (ownerComponent.observerCallback) {
+
         ownerComponent.observerCallback(mutation);
       }
     });

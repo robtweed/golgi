@@ -71,6 +71,11 @@
   - [Defining A State Map in an Assembly](#defining-a-state-map-in-an-assembly)
   - [Defining Data Binding Within A Component](#defining-data-binding-within-a-component)
   - [Rendering Multiple Copies of a Component Mapped to a State Array](#rendering-multiple-copies-of-a-component-mapped-to-a-state-array)
+- [Automatically Detecting DOM Changes in *Golgi Components*](#automatically-detecting-dom-changes-in-golgi-components)
+  - [Detecting Changes the Hard Way](#detecting-changes-the-hard-way)
+  - [Activating a MutationObserver within a *Golgi Component*](#activating-a-mutationobserver-within-a-golgi-component)
+  - [Handling Mutation Events](#handling-mutation-events)
+  - [Simple Example](#simple-example)
 
 
 # First Steps 
@@ -440,6 +445,32 @@ adhere to the pattern and conventions shown here:
 So, in summary, this will create a WebComponent named *demo-div* that represents a simple
 *div* tag with some pre-defined text.
 
+##### Can you use Shadow DOM with Golgi?
+
+In the simple tutorial example, we're not using the Shadow DOM capability that WebComponents provide.  However, Golgi supports the use of Shadow DOM: simply attach the shadowDOM and change the line that maps the Component's HTML, which should now be to *this.shadowRoot.innerHTML*.  See the lines highlighted by comments below:
+
+      export function load() {
+      
+        let componentName = 'demo-div';
+        let count = -1;
+      
+        customElements.define(componentName, class demo_div extends HTMLElement {
+          constructor() {
+            super();
+            this.attachShadow({ mode: 'open' });      // <==== ****
+            count++;
+      
+            const html = `
+      <div>This is Golgi!</div>
+            `;
+      
+            this.shadowRoot.innerHTML = `${html}`;    // <===== *****
+            this.name = componentName + '-' + count;
+          }
+        });
+      };
+
+
 #### How Your *Golgi Component* Is Loaded and Rendered
 
 In our simple example, we're loading and rendering our *demo-div* *Golgi Component* by
@@ -555,7 +586,7 @@ WebComponent definition:
 
 Within a WebComponent, *this* refers to the Component itself.  When processed by *Golgi*, 
 the root HTML element in the HTML you specified is automatically referenced via a property
-named *rootElement*.  In our example, that's the *div* tag.
+named *rootElement* (even if you choose to use Shadow DOM).  In our example, that's the *div* tag.
 
 So this *setState()* method will replace the *div* tag's *textContent* with whatever you specify
 in the *state* object's *text* property.
@@ -653,7 +684,8 @@ First, we're going to modify the *demo-div* *Golgi Component*.  So edit the
 
 If you remember from earlier, the outer *div* tag is already automatically referenceable via
 *Golgi* as *this.rootElement*.  By adding the *golgi:prop* attribute to its new child *span*
-tag, we'll now be able to reference and access that *span* tag as *this.spanTag*.
+tag, we'll now be able to reference and access that *span* tag as *this.spanTag* (note that this
+would be true even if we had chosen to use Shadow DOM).
 
 Let's now modify the *setState()* method to use this, because we now want *state.text* 
 to modify the *textContent* of the *span* tag rather than the *div* tag:
@@ -2071,6 +2103,7 @@ is limited to descendant nodes of the specified parent Element.
 
   This method recurses up through the DOM, starting from the current Component, until it finds an
 element whose *tagName* matches the specified Component Name.  It then returns that Component Element.
+Note that this method also automatically caters for Components that use ShadowDOM.
 
 - *this.remove()*
 
@@ -2342,5 +2375,146 @@ You'll see numerous examples of this method in use
 </div>
 <br/>
 
+----
 
+# Automatically Detecting DOM Changes in *Golgi Components*
+
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
+
+## Detecting Changes the Hard Way
+
+Deep within your application you might have a *Golgi Component* that displays some text that you might want to change programmatically.  Of course, to make the actual text change you can use the data binding provinded by 
+[*Golgi's* StateMap mechanism](#state-management-and-data-binding-in-golgi).
+
+Suppose, however, that whenever the text changes, you want to invoke a method within the Component, causes other
+things to happen.  Some HTML tags, for example *input*, allow you to add a *change* EventListener, so for these, within
+the Component's HTML definition you could do something like this:
+
+        <input golgi:prop="myInput" golgi:on_change="doSomething" />
+
+and you could then define a method within the Component:
+
+        doSomething() {
+          // do something because this.myInput.value has changed
+        }
+
+However, if the HTML tag was a simple *div* tag, this wouldn't work.  You could, instead, define a
+MutationObserver for the *div* tag and trap any events associated with any Mutation *childList* types.
+
+You don't need to do this, however, since *Golgi* already automates much of the MutationObserver logic for you within your Components.
+
+<br/>
+<div align="right">
+  <b><a href="#automatically-detecting-dom-changes-in-golgi-components">Go Up</a></b>
+</div>
+<br/>
+
+## Activating a MutationObserver within a *Golgi Component*
+
+To activate a MutationOBserver, invoke *this.observerStart()* in one of the Component's lifeCycle event handers such as *onBeforeState*, eg:
+
+        onBeforeState() {
+         this.observerStart();
+        }
+
+*observerStart()* will detect all the standard mutation types, ie what *Golgi* actually runs for you (for each HTML tag within your component) is:
+
+      golgi.observer.observe(target, {
+        attributes: true, 
+        attributeOldValue: true, 
+        characterData: true, 
+        characterDataOldValue: true,
+        childList: true, 
+        subtree: true
+      });
+
+
+<br/>
+<div align="right">
+  <b><a href="#automatically-detecting-dom-changes-in-golgi-components">Go Up</a></b>
+</div>
+<br/>
+
+## Handling Mutation Events
+
+When *this.observerStart()* is invoked, any DOM changes within any of the Component's HTML tags will trigger the Component's *observerCallback()* method (if it is defined).  This callback is triggered for each and every DOM change.  What you do in this callback method is up to you, eg:
+
+        observerCallback(mutation) {
+          // do something as a result of this specific mutation object
+        }
+
+The *mutation* argument for the *observerCallback()* is a standard MutationObserver object representing a specific mutation, so it has all the standard properties you'd expect, eg:
+
+        mutation.type: the type of mutation
+        mutation.target: the DOM element that has mutated
+
+
+<br/>
+<div align="right">
+  <b><a href="#automatically-detecting-dom-changes-in-golgi-components">Go Up</a></b>
+</div>
+<br/>
+
+## Simple Example
+
+To detect all changes to the text within a *div* tag in your Component:
+
+- define the *div* tag within the Component's HTML definition, eg:
+
+        <div golgi:prop="myText">golgi:bind=theText</div>
+
+
+- start the Mutation Observer and also define the state map for data binding within the component:
+
+        onBeforeState() {
+          this.observerStart();
+          this.addStateMap('myExample');
+        }
+
+- define the *observerCallback()* method:
+
+        observerCallback(mutation) {
+          // any text change will trigger a childList mutation...
+
+          if (mutation.type === 'childList') {
+
+            // When using Golgi's data binding, the mutation will have
+            // actually occurred on a span tag that is added to the div
+            // as a child tag
+
+            // So we can determine that the mutation has occurred to
+            // the myText div as follows:
+
+            if (mutation.target.parentNode === this.myText) {
+              this.doSomething();
+            }
+          }
+        }
+
+
+- define the *doSomething()* method:
+
+        doSomething() {
+          console.log('The text was changed to ' + this.myText.textContent);
+        }
+
+
+- now the *div*'s text can be changed from anywhere within your application logic by simply setting the state map object:
+
+        this.golgi_state.myExample = {
+          theText: 'A new value for the div'
+        }
+
+
+  and as a result, the *doSomething()* method will also fire within the Component.
+
+<br/>
+<div align="right">
+  <b><a href="#automatically-detecting-dom-changes-in-golgi-components">Go Up</a></b>
+</div>
+<br/>
 
