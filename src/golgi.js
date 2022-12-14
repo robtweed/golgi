@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 01 December 2022
+ 07 December 2022
 
  */
 
@@ -597,6 +597,25 @@ let golgi = {
     let targets;
     if (element.shadowRoot) {
       element.rootElement = element.shadowRoot.firstElementChild;
+      // don't want a style tag to be the root element (unless no other tags in component)
+      if (element.rootElement.tagName === 'STYLE') {
+        let ok = false;
+        let el = element.rootElement;
+        do {
+          if (el.nextSibling) {
+            el = el.nextSibling;
+            if (el.nodeType === 1) ok = true;
+          }
+        }
+        while (!ok)
+        if (ok) {
+          element.rootElement = el;
+        }
+        else {
+          // no other top-level element found in component, so revert to style tag
+          element.rootElement = element.shadowRoot.firstElementChild;
+        }
+      }
       targets = element.shadowRoot.querySelectorAll('*');
     }
     else if (typeof element.html !== 'undefined') {
@@ -625,25 +644,13 @@ let golgi = {
             let fn = function(dataObj) {
               let value = dataObj;
               if (typeof dataObj === 'object') value = dataObj[prop];
-              //span.parentNode.innerHTML = value;
               span.innerHTML = value;              
             };
             element.databinding.push(fn);
             child.nodeValue = '';
           }
         });
-        /*
-        if (el.textContent.startsWith('golgi:bind')) {
-          let prop = el.textContent.split('golgi:bind=')[1] || 'dummy';
-          let fn = function(dataObj) {
-            let value = dataObj;
-            if (typeof dataObj === 'object') value = dataObj[prop];
-            el.innerHTML = value;
-          };
-          element.databinding.push(fn);
-          el.textContent = '';
-        }
-        */
+
         [...el.attributes].forEach(function(attr) {
           if (attr.name.startsWith('golgi:on_')) {
             let eventName = attr.name.split('golgi:on_')[1];      
@@ -684,7 +691,6 @@ let golgi = {
             }
             element.databinding.push(fn);
             el.removeAttribute(attr.name);
-            //el.setAttribute(attr.name, '');
           }
         });
 
@@ -847,7 +853,6 @@ let golgi = {
       name = args;
     }
 
-    //if (!targetElement) return;
     if (!context) return;
     if (!name) return;
     if (name === '') return;
