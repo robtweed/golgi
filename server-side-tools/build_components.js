@@ -39,6 +39,22 @@ module.exports = async function(fs, ask, mode) {
       "    }"
       ];
 
+    let tmpl_sd = [
+      "export function load() {",
+      "  let componentName = '{{name}}';",
+      "  let count = -1;",
+      "  customElements.define(componentName, class {{componentName}} extends HTMLElement {",
+      "    constructor() {",
+      "      super();",
+      "      count++;",
+      "      this.attachShadow({ mode: 'open' });",
+      "      const html = `{{html}}`;",
+      "      this.shadowRoot.innerHTML = `${html}`;",
+      "      this.name = componentName + '-' + count;",
+      "      {{constructorCode}}",
+      "    }"
+      ];
+
     console.log(' ');
     console.log('This will create Golgi WebComponent files from all source files in a folder');
     let ok = false;
@@ -102,7 +118,9 @@ module.exports = async function(fs, ask, mode) {
           if (!def.constructorCode) {
             def.constructorCode = '';
           }
-          let contents = transform(tmpl, def, helpers);
+          let template = tmpl;
+          if (def.useShadowDOM) template = tmpl_sd;
+          let contents = transform(template, def, helpers);
 
           console.log(contents);
 

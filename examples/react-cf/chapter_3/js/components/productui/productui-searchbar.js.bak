@@ -1,0 +1,40 @@
+    export function load() {
+    
+      let componentName = 'productui-searchbar';
+      let count = -1;
+    
+      customElements.define(componentName, class productui_searchbar extends HTMLElement {
+        constructor() {
+          super();
+          count++;
+
+          const html = `
+<input type="text" placeholder="Search..." golgi:on_change="filter" />
+<p>
+  <input type="checkbox" golgi:on_click="checked" />
+  &nbsp;Only show products in stock
+</p>
+          `;
+    
+          this.html = `${html}`;
+          this.name = componentName + '-' + count;
+          this.only_instock = false;
+        }
+    
+        setState(state) {
+          if (state.name) {
+            this.name = state.name;
+          }
+        }
+
+        filter(e) {
+          console.log('filter using ' + e.target.value);
+        }
+
+        checked() {
+          this.only_instock = !this.only_instock;
+          console.log('show instock only: ' + this.only_instock);
+        }
+    
+      });
+    };

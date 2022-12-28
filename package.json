@@ -1,6 +1,6 @@
 {
   "name": "golgi",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "Dynamically-loading WebComponent Assembly Framework",
   "main": "/src/golgi.mjs",
   "browser": "/src/golgi.min.js",

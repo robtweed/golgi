@@ -126,16 +126,19 @@ assembly path configurations, since the *import* relative paths used within the 
 module will be with respect to its original path, in this case 
 *https://cdn.jsdelivr.net/gh/robtweed/golgi/src/*.  See the tutorial below for details.
 
-# Tutorial
+# Tutorials
 
 [Follow this tutorial](./TUTORIAL.md) to quickly learn how to use *Golgi*.
+
+If you're a React.js developer and want to compare application development using Golgi versus React,
+[read this tutorial](./GOLGI_CF_REACT.md).
 
 
 # Optimising *Golgi* Applications
 
 This repository includes a set of optional server-side tools for optimising the performance and initial load-times of *Golgi* applications, and also for simplifying how you can build your Golgi Components.
 
-[Read all about these Optimisation Tools and Techniques here](./SERVER-SIDE-TOOLS).
+[Read all about these Optimisation Tools and Techniques here](./SERVER-SIDE-TOOLS.md).
 
 You'll find that by using these simple, lightweight server-side tools, you can achieve extremely fast initial load times for Golgi applications without having to resort to Server-Side Rendering (SSR) or complex hydration techniques, and without the need for huge and complex build chains.
 
