@@ -2405,7 +2405,11 @@ and you could then define a method within the Component:
 However, if the HTML tag was a simple *div* tag, this wouldn't work.  You could, instead, define a
 MutationObserver for the *div* tag and trap any events associated with any Mutation *childList* types.
 
-You don't need to do this, however, since *Golgi* already automates much of the MutationObserver logic for you within your Components.
+You don't need to do this, however, since *Golgi* already automates much of the MutationObserver logic for you within your Components.  Golgi provides three ways of applying the MutationObserver:
+
+- you can observe and handle changes to attributes for any element within a Golgi Component;
+- you can observe and handle changes to the text content of any element within a Golgi Component;
+- for any other scenario, you can define your own mutationOberver handler in a more generic way.
 
 <br/>
 <div align="right">
@@ -2413,9 +2417,88 @@ You don't need to do this, however, since *Golgi* already automates much of the 
 </div>
 <br/>
 
-## Activating a MutationObserver within a *Golgi Component*
+## Observing and Handling an Attribute Value Change
 
-To activate a MutationOBserver, invoke *this.observerStart()* in one of the Component's lifeCycle event handers such as *onBeforeState*, eg:
+This can be done using the special attribute value:
+
+        golgi:observer={handlerMethodName}
+
+eg:
+
+        golgi:observer=setVisibility
+
+Note that Golgi permits an attribute to have multiple special Golgi directives as values.  This is needed because you'll often want to observe and handle an attribute whose value is bound to a state-mapped object's property.  Separate multiple Golgi directives with a semi-colon and optional space(s), eg:
+
+        <div myAttr="golgi:bind=myProp; golgi:observer=handleMyAttr"></div>
+
+
+The handler method is simply defined within the containing Component, eg:
+
+
+        handleMyAttr(newValue, oldValue) {
+          // do something 
+        }
+
+A Golgi Observer attribute-change handler method takes two arguments:
+
+- the new value of the attribute being observed
+- the old/previous value of the attribute being observed
+
+Note that *this* within the handler method refers to the Component.
+
+Note also that you can define as many attribute observers as you wish within a Component.
+
+<br/>
+<div align="right">
+  <b><a href="#automatically-detecting-dom-changes-in-golgi-components">Go Up</a></b>
+</div>
+<br/>
+
+## Observing and Handling an element's Text Content Change
+
+This can be done using the special text value:
+
+        golgi:observer={handlerMethodName}
+
+eg:
+
+        golgi:observer=setVisibility
+
+Note that Golgi permits an element's text content to have multiple special Golgi directives as values.  This is needed because you'll often want to observe and handle an element's text content whose value is bound to a state-mapped object's property.  Separate multiple Golgi directives with a semi-colon and optional space(s), eg:
+
+        <div>golgi:bind=myText; golgi:observer=handleMyText</div>
+
+
+The handler method is simply defined within the containing Component, eg:
+
+
+        handleMyText(value, targetTag, originalTag) {
+          // do something 
+        }
+
+A Golgi Observer text-change handler method takes three arguments:
+
+- the new value of the element's text content that is being observed
+- the actual element whose text has changed.  If you've used a *golgi:bind* directive to maintain the value, you should be aware that in order to unambiguously maintain text content, even if there are other nested sub-elements, Golgi actually adds a *span* tag to your original element, ie for the example above what Golgi actually renders is:
+
+        <div>
+          <span>the value of myText</span>
+        </div>
+
+    So in this case, the *targetTag* argument is the *span* tag
+
+- the original element whose text is being observed.  This will always be the one specified in the Component's HTML.  For the above example this will be the *div* tag.
+
+Note that *this* within the handler method refers to the Component.
+
+Note also that you can define as many textcontent observers as you wish within a Component.
+
+
+## Activating a Generic MutationObserver within a *Golgi Component*
+
+If you need to observe and handle something other than a tag's attribute or text changes, you can make use of the more generic MutationObserver integration provided by Golgi.  This is rather more involved that the attribute-specific and textcontent-specific functionality previously described.  For that reason, it's best to use the attribute-specific and textcontent-specific MutationObserver functionality provided by Golgi.
+
+To activate a generic MutationOBserver, invoke *this.observerStart()* in one of the Component's lifeCycle event handers such as *onBeforeState*, eg:
 
         onBeforeState() {
          this.observerStart();
@@ -2432,15 +2515,6 @@ To activate a MutationOBserver, invoke *this.observerStart()* in one of the Comp
         subtree: true
       });
 
-
-<br/>
-<div align="right">
-  <b><a href="#automatically-detecting-dom-changes-in-golgi-components">Go Up</a></b>
-</div>
-<br/>
-
-## Handling Mutation Events
-
 When *this.observerStart()* is invoked, any DOM changes within any of the Component's HTML tags will trigger the Component's *observerCallback()* method (if it is defined).  This callback is triggered for each and every DOM change.  What you do in this callback method is up to you, eg:
 
         observerCallback(mutation) {
@@ -2453,15 +2527,9 @@ The *mutation* argument for the *observerCallback()* is a standard MutationObser
         mutation.target: the DOM element that has mutated
 
 
-<br/>
-<div align="right">
-  <b><a href="#automatically-detecting-dom-changes-in-golgi-components">Go Up</a></b>
-</div>
-<br/>
+### Simple Example Using the Generic MutationObserver
 
-## Simple Example
-
-To detect all changes to the text within a *div* tag in your Component:
+To detect changes to the text within a *div* tag in your Component:
 
 - define the *div* tag within the Component's HTML definition, eg:
 

@@ -39,34 +39,33 @@ Most of the changes need to be made within this Component.
 
 First, add a custom attribute - *status* to the first *div* tag and bind its value to a property named *status*:
 
-        <div class="td" status="golgi:bind=status" style="golgi:bind=style">golgi:bind=name</div>
+        <div class="td" status="golgi:bind=status; golgi:observer=setVisibility" style="golgi:bind=style">golgi:bind=name</div>
 
 Quite a lot of data binding going on in this tag now!
 
-Next, enable the MutationObserver within the Component.  Golgi's integration/implementation of MutationObserver causes it to monitor pretty much any change within the Component's DOM:
+You'll also notice that the *status* attribute not only specifies a *golgi:bind* (binding its value to the Golgi state-mapped *status* property), it also specifies another Golgi directive - *golgi:observer*.  Note how such multiple Golgi directives are separated by a semi-colon.
 
-        onBeforeState() {
-         this.observerStart();
+This *golgi:observer* directive is saying:
+
+- whenever the *status* attribute's value changes, trigger a method within the Component that is named *setVisibility()*.
+
+
+So, the next thing we'll do is to add that *setVisibility()* method to the Component:
+
+        applyStatus(value) {
+          if (value === 'show') this.show();
+          if (value === 'hide') this.hide();
         }
 
-Next, add our MutationObserver handler, using Golgi's built-in *observerCallback()* method.  This will be triggered by any DOM change within the Component, so it needs to filter out and only handle any changes to the *status* attribute:
+A *golgi:observer* method can take two arguments:
 
-        observerCallback(mutation) {
-          if (mutation.attributeName === 'status') {
-            let status = mutation.target.getAttribute('status');
-            if (status !== 'undefined') this[status]();
-          }
-        }
+- the first, as shown above, is the new value of the attribute
+- the second, optional, argument (not used in this case) is the previous/old value of the attribute.
 
-So you can see that we're obtaining the value of the *status* attribute which can have three possible text-string values:
+So you can see that we're showing or hiding the entire *productui-row* Component, depending on the value of the *status* attribute which, in turn, is provided by Golgi's state-mapped object's *status* property.
 
-- *undefined*
-- *show*
-- *hide*
 
-If it's the latter two values, we'll invoke *this.show()* or *this.hide()* as appropriate.
-
-Finally, remove the *visibility()* method from the Component
+Finally, we'll remove the previous *visibility()* method from the Component
 
 In summary, the *productui-row* Component should now look like this:
 
@@ -87,21 +86,15 @@ In summary, the *productui-row* Component should now look like this:
           display: table-row;
         }
         </style>
-        <div class="td" status="golgi:bind=status" style="golgi:bind=style">golgi:bind=name</div>
+        <div class="td" status="golgi:bind=status; golgi:observer=setVisibility" style="golgi:bind=style">golgi:bind=name</div>
         <div class="td">golgi:bind=price</div>
               `;
               this.shadowRoot.innerHTML = `${html}`;
             }
 
-            onBeforeState() {
-             this.observerStart();
-            }
-
-            observerCallback(mutation) {
-              if (mutation.attributeName === 'status') {
-                let status = mutation.target.getAttribute('status');
-                if (status !== 'undefined') this[status]();
-              }
+            setVisibility(value) {
+              if (value === 'show') this.show();
+              if (value === 'hide') this.hide();
             }
 
             show() {

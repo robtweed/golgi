@@ -266,19 +266,14 @@ So, for our Example Application, here's what the Component Source files will loo
           display: table-row;
         }
         </style>
-        <div class="td" status="golgi:bind=status" style="golgi:bind=style">golgi:bind=name</div>
+        <div class="td" status="golgi:bind=status; golgi:observer=setVisibility" style="golgi:bind=style">golgi:bind=name</div>
         <div class="td">golgi:bind=price</div>
           `,
           methods: `
-            onBeforeState() {
-             this.observerStart();
-            }
 
-            observerCallback(mutation) {
-              if (mutation.attributeName === 'status') {
-                let status = mutation.target.getAttribute('status');
-                if (status !== 'undefined') this[status]();
-              }
+            setVisibility(value) {
+              if (value === 'show') this.show();
+              if (value === 'hide') this.hide();
             }
 
             show() {
@@ -348,7 +343,7 @@ You'll then be prompted for the directory name into which it will create the opt
 - minimised versions of each individual Component
 - a bundled version containing minimised versions of all the Components: *golgi-components.js*
 
-It's the latter file we actually want in this instance.  It should look like this:
+It's the latter file we actually want in this instance.  It should look something like this:
 
         let golgi_components = [];
         golgi_components.push(function load(){let e="productui-category-row",t=-1;customElements.define(e,class extends
@@ -370,10 +365,10 @@ It's the latter file we actually want in this instance.  It should look like thi
         }
         :host {
           display: table-row;
-        }</style><div class="td" status="golgi:bind=status" style="golgi:bind=style">golgi:bind=name</div>
-        <div class="td">golgi:bind=price</div>`,this.name=t+"-"+e}onBeforeState(){this.observerStart()}observerCallback(t)
-        {"status"===t.attributeName&&"undefined"!==(t=t.target.getAttribute("status"))&&this[t]()}show()
-        {this.style="display: '';"}hide(){this.style="display: none;"}})});
+        }</style><div class="td" status="golgi:bind=status; golgi:observer=applyStatus" style="golgi:bind=style">
+        golgi:bind=name</div><div class="td">golgi:bind=price</div>`,this.name=s+"-"+t}applyStatus(s){
+        "show"===s&&this.show(),"hide"===s&&this.hide()}show(){this.style="display: '';"}hide(){
+        this.style="display: none;"}})});
         golgi_components.push(function load(){let t="productui-searchbar",e=-1;customElements.define(t,class extends 
         HTMLElement{constructor(){super(),e++;this.html='<input type="text" placeholder="Search..." golgi:on_keyup="filter">
         <p><input type="checkbox" golgi:on_click="checked"> &nbsp;Only show products in stock</p>',this.name=t+"-"+e}
