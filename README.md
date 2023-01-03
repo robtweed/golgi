@@ -53,8 +53,8 @@ The [Optimisation Techniques are described here](./SERVER-SIDE-TOOLS.md).
 *Golgi* can only be used where you know that the very latest browsers
 are in use, but if they are, then it provides one of the fastest and leanest frameworks
 for UI development, since it makes use of the built-in capabilities of the browser,
-avoiding the need to download large bundled JavaScript framework files.  *Golgi* itself a mere 43Kb 
-in size in its uncompressed source version, and just 18Kb if you use the minimised version,
+avoiding the need to download large bundled JavaScript framework files.  *Golgi* itself a mere 45Kb 
+in size in its uncompressed source version, and just 19Kb if you use the minimised version,
 and is literally all that is needed to make everything work!
 
 *Golgi* can be used with many other standard UI frameworks such as Bootstrap 5, Chart.js etc. Of

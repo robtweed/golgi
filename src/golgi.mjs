@@ -3,7 +3,7 @@
  ----------------------------------------------------------------------------
  | Golgi: Dynamically-loading WebComponent Assembly Framework                |
  |                                                                           |
- | Copyright (c) 2022 M/Gateway Developments Ltd,                            |
+ | Copyright (c) 2022-23 M/Gateway Developments Ltd,                         |
  | Redhill, Surrey UK.                                                       |
  | All rights reserved.                                                      |
  |                                                                           |
@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 07 December 2022
+ 3 January 2023
 
  */
 
@@ -637,17 +637,34 @@ let golgi = {
         el.ownerComponent = element;
 
         el.childNodes.forEach(function(child) {
-          if (child.nodeType === 3 && child.nodeValue.startsWith('golgi:bind')) {
-            let prop = child.nodeValue.split('golgi:bind=')[1] || 'dummy';
-            let span = document.createElement('span');
-            el.insertBefore(span, child);
-            let fn = function(dataObj) {
-              let value = dataObj;
-              if (typeof dataObj === 'object') value = dataObj[prop];
-              span.innerHTML = value;              
-            };
-            element.databinding.push(fn);
-            child.nodeValue = '';
+          if (child.nodeType === 3) {
+            let nodeValue = child.nodeValue.toString();
+            if (child.nodeValue.includes('golgi:bind')) {
+              let prop = child.nodeValue.split('golgi:bind=')[1] || 'dummy';
+              prop = prop.split(';')[0]; // may also other Golgi directives
+              let span = document.createElement('span');
+              el.insertBefore(span, child);
+              let fn = function(dataObj) {
+                let value = dataObj;
+                if (typeof dataObj === 'object') value = dataObj[prop];
+                span.innerHTML = value;              
+              };
+              element.databinding.push(fn);
+              child.nodeValue = '';
+            }
+            if (nodeValue.includes('golgi:observer')) {
+              let target = el;
+              if (el.firstChild && el.firstChild.tagName === 'SPAN') {
+                target = el.firstChild;
+              }
+              let method = nodeValue.split('golgi:observer=')[1];
+              method = method.split(';')[0]; // may also other Golgi directives
+              let observer = golgi.observeText(target, element, method, el);
+              observer.observe(target, {
+                childList: true,
+                subtree: true
+              });
+            }
           }
         });
 
@@ -672,8 +689,9 @@ let golgi = {
             el.removeAttribute(attr.name);
           }  
 
-          if (attr.value.startsWith('golgi:bind')) {
+          if (attr.value.includes('golgi:bind')) {
             let prop = attr.value.split('golgi:bind=')[1];
+            prop = prop.split(';')[0]; // if there are other golgi directives in the attribute value
             let fn;
             if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' && attr.name === 'value') {
               fn = function(dataObj) {
@@ -692,6 +710,17 @@ let golgi = {
             element.databinding.push(fn);
             el.removeAttribute(attr.name);
           }
+
+          if (attr.value.includes('golgi:observer')) {
+            let methodName = attr.value.split('golgi:observer=')[1];
+            methodName = methodName.split(';')[0]; // if there are other golgi directives in the attribute value
+            let observer = golgi.observeAttr(attr.name, methodName);
+            observer.observe(el, {
+              attributeFilter: [attr.name],
+              attributeOldValue: true, 
+            });
+          }
+
         });
 
       });
@@ -1278,6 +1307,30 @@ let golgi = {
       }
     });
   }),
+  observeAttr(attrName, methodName) { 
+    let observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.type === 'attributes') {
+          let newValue = mutation.target.getAttribute(attrName);
+          let callback = mutation.target.ownerComponent[methodName];
+          if (callback && mutation.target.ownerComponent) callback.call(mutation.target.ownerComponent, newValue, mutation.oldValue);
+        }
+      });
+    });
+    return observer;
+  },
+  observeText(target, component, methodName, originalTag) {
+    let observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.type === 'childList') {
+          let newValue = target.textContent;
+          let callback = component[methodName];
+          if (callback) callback.call(component, newValue, target, originalTag);
+        }
+      });
+    });
+    return observer;
+  },
   addStateMap(path, stateMethod) {
     stateMethod = stateMethod || 'applyDataBinding';
     if (!golgi.stateMap.has(path)) {
