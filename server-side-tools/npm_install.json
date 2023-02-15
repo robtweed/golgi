@@ -3,5 +3,6 @@
   "jsdom",
   "golgi",
   "html-minifier",
-  "qewd-transform-json"
+  "qewd-transform-json",
+  "clean-css"
 ]

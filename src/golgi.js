@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 3 January 2023
+ 27 January 2023
 
  */
 
@@ -1162,7 +1162,7 @@ let golgi = {
                     target: attr.value
                   }
                 }
-                if (attr.name === 'golgi:hook' && hooks && hooks[child.tagName] && hooks[child.tagName][attr.value]) {
+                else if (attr.name === 'golgi:hook' && hooks && hooks[child.tagName] && hooks[child.tagName][attr.value]) {
                   component.hook = hooks[child.tagName][attr.value];
                 }
                 else {

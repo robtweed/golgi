@@ -12,6 +12,8 @@ module.exports = async function(fs, ask, mode) {
   const hm = await import('html-minifier');
   const html_min = hm.minify;
 
+  const cssc = require('clean-css');
+
   fs.createFile = function(contentArray, filePath) {
     fs.outputFileSync(filePath, contentArray.join('\n'));
   }
@@ -60,6 +62,7 @@ module.exports = async function(fs, ask, mode) {
     let ok = false;
     let def;
     let source_folder_def = "/node/components_src";
+    //let source_folder_def = "/node/sbadmin_c_src";
     if (mode === 'native') source_folder_def = './components_src';
     let source_folder;
 
@@ -78,6 +81,7 @@ module.exports = async function(fs, ask, mode) {
     } while (!ok);
 
     let dest_folder_def = "/node/components";
+    //let dest_folder_def = "/node/sbadmin_c";
     if (mode === 'native') dest_folder_def = './components';
     let dest_folder;
     ok = false;
@@ -114,6 +118,15 @@ module.exports = async function(fs, ask, mode) {
           let html = html_min(def.html, {
             collapseWhitespace: true
           });
+
+          if (def.useShadowDOM && def.css && def.css !== '') {
+            css = new cssc({}).minify(def.css);
+            css = '<style>' + css.styles + '</style>';
+            css = `${css}`;
+
+            html = css + html;
+          }
+
           def.html = `${html}`;
           if (!def.constructorCode) {
             def.constructorCode = '';
