@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 27 January 2023
+ 27 March 2023
 
  */
 
@@ -96,15 +96,15 @@ let golgi = {
   loadCSS: function(src, target, callback) {
     let crossorigin;
     if (target) {
-	  if (!callback && typeof target === 'function') {
+      if (!callback && typeof target === 'function') {
         callback = target;
         target = document.getElementsByTagName('head')[0];
-	  }
-	  else if (typeof target === 'object') {
-	    crossorigin = target.crossorigin;
-		target = target.target;
-		if (!target) target = document.getElementsByTagName('head')[0];
-	  }
+      }
+      else if (typeof target === 'object') {
+        crossorigin = target.crossorigin;
+        target = target.target;
+        if (!target) target = document.getElementsByTagName('head')[0];
+      }
     }
     if (!target) {
       target = document.getElementsByTagName('head')[0];
@@ -587,6 +587,7 @@ let golgi = {
   },
 
   renderWebComponent: async function(config, targetElement, context) {
+    let assemblyName = config.assemblyName;
     let element = await this.load(config.componentName, targetElement, context);
     if (this.logging) {
       //console.log('load element: ' + config.componentName);
@@ -767,6 +768,13 @@ let golgi = {
     element.on = this.el_on.bind(element);
     element.off = this.el_off.bind(element);
     element.emit = this.el_emit.bind(element);
+    element.onAssemblyRendered = function(name, callback) {
+      golgi.on(name + '_rendered', callback, element);
+    };
+    element.ownerAssembly = assemblyName;
+    element.onOwnerAssemblyRendered = function(callback) {
+      golgi.on(assemblyName + '_rendered', callback, element);
+    };
 
     if (!context.rootComponent) {
       context.rootComponent = element;
@@ -913,14 +921,11 @@ let golgi = {
       });
     }
 
-    //console.log(111111);
-    //console.log('name: ' + name);
-    //console.log(JSON.stringify(json, null, 2));
-    //console.log('------');
-
     this.preloadAssembly(json, context);
 
-    return await this.loadGroup(json, targetElement, context);
+    await this.loadGroup(json, targetElement, context);
+    this.emit(name + '_rendered');
+    return;
   },
 
   async renderComponent(componentName, targetElement, context) {
@@ -1090,9 +1095,13 @@ let golgi = {
     }
   },
 
-  on: function(type, callback) {
+  on: function(type, callback, context) {
     if (!this.listeners.has(type)) {
-      this.listeners.set(type, callback);
+      let obj = {
+        handler: callback,
+        context: context
+      };
+      this.listeners.set(type, obj);
     }
   },
 
@@ -1104,8 +1113,9 @@ let golgi = {
 
   emit: function(type, data) {
     if (this.listeners.has(type)) {
-      let handler =  this.listeners.get(type);
-      handler.call(this, data);
+      let obj =  this.listeners.get(type);
+      let context = obj.context || this;
+      obj.handler.call(context, data);
     }
   },
 
