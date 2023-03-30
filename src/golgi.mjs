@@ -38,6 +38,7 @@ let golgi = {
   resourceLoaded: new Map(),
   listeners: new Map(),
   logging: false,
+  version: '1.3.4',
 
   setLog: function (state) {
     this.logging = state;
