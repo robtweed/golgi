@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 27 March 2023
+ 30 March 2023
 
  */
 
@@ -59,12 +59,12 @@ let golgi = {
   loadJS: function(src, attrs, callback) {
      let crossorigin;
      if (attrs) {
-	  if (!callback && typeof attrs === 'function') {
+       if (!callback && typeof attrs === 'function') {
         callback = attrs;
-	  }
-	  else if (typeof attrs === 'object') {
-	    crossorigin = attrs.crossorigin;
-	  }
+       }
+       else if (typeof attrs === 'object') {
+         crossorigin = attrs.crossorigin;
+      }
     }
     let script = document.createElement("script");
     script.type = "text/javascript";
@@ -740,6 +740,7 @@ let golgi = {
         element.rootElement.removeAttribute(attrName);
       }
     }
+    element.componentName = config.componentName;
     element.getParentComponent = this.getParentComponent.bind(element);
     element.onUnload = this.onUnload.bind(element);
     element.registerUnloadMethod = this.registerUnloadMethod.bind(element);

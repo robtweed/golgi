@@ -27,7 +27,7 @@ module.exports = async function(fs, ask, mode) {
     ];
 
     let tmpl = [
-      "export function load() {",
+      "export function load(ctx) {",
       "  let componentName = '{{name}}';",
       "  let count = -1;",
       "  customElements.define(componentName, class {{componentName}} extends HTMLElement {",
@@ -42,7 +42,7 @@ module.exports = async function(fs, ask, mode) {
       ];
 
     let tmpl_sd = [
-      "export function load() {",
+      "export function load(ctx) {",
       "  let componentName = '{{name}}';",
       "  let count = -1;",
       "  customElements.define(componentName, class {{componentName}} extends HTMLElement {",
