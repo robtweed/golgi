@@ -382,7 +382,7 @@ Take a look at this example (actually from our own web site):
             <meta charset="utf-8" />
             <meta http-equiv="X-UA-Compatible" content="IE=edge" />
             <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-            <title>M/Gateway Developments Ltd</title>
+            <title>MGateway Ltd</title>
 
             <link rel="preload" href="/js/components/sbadmin/css/styles.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
           </head>

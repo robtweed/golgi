@@ -3,11 +3,11 @@
  ----------------------------------------------------------------------------
  | Golgi: Dynamically-loading WebComponent Assembly Framework                |
  |                                                                           |
- | Copyright (c) 2022-23 M/Gateway Developments Ltd,                         |
+ | Copyright (c) 2023 MGateway Ltd,                                          |
  | Redhill, Surrey UK.                                                       |
  | All rights reserved.                                                      |
  |                                                                           |
- | http://www.mgateway.com                                                   |
+ | https://www.mgateway.com                                                  |
  | Email: rtweed@mgateway.com                                                |
  |                                                                           |
  |                                                                           |

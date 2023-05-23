@@ -1,7 +1,7 @@
 export function load() {
 
   let gx=`
-<sbadmin-copyright text="M/Gateway Developments Ltd" />
+<sbadmin-copyright text="MGateway Ltd" />
   `;
   return {gx};
 };
