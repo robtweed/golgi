@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 30 March 2023
+ 22 July 2023
 
  */
 
@@ -198,7 +198,7 @@ let golgi = {
     let assemblyObj = _module.load.call(this, context);
     let json = assemblyObj.gjson || {};
     if (assemblyObj.gx) {
-      json = this.parse(assemblyObj.gx, assemblyObj.hooks);
+      json = this.parse(assemblyObj.gx, assemblyObj.hooks, context);
     }
 
     if (json) {
@@ -911,7 +911,7 @@ let golgi = {
     let assemblyObj = _module.load.call(this, context);
     let json = assemblyObj.gjson || {};
     if (assemblyObj.gx) {
-      json = this.parse(assemblyObj.gx, assemblyObj.hooks);
+      json = this.parse(assemblyObj.gx, assemblyObj.hooks, context);
     }
 
     if (json) {
@@ -1128,7 +1128,7 @@ let golgi = {
     }
   },
 
-  parse: function(input, hooks) {
+  parse: function(input, hooks, context) {
     let xml = '<xml xmlns="http://mgateway.com" xmlns:assembly="http://mgateway.com" xmlns:golgi="http://mgateway.com">' + input + '</xml>';
     //console.log(xml);
     let parser = new DOMParser();
@@ -1191,6 +1191,30 @@ let golgi = {
                   value = true;
                 }
                 else if (value === 'false') value = false;
+
+                else if (value.startsWith && value.startsWith('golgi:context=')) {
+                  let ctx = value.split('golgi:context=')[1];
+                  let pcs = ctx.split('.');
+                  let ref = context;
+                  let error = false;
+                  pcs.forEach(function(p, index) {
+                    if (!error) {
+                      if (typeof ref[p] !== 'undefined') {
+                        ref = ref[p];
+                      }
+                      else {
+                        error = true;
+                      }
+                    }
+                  });
+                  if (error) {
+                    value = '*Invalid context reference*';
+                  }
+                  else {
+                    value = ref;
+                  }
+                }
+
                 else {
                   try {
                     value = JSON.parse(value);
@@ -1198,6 +1222,7 @@ let golgi = {
                   catch(err) {
                   }
                 }
+
 
                 if (attr.name === 'golgi:hook' && hooks && hooks[child.tagName] && hooks[child.tagName][value]) {
                   component.hook = hooks[child.tagName][value];

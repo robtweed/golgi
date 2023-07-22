@@ -61,6 +61,7 @@
     - [Multiple Parent Append Target Elements](#multiple-parent-append-target-elements)
   - [Using *Golgi Assemblies* Within *gx*](#using-golgi-assemblies-within-gx)
   - [Using ordinary HTML tags within *gx*](#using-ordinary-html-tags-within-gx)
+  - [Rendering Multiple Instances of an Assembly Within a Loop](#rendering-multiple-instances-of-an-assembly-within-a-loop)
   - [Hoisting Classes to the Top-Level Component Element](#hoisting-classes-to-the-top-level-component-element)
   - [Dynamically Loading JavaScript and CSS Resources](#dynamically-loading-javascript-and-css-resources)
   - [Dynamically Adding Meta Tags to the DOM](#dynamically-adding-meta-tags-to-the-dom)
@@ -1807,6 +1808,111 @@ Here's an example:
   <b><a href="#golgi-assemblies">Go Up</a></b>
 </div>
 <br/>
+
+## Rendering Multiple Instances of an Assembly Within a Loop
+
+### Background
+
+You're likely to encounter situations where you want to dynamically generate and render multiple instances of a
+Golgi Assembly, controlled by a programmatic loop, eg within another Assembly's Component Hook method.  Golgi
+provides a method - *renderAssembly* - that you can use for this purpose.
+
+For example, if you are using the [*golgi-sbadmin*](https://github.com/robtweed/golgi-sbadmin) Component Library,
+you might need to programmatically generate a set of Carousel Items.
+
+In such situations, you'll almost certainly want to populate the Components within the repeatedly-generated Assembly 
+using data held in an array.
+
+Golgi provides a straightforward and convenient way to do this by making use of the Golgi Context Object.
+
+Every Golgi Assembly and Component has access to the Context Object: normally it's used internally within Golgi
+itself to locate and load your Components and Assemblies.  However, you can augment the Context Object for your
+own purposes.
+
+Your Context data can be accessed by any attribute within a Component in an Assembly's *gx*, eg:
+
+        <img src="golgi:context=personData.imageUrl" />
+
+### Example
+
+Let's look at a simple example: suppose we have retrieved from a back-end database some data for a set of people,
+and it's held in an array - *peopleData*, with each array element being an object that defines the data items
+for each person, eg:
+
+        [
+          {name: 'Rob', city: 'London'},
+          {name: 'Mike', city: 'Edinburgh'},
+          ...etc
+        ]
+
+We'll probably want to perform our dynamic logic as a Hook method for the 
+[*sbadmin-carousel*](https://github.com/robtweed/golgi-sbadmin/blob/master/components_src/sbadmin-carousel.mjs) 
+Component, eg:
+
+         <sbadmin-carousel golgi:hook="populate" />
+
+You need to ensure that the Assembly containing this *gx* makes the Golgi Context object available by adding it as
+an argument to the Assembly's *load* method (ie the first line of the Assembly). I usually name it *ctx*:
+
+         export function load(ctx) {
+
+
+The *sbadmin-carousel*'s Hook Method will then look something like this:
+
+        let hooks = {
+          'sbadmin-carousel': {
+            populate: async function() {
+              // fetch the data and return an array of objects - summarised in the call below:
+
+              let peopleData = await fetchDataFromDatabase();
+
+              // loop through the people array
+
+              for (let person of peopleData) {
+
+                // add/overwrite the person object to the Context Object
+
+                ctx.personData = person;
+
+                // render an instance of the carousel item for each person,
+                //  attaching it to the sbadmin-carousel's children target element
+               
+                await this.renderAssembly('myCarouselItem', this.childrenTarget, ctx);
+  
+              }
+
+            }
+          }
+        };
+
+
+Next, let's take a look at what the *gx* within the *myCarouselItem* Assembly might look like.
+
+        let gx = `
+          <sbadmin-carousel-item>
+            <sbadmin-card bgColor="light" textColor="dark" width="75%" position="center">
+              <sbadmin-card-header text="golgi:context=personData.name" />
+              <sbadmin-card-body>
+                <sbadmin-card-text text="golgi:context=personData.city" />
+              </sbadmin-card-body>
+            </sbadmin-card>
+          </sbadmin-carousel-item>
+        `;
+
+You can see that we're telling Golgi to set the *text* attribute of the *sbadmin-card-header* Component
+to the value held in *ctx.personData.name* property.
+
+Similarly we're telling Golgi to set the *text* attribute of the *sbadmin-card-text* Component
+to the value held in *ctx.personData.city* property.
+
+The result will be a set of Carousel items, each one showing the name and city for each person fetched from the
+back-end database.
+
+Note that the *golgi:context* functionality can be applied to any appropriate attribute within a Component
+specified in *gx*.
+
+Note also that if you specify an invalid Context path, an error value will be returned and used as the attribute value.
+
 
 ## Hoisting Classes to the Top-Level Component Element
 
