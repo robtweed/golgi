@@ -6,9 +6,9 @@
     componentPaths: {
       productui: './components/productui/'
     },
-    assemblyPath: './productui_assemblies/'
+    assemblyPath: './assemblies/'
   };
-  //golgi.logging = true;
+  golgi.logging = true;
 
   await golgi.renderAssembly('filterable-product-table', 'body', context);
 

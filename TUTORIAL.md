@@ -861,7 +861,7 @@ you use within an *Assembly*.
 
 *Golgi Assemblies* always follow the simple pattern:
 
-      export function load(ctx) {
+      export function load() {
 
         // Define your assembly as a nested set of XML tags, known as "gx"
         // with each XML tag repesenting a Golgi Component of the same name
@@ -907,7 +907,7 @@ Within this new directory, create a file named demo_assembly.js (ie */golgi/asse
 containing the following:
 
 
-      export function load(ctx) {
+      export function load() {
         let gx=`
       <demo-div text="Welcome to Golgi Assemblies">
         <demo-div text="I'm inside the other div!" />
@@ -1081,7 +1081,7 @@ The first thing to notice is that it must be defined as an ES6 module that expor
 function named *load().  This function has a single argument which is the *context* object
 that you passed into the *renderAssembly()* method as its third argument:
 
-      export function load(ctx) {
+      export function load() {
         // assembly definition
       };
 
@@ -1851,17 +1851,19 @@ Component, eg:
 
          <sbadmin-carousel golgi:hook="populate" />
 
-You need to ensure that the Assembly containing this *gx* makes the Golgi Context object available by adding it as
-an argument to the Assembly's *load* method (ie the first line of the Assembly). I usually name it *ctx*:
+You need to ensure that the Hook method makes the Golgi Context object available by adding it as
+an argument. I usually name it *ctx*, eg:
 
-         export function load(ctx) {
+         {{hook-method-name}}: function(ctx) {
+           ...etc
+         }
 
 
 The *sbadmin-carousel*'s Hook Method will then look something like this:
 
         let hooks = {
           'sbadmin-carousel': {
-            populate: async function() {
+            populate: async function(ctx) {
               // fetch the data and return an array of objects - summarised in the call below:
 
               let peopleData = await fetchDataFromDatabase();

@@ -25,25 +25,19 @@ Just develop and go, edit and go!
 Run this [live example](https://robtweed.github.io/golgi/examples/sbadmin/), 
 demonstrating how *Golgi* turns the [SB Admin ](https://startbootstrap.com/template/sb-admin) 
 theme into an actual framework that you can quickly and
-easily customise to meet your needs.
+easily customise to meet your needs.  Note that this example uses 
+[*golgi-sbadmin](https://github.com/robtweed/golgi-sbadmin/),
+a ready-made, Open Source library of Golgi Components.
 
-You can also try out [this live example](https://robtweed.github.io/golgi/examples/conduit/),
-demonstrating the [RealWorld Conduit](https://github.com/gothinkster/realworld) 
-front-end, implemented as a single-page application
-using *Golgi*.
-
-If you want to see the potential ultra-high performance of Golgi, without the need for 
+This demo also showcases the very high performance of Golgi, without the need for 
 complex techniques such as server-side
 rendered (SSR) HTML and hydration, but just simply by applying some straightforward optimisations
-of the loading of resources and simple pre-optimisations of the WebComponents and Golgi Assemblies,
-take a look at this optimised version of the same 
-[RealWorld Conduit application](https://robtweed.github.io/golgi/examples/conduit-opt/).
-My own testing shows this version achieves Lighthouse performance scores of between 95 and 100!
+of the loading of resources and simple pre-optimisations of the WebComponents and Golgi Assemblies.
 
-**NOTE:** You must use a modern browser that supports WebComponents to run these examples!
+**NOTE:** You must use a modern browser that supports WebComponents to run the example!
 
 See the [*./examples*](./examples) folder for the actual *Golgi* source code
-files that run the live examples.
+files that implement the live example.
 
 The [Optimisation Techniques are described here](./SERVER-SIDE-TOOLS.md).
 

@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 22 July 2023
+ 30 July 2023
 
  */
 
@@ -38,7 +38,7 @@ let golgi = {
   resourceLoaded: new Map(),
   listeners: new Map(),
   logging: false,
-  version: '1.3.4',
+  version: '1.4.2',
 
   setLog: function (state) {
     this.logging = state;
@@ -134,29 +134,38 @@ let golgi = {
     document.getElementsByTagName('head')[0].appendChild(meta);
   },
 
-  fetch_optimised_components: async function(namespace, context) {
+  fetch_optimised_components: async function(context, subset_file) {
+
+    let filename = subset_file || 'golgi-components.js';
 
     // Fetch pre-built Server-side-generated version of all components for a namespace, ie single file minimised import
 
-    let filename = context.componentPaths[namespace] + 'golgi-components.js';
+    //let filename = context.componentPaths[namespace] + componentFile;
     this.logMessage('fetching optimised file of all components: ' + filename);
 
-    try {
-      const {golgi_components} = await import(filename);
-      golgi_components.forEach(function(fn) {
-        fn();
-      });
-    }
-    catch(err) {
-      this.logMessage('Unable to fetch optimised component module for ' + namespace);
-    }
+    const {golgi_components} = await import(filename);
+    let _this = this;
+    golgi_components.forEach(function(comp) {
+      if (!customElements.get(comp.n)) {
+        try {
+          comp.f();
+          _this.logMessage(comp.n + ' loaded');
+        }
+        catch(err) {
+          _this.logMessage('Unable to fetch optimised component module');
+          console.log(err);
+        }
+      }
+    });
   },
 
-  fetch_optimised_assemblies: async function(context) {
+  fetch_optimised_assemblies: async function(context, subset_file) {
 
     // Fetch pre-built Server-side-generated version of all assemblies, ie single file minimised import
 
-    let filename = context.assemblyPath + 'golgi-assemblies.js';
+    let assemblyFile = subset_file || 'golgi-assemblies.js';
+
+    let filename = context.assemblyPath + assemblyFile;
     this.logMessage('fetching optimised file of all assemblies: ' + filename);
 
     let _this = this;
@@ -164,7 +173,7 @@ let golgi = {
     try {
       const {golgi_assemblies} = await import(filename);
       golgi_assemblies.forEach(function(obj) {
-        _this.assemblies.set(obj.name, obj.code);
+        _this.assemblies.set(obj.n, obj.c);
       });
     }
     catch(err) {
@@ -173,144 +182,6 @@ let golgi = {
     this.emit('assembliesLoaded');
   },
 
-  prefetchAssemblies: function(assemblyNames, context) {
-    assemblyNames.forEach(function(name) {
-      golgi.prefetchAssembly(name, context);
-    });
-  },
-
-  prefetchAssembly: async function(name, context) {
-
-    let path = context.assemblyPath;
-    if (path === '') path = './';
-    if (path.slice(-1) !== '/') {
-      path = path + '/';
-    }
-
-    let _module;
-    if (this.assemblies.has(name)) {
-      _module = {load: this.assemblies.get(name)};
-    }
-    else {
-      _module = await import(path + name + '.js');
-    }
-
-    let assemblyObj = _module.load.call(this, context);
-    let json = assemblyObj.gjson || {};
-    if (assemblyObj.gx) {
-      json = this.parse(assemblyObj.gx, assemblyObj.hooks, context);
-    }
-
-    if (json) {
-      if (!Array.isArray(json)) {
-        json = [json];
-      }
-      json.forEach(function(component, index) {
-        json[index].assemblyName = name;
-      });
-    }
-
-    this.preloadAssembly(json, context);
-
-  },
-
-  preloadComponent: async function(component, context) {
-
-    // this is actually an assembly, so needs loading using
-    // renderAssembly instead
-
-    let name = component.componentName;
-
-    if (name.split(':')[0] === 'assembly') {
-      let aName = name.split('assembly:')[1];
-      this.prefetchAssembly(aName, context);
-      return;
-    }
-
-    
-    if (name.includes('-')) {
-      this.preload(name, context);
-    }
-    else if (name === 'script') {
-      if (!golgi.resourceLoaded.has(component.src)) {
-        let obj;
-        if (component.crossorigin) {
-          obj = {crossorigin: component.crossorigin};
-        }
-        golgi.loadJS(component.src, obj)
-        golgi.resourceLoaded.set(component.src, true);
-      }
-    }
-    else if (name === 'css') {
-      if (!golgi.resourceLoaded.has(component.src)) {
-        let obj;
-        if (component.crossorigin) {
-          obj = {crossorigin: component.crossorigin};
-        } 
-        golgi.loadCSS(component.src, obj);
-        golgi.resourceLoaded.set(component.src, true);
-      }
-    }
-    if (component.children && component.children[0]) {
-
-      // preload component's child components
-
-      this.preloadAssembly(component.children, context);
-    }
-    return;
-  },
-
-  preloadAssembly: function(configArr, context) {
-
-    for (const config of configArr) {
-      //console.log('preloadAssembly loop - config=');
-      //console.log(config);
-      this.preloadComponent(config, context);
-    }
-
-  },
-
-  preloadComponents: function(componentNames, context) {
-    componentNames.forEach(function(name) {
-      golgi.preload(name, context);
-    });
-  },
-
-  preload: async function(componentName, context) {
-
-    let namespace = componentName.split('-')[0];
-
-    this.logMessage('*** preload ' + componentName);
-    let _this = this;
-
-    //console.log('context: ');
-    //console.log(context);
-    let jsPath = context.componentPath || './';
-    if (context.componentPaths && context.componentPaths[namespace]) {
-      jsPath = context.componentPaths[namespace];
-    }
-    let jsRootPath = jsPath;
-    if (jsRootPath.slice(-1) !== '/') {
-      jsRootPath = jsPath + '/';
-    }
-
-    let elementClass = customElements.get(componentName);
-    if (!elementClass) {
-      let _module = await import(jsPath + componentName + '.js');
-      // check again in case loaded in the meantime by another async loop
-      let elementClass = customElements.get(componentName);
-      if (!elementClass) {
-        _module.load.call(this);
-        elementClass = customElements.get(componentName);
-        this.logMessage('** preload: component ' + componentName + ' had to be imported');
-      }
-      else {
-        this.logMessage('** preload: component ' + componentName + ' loaded by another loop');
-      }
-    }
-  },
-
-
   load: async function(componentName, targetElement, context) {
 
     let namespace = componentName.split('-')[0];
@@ -318,8 +189,6 @@ let golgi = {
     this.logMessage('*** load ' + componentName);
     let _this = this;
 
-    //console.log('context: ');
-    //console.log(context);
     let jsPath = context.componentPath || './';
     if (context.componentPaths && context.componentPaths[namespace]) {
       jsPath = context.componentPaths[namespace];
@@ -341,14 +210,7 @@ let golgi = {
       element.path = jsPath;
       element.rootPath = jsRootPath;
       element.isComponent = true;
-      /*
-      element.golgi = this;
-      if (element.setState) {
-        element.setState({
-          golgi: _this,
-        });
-      }
-      */
+
       return element;
     }
 
@@ -360,6 +222,13 @@ let golgi = {
     }
     else {
       let _module = await import(jsPath + componentName + '.js');
+
+      if (!context.golgiLoadSequence) {
+        context.golgiLoadSequence = [];
+      }
+      context.golgiLoadSequence.push(componentName);
+      console.log(context.golgiLoadSequence);
+
       // check again in case loaded in the meantime by another async loop
       let elementClass = customElements.get(componentName);
       if (!elementClass) {
@@ -373,19 +242,6 @@ let golgi = {
 
       let element = invokeComponent(elementClass);
       return element;
-
-      /*
-      if (targetElement) {
-        //console.log('*** componentName: ' + componentName);
-        //console.log('*** targetElement = ' );
-        //console.log(targetElement);
-
-      }
-      else {
-        // just pre-loading
-        return;
-      }
-      */
     }
   },
 
@@ -444,7 +300,7 @@ let golgi = {
       if (component.hook) {
         try {
           // note that the Golgi object will be the context for an assembly hook!
-          component.hook.call(this);
+          component.hook.call(this, context);
         }
         catch(err) {
           if (this.logging) {
@@ -507,10 +363,10 @@ let golgi = {
           _this.element = element;
           // note that the Golgi object will be the context for an HTML tag hook!
           if (config.hook.constructor.name === 'AsyncFunction') {
-            await config.hook.call(_this);
+            await config.hook.call(_this, context);
           }
           else {
-            config.hook.call(_this);
+            config.hook.call(_this, context);
           }
         }
         catch(err) {
@@ -838,10 +694,10 @@ let golgi = {
     if (config.hook) {
       try {
         if (config.hook.constructor.name === 'AsyncFunction') {
-          await config.hook.call(element);
+          await config.hook.call(element, context);
         }
         else {
-          config.hook.call(element);
+          config.hook.call(element, context);
         }
       }
       catch(err) {
@@ -922,8 +778,6 @@ let golgi = {
         json[index].assemblyName = name;
       });
     }
-
-    this.preloadAssembly(json, context);
 
     await this.loadGroup(json, targetElement, context);
     this.emit(name + '_rendered');
@@ -1042,6 +896,10 @@ let golgi = {
       let children = [...node.childNodes];
       children.forEach(function(child) {
         if (child.nodeType === 1) {
+          // drop into shadowRoot if necessary to ensure full recursion
+          if (child.shadowRoot) {
+            child = child.shadowRoot;
+          }
           getChildren(child);
           if (child.isComponent) {
             child.onUnload();

@@ -1,1 +1,0 @@
-function load(e){return{gjson:{componentName:"conduit-content-page",state:{name:"home_page"},children:[{componentName:"conduit-home-page",state:{},assemblyName:"home_page"}],assemblyName:"home_page"}}}export{load};
