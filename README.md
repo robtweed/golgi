@@ -25,14 +25,15 @@ Just develop and go, edit and go!
 Run this [live example](https://robtweed.github.io/golgi/examples/sbadmin/), 
 demonstrating how *Golgi* turns the [SB Admin ](https://startbootstrap.com/template/sb-admin) 
 theme into an actual framework that you can quickly and
-easily customise to meet your needs.  Note that this example uses 
-[*golgi-sbadmin](https://github.com/robtweed/golgi-sbadmin/),
-a ready-made, Open Source library of Golgi Components.
+easily customise to meet your needs.  The example uses 
+[*golgi-sbadmin*](https://github.com/robtweed/golgi-sbadmin/),
+a ready-made, Open Source library of Golgi Components that does all the hard work for you!
 
 This demo also showcases the very high performance of Golgi, without the need for 
 complex techniques such as server-side
 rendered (SSR) HTML and hydration, but just simply by applying some straightforward optimisations
 of the loading of resources and simple pre-optimisations of the WebComponents and Golgi Assemblies.
+Even on a slow network, you'll see how quickly the UI loads and is ready for use.
 
 **NOTE:** You must use a modern browser that supports WebComponents to run the example!
 
