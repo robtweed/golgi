@@ -1,0 +1,66 @@
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <title>Golgi ToDo</title>
+
+      <!-- 
+
+        These inline styles below are needed to establish the baseline for
+        the todo application's WebComponent ShadowDOM styling
+
+        They aren't a requirement of Golgi
+
+      -->
+
+      <style>
+html, body {
+    margin: 0;
+    padding: 0;
+}
+body {
+    width: auto;
+    font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    line-height: 1.4em;
+    background: #f5f5f5;
+    color: #4d4d4d;
+    min-width: 230px;
+    max-width: 550px;
+    margin: 0 auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-weight: 300;
+}
+      </style>
+
+    </head>
+  
+    <body>
+
+      <!-- 
+
+        The following script tags are optional.
+
+        Loading these resources here speeds up initial display time, particularly if
+        users have slow, unreliable network access.
+
+
+        If network performance is reliably high, you can dispense with these script tags
+        and let Golgi automatically and dynamically load resources as they are needed
+
+      -->
+
+      <script defer type="module" src="https://cdn.jsdelivr.net/gh/robtweed/golgi/src/golgi.min.js"></script>
+      <script defer type="module" src="https://cdn.jsdelivr.net/gh/robtweed/DPP/src/dpp.min.js"></script>
+      <script defer type="module" src="https://robtweed.github.io/QOper8/src/QOper8.min.js"></script>
+      <script async type="module" src="js/assemblies/root.js"></script>
+      <script async type="module" src="js/components/todo/todo-root.js"></script>
+      <script async type="module" src="js/components/todo/todo-main.js"></script>
+      <script async type="module" src="js/components/todo/todo-header.js"></script>
+      <script async type="module" src="js/components/todo/todo-footer.js"></script>
+      <script async type="module" src="js/components/todo/todo-item.js"></script>
+
+      <!-- End of optional script tags -->
+
+      <script type="module" src="js/app.js"></script>
+    </body>
+  </html>

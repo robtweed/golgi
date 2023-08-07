@@ -22,6 +22,27 @@ Just develop and go, edit and go!
 
 # Try It Out!
 
+## ToDo Demo
+
+Run this [live ToDo application](https://robtweed.github.io/golgi/examples/todo/).
+
+The application is based on the UI design from the [ToDoMVC](https://todomvc.com/) examples,
+but without an MVC design focus.  
+
+Instead, this version uses all the key features
+that are built into *Golgi*, including its StateMap and Mutation Observer functionality to
+control the UI behaviour.  It also showcases the use of our 
+[DPP](https://github.com/robtweed/DPP) abstraction of the IndexedDB database, which 
+allows the persistent *todo* object to be treated in the *Golgi* application as if it was
+just a plain old JavaScript object.
+
+**NOTE:** You must use a modern browser that supports WebComponents to run this example!
+
+See the [*./examples/todo*](./examples/todo) folder for the actual *Golgi* source code
+files that implement this live example.
+
+## SBAdmin Demo
+
 Run this [live example](https://robtweed.github.io/golgi/examples/sbadmin/), 
 demonstrating how *Golgi* turns the [SB Admin ](https://startbootstrap.com/template/sb-admin) 
 theme into an actual framework that you can quickly and
@@ -37,8 +58,8 @@ Even on a slow network, you'll see how quickly the UI loads and is ready for use
 
 **NOTE:** You must use a modern browser that supports WebComponents to run the example!
 
-See the [*./examples*](./examples) folder for the actual *Golgi* source code
-files that implement the live example.
+See the [*./examples/sbadmin*](./examples/sbadmin) folder for the actual *Golgi* source code
+files that implement this live example.
 
 The [Optimisation Techniques are described here](./SERVER-SIDE-TOOLS.md).
 

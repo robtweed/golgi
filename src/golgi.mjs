@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 30 July 2023
+ 6 August 2023
 
  */
 
@@ -227,7 +227,10 @@ let golgi = {
         context.golgiLoadSequence = [];
       }
       context.golgiLoadSequence.push(componentName);
-      console.log(context.golgiLoadSequence);
+      if (this.logging) {
+        this.logMessage('Component Load Sequence so far:');
+        console.log(context.golgiLoadSequence);
+      }
 
       // check again in case loaded in the meantime by another async loop
       let elementClass = customElements.get(componentName);
@@ -505,7 +508,7 @@ let golgi = {
               let fn = function(dataObj) {
                 let value = dataObj;
                 if (typeof dataObj === 'object') value = dataObj[prop];
-                span.innerHTML = value;              
+                if (typeof value !== 'undefined') span.innerHTML = value;              
               };
               element.databinding.push(fn);
               child.nodeValue = '';
@@ -551,18 +554,18 @@ let golgi = {
             let prop = attr.value.split('golgi:bind=')[1];
             prop = prop.split(';')[0]; // if there are other golgi directives in the attribute value
             let fn;
-            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' && attr.name === 'value') {
+            if ((el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') && attr.name === 'value') {
               fn = function(dataObj) {
                 let value = dataObj;
                 if (typeof dataObj === 'object') value = dataObj[prop];
-                el.value = value;
+                if (typeof value !== 'undefined') el.value = value;
               };
             }
             else {
               fn = function(dataObj) {
                 let value = dataObj;
                 if (typeof dataObj === 'object') value = dataObj[prop];
-                el.setAttribute(attr.name, value);
+                if (typeof value !== 'undefined') el.setAttribute(attr.name, value);
               };
             }
             element.databinding.push(fn);
@@ -1208,7 +1211,7 @@ let golgi = {
         if (mutation.type === 'attributes') {
           let newValue = mutation.target.getAttribute(attrName);
           let callback = mutation.target.ownerComponent[methodName];
-          if (callback && mutation.target.ownerComponent) callback.call(mutation.target.ownerComponent, newValue, mutation.oldValue);
+          if (callback && mutation.target.ownerComponent && newValue && newValue !== mutation.oldValue) callback.call(mutation.target.ownerComponent, newValue, mutation.oldValue);
         }
       });
     });
@@ -1220,7 +1223,7 @@ let golgi = {
         if (mutation.type === 'childList') {
           let newValue = target.textContent;
           let callback = component[methodName];
-          if (callback) callback.call(component, newValue, target, originalTag);
+          if (callback && newValue) callback.call(component, newValue, target, originalTag);
         }
       });
     });
@@ -1256,8 +1259,9 @@ golgi.golgi_state = new Proxy(golgi.dataStore, {
 
       function applyState(mapKey, value) {
         if (golgi.logging) {
-          golgi.logMessage('trying to apply state for mapKey ' + mapKey + ' = ' + value);
-          console.log(golgi.stateMap);
+          golgi.logMessage('1 trying to apply state for mapKey ' + mapKey + ':');
+          console.log(value);
+          //console.log(golgi.stateMap);
         }
         if (golgi.stateMap.has(mapKey)) {
           let mapArr = golgi.stateMap.get(mapKey);
@@ -1295,8 +1299,9 @@ golgi.golgi_state = new Proxy(golgi.dataStore, {
 
       function applyState(mapKey, value) {
         if (golgi.logging) {
-          golgi.logMessage('trying to apply state for mapKey ' + mapKey + ' = ' + value);
-          console.log(golgi.stateMap);
+          golgi.logMessage('2 trying to apply state for mapKey ' + mapKey + ':');
+          console.log(value);
+          //console.log(golgi.stateMap);
         }
         if (golgi.stateMap.has(mapKey)) {
           let mapArr = golgi.stateMap.get(mapKey);
