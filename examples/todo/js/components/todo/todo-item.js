@@ -309,6 +309,8 @@ input[type='text']:not(.edit) {
         this.context.mainComponent.showToggle(false);
       }
 
+      footerComponent.showClearBtn(this.context.hasCompletedTasks());
+
       // destroy this item component and its state proxy object
 
       delete this.golgi_state[this.name];
