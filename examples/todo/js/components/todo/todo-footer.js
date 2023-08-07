@@ -125,13 +125,13 @@ button {
 
   <ul class="filters">
     <li>
-      <a href="#/all" golgi:prop="allSelector" class="selected" golgi:on_click="showAll">All</a>
+      <a href="#" golgi:prop="allSelector" class="selected" golgi:on_click="showAll">All</a>
     </li>
     <li>
-      <a href="#/active" golgi:prop="activeSelector" golgi:on_click="showActive">Active</a>
+      <a href="#" golgi:prop="activeSelector" golgi:on_click="showActive">Active</a>
     </li> 
     <li>
-      <a href="#/completed" golgi:prop="completedSelector" golgi:on_click="showCompleted">Completed</a>
+      <a href="#" golgi:prop="completedSelector" golgi:on_click="showCompleted">Completed</a>
     </li>
   </ul> 
 

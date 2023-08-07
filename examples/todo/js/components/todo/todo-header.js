@@ -51,10 +51,13 @@ input:placeholder-shown {
     }
 
     async addTodo() {
-      let id = this.context.createTodo(this.input.value);
-      let itemComponent = await this.context.mainComponent.addItem(id, this.input.value, false);
-      this.context.registerItemComponent(id, itemComponent);
-      this.input.value = '';
+      let value = this.input.value.trim();
+      if (value !== '') {
+        let id = this.context.createTodo(value);
+        let itemComponent = await this.context.mainComponent.addItem(id, value, false);
+        this.context.registerItemComponent(id, itemComponent);
+        this.input.value = '';
+      }
     }
 
   });

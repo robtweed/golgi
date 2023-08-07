@@ -171,7 +171,7 @@ input[type='text']:not(.edit) {
     <label golgi:on_dblclick="editingOn">golgi:bind=value</label>
     <button class="destroy" golgi:on_click="destroy"></button>
   </div> 
-  <input type="text" class="edit hidden" golgi:prop="editField" value="golgi:bind=value" golgi:on_blur="editingOff" golgi:on_change="editingOff" />
+  <input type="text" class="edit hidden" golgi:prop="editField" value="golgi:bind=value" golgi:on_blur="editingOff" golgi:on_keydown="testForEnd" />
 </li>
 
       `;
@@ -252,6 +252,8 @@ input[type='text']:not(.edit) {
 
     editingOn() {
 
+      this.originalValue = this.editField.value;
+
       // turn on the edit field
 
       this.viewDiv.classList.add('hidden');
@@ -259,16 +261,31 @@ input[type='text']:not(.edit) {
       this.editField.focus();
     }
 
+    testForEnd(e) {
+      if (e.key === 'Escape') {
+        this.editField.value = this.originalValue;
+      }
+      if (e.key === 'Escape' || e.key === 'Enter') {
+        this.editingOff();
+      }
+    }
+
     editingOff() {
 
       // turn off the edit field and transfer the new value to the UI and todos object
 
+      let text = this.editField.value.trim();
+      if (text === '') {
+        this.destroy();
+        return;
+      }
+
       this.viewDiv.classList.remove('hidden');
       this.editField.classList.add('hidden');
       this.modifyState({
-        value: this.editField.value
+        value: text
       });
-      this.context.editTodo(this.todoId, this.editField.value);
+      this.context.editTodo(this.todoId, text);
     }
 
     destroy() {

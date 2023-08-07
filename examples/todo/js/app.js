@@ -177,7 +177,7 @@
     }
   };
 
-  golgi.logging = true;
+  //golgi.logging = true;
 
   await golgi.renderAssembly('root', 'body', context);
 
