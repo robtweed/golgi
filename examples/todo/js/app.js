@@ -67,8 +67,7 @@
 
   */
 
-  let path_prefix = '../examples/todo/js/';
-
+  let path_prefix = 'https://robtweed.github.io/golgi/examples/todo/js/';
 
   // create the Golgi Context object
 
