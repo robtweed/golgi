@@ -149,8 +149,6 @@ button {
 
     updateState() {
 
-      console.log('**** update footer state ****');
-
       // iterate through rendered item components and
       //  update their state based on the display mode
 
@@ -162,8 +160,6 @@ button {
       let itemGroupComponent = this.context.itemGroupComponent;
 
       itemGroupComponent.forEachItem((itemComponent) => {
-        console.log(888888);
-        console.log(itemComponent);
         if (this.context.isTodoCompleted(itemComponent.todoId)) {
           showClearBtn = true;
         }

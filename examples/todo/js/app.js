@@ -93,9 +93,6 @@
     },
 
     isTodoCompleted: function(id) {
-      console.log(1111111);
-      console.log(id);
-      console.log(todos.byId[id]);
       return todos.byId[id].completed;
     },
 
