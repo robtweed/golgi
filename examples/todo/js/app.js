@@ -54,10 +54,6 @@
     todos.mode = 'all';
   }
 
-  // initialise item component lookup hash
-
-  let itemComponents = {};
-
   /*
     use this style of path prefix in your local app
 
@@ -80,18 +76,13 @@
 
     // methods for use in components
 
-    createTodo: function(text, completed) {
-      completed = completed || false;
+    createTodo: function(text) {
       let id = todos.nextId++;
       todos.byId[id] = {
         text: text,
-        completed: completed
+        completed: false
       }
       return id;
-    },
-
-    registerItemComponent: function(id, itemComponent) {
-      itemComponents[id] = itemComponent;
     },
 
     editTodo: function(id, text) {
@@ -101,37 +92,11 @@
       }
     },
 
-    deleteTodoById: function(id) {
-      delete itemComponents[id];
-      delete todos.byId[id];
-    },
-    
-    hasTodos: function() {
-      for (let id in todos.byId) {
-        return true;
-      }
-      return false;
-    },
-
-    hasCompletedTasks: function() {
-      for (let id in todos.byId) {
-        if (todos.byId[id].completed) return true;
-      }
-      return false;
-    },
-
-    getTodo: function(id) {
-      return todos.byId[id];
-    },
-
-    allCompleted() {
-      let completed = 0;
-      let total = 0;
-      for (let id in todos.byId) {
-        if (todos.byId[id].completed) completed++;
-        total++;
-      }
-      return (completed > 0 && completed === total) ? true : false;
+    isTodoCompleted: function(id) {
+      console.log(1111111);
+      console.log(id);
+      console.log(todos.byId[id]);
+      return todos.byId[id].completed;
     },
 
     completeTodo: function(id) {
@@ -142,49 +107,29 @@
       todos.byId[id].completed = false;
     },
 
-    completeAllTodos: function() {
-      for (let id in itemComponents) {
-        if (!todos.byId[id].completed) {
-          itemComponents[id].completeTask();
-          context.completeTodo(id);
-        }
-      }
+    getTodo: function(id) {
+      return todos.byId[id];
     },
 
-    uncompleteAllTodos: function() {
-      for (let id in itemComponents) {
-        itemComponents[id].uncompleteTask();
-        context.uncompleteTodo(id);
-      }
+    deleteTodo: function(id) {
+      delete todos.byId[id];
     },
 
-    getDisplayMode() {
+    getDisplayMode: function() {
       return todos.mode;
     },
 
-    showTodos: function(mode) {
-      todos.mode = mode;
-      for (let id in itemComponents) {
-        itemComponents[id].applyMode(mode, todos.byId[id].completed);
-      }
+    setDisplayMode: function(value) {
+      todos.mode = value;
     },
 
-    clearCompletedTasks: function() {
-      for (let id in itemComponents) {
-        if (todos.byId[id].completed) itemComponents[id].destroy();
-      }
+    getAllTodos: function() {
+      return todos.byId;
     }
   };
 
   //golgi.logging = true;
 
   await golgi.renderAssembly('root', 'body', context);
-
-  // pre-populate from DPP-stored todo object
-
-  for (let id in todos.byId) {
-    let todo = todos.byId[id];
-    itemComponents[id] = await context.mainComponent.addItem(id, todo.text, todo.completed);
-  }
 
 })();

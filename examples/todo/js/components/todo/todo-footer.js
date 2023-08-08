@@ -119,7 +119,7 @@ button {
 
 <footer class="footer hidden">
   <span class="todo-count">
-   <strong golgi:prop="counter" data-count="golgi:bind=counter; golgi:observer=showController"></strong>
+   <strong golgi:prop="counter"></strong>
    item<span golgi:prop="plural">s</span> left
   </span>
 
@@ -146,25 +146,52 @@ button {
       this.name = componentName + '-0';
     }
 
-    showController(newValue, oldValue) {
 
-      // mutation observer controls how count is displayed
+    updateState() {
 
-      this.counter.textContent = newValue;
+      console.log('**** update footer state ****');
 
-      if (!this.context.hasTodos()) {
+      // iterate through rendered item components and
+      //  update their state based on the display mode
+
+      //  count the active tasks along the way
+
+      let countActive = 0;
+      let showClearBtn = false;
+      let displayMode = this.context.getDisplayMode();
+      let itemGroupComponent = this.context.itemGroupComponent;
+
+      itemGroupComponent.forEachItem((itemComponent) => {
+        console.log(888888);
+        console.log(itemComponent);
+        if (this.context.isTodoCompleted(itemComponent.todoId)) {
+          showClearBtn = true;
+        }
+        else {
+          countActive++;
+        }
+        itemComponent.updateState(displayMode);
+      });
+
+      // now update the appearance of the footer itself
+
+      itemGroupComponent.showToggle();
+      this.displayFooter();
+      this.counter.textContent = countActive;
+      this.showPlural(countActive !== 1);
+      this.displayMode(displayMode);
+      this.showClearBtn(showClearBtn);
+    }
+
+    displayFooter() {
+      // hide the footer if there are no items
+
+      if (this.context.itemGroupComponent.count === 0) {
         this.hide();
-        this.context.mainComponent.showToggle(false);
       }
       else {
         this.show();
-        this.context.mainComponent.showToggle(true);
-        this.showPlural(+newValue !== 1);
       }
-
-      // show clear-completed button if there are any completed tasks
-
-      this.showClearBtn(this.context.hasCompletedTasks());
     }
 
     displayMode(mode) {
@@ -192,30 +219,18 @@ button {
     }
 
     showAll() {
-      this.allSelected()
-      this.context.showTodos('all');
+      this.context.setDisplayMode('all');
+      this.updateState();
     }
 
     showActive() {
-      this.activeSelected();
-      this.context.showTodos('active');
+      this.context.setDisplayMode('active');
+      this.updateState();
     }
 
     showCompleted() {
-      this.completedSelected();
-      this.context.showTodos('completed');
-    }
-
-    incrementItemCount() {
-      this.golgi_state.footer.counter++;
-    }
-
-    decrementItemCount() {
-      this.golgi_state.footer.counter--;
-    }
-
-    clearCompletedItems() {
-      this.context.clearCompletedTasks();
+      this.context.setDisplayMode('completed');
+      this.updateState();
     }
 
     show() {
@@ -271,25 +286,21 @@ button {
       }
     }
 
-    modifyState(obj) {
-      if (!this.golgi_state.footer) this.golgi_state.footer = {};
-      for (let prop in obj) {
-        this.golgi_state.footer[prop] = obj[prop];
-      }
+    clearCompletedItems() {
+      this.context.itemGroupComponent.clearCompletedItems();
     }
 
     onBeforeState() {
 
-      // initial render status
+      // Once the assembly has completed rendering,
+      // pre-populate using the persisent todos
 
-      this.addStateMap('footer');
-
-      this.modifyState({
-        counter: 0
+      this.onOwnerAssemblyRendered(async () => {
+        for (let id in this.context.getAllTodos()) {
+          await this.context.itemGroupComponent.renderTodo(id, false);
+        };
+        this.updateState();
       });
-
-      this.displayMode(this.context.getDisplayMode());
-
     }
 
   });

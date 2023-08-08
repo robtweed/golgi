@@ -166,12 +166,12 @@ input[type='text']:not(.edit) {
 </style>
 
 <li class="todo">
-  <div class="view" golgi:prop="viewDiv" data-check="golgi:bind=checked; golgi:observer=checkChange">
+  <div class="view" golgi:prop="viewDiv">
     <input type="checkbox" class="toggle" golgi:prop="checkbox" golgi:on_change="taskCompleted"  />
-    <label golgi:on_dblclick="editingOn">golgi:bind=value</label>
+    <label golgi:prop="itemText" golgi:on_dblclick="editingOn"></label>
     <button class="destroy" golgi:on_click="destroy"></button>
   </div> 
-  <input type="text" class="edit hidden" golgi:prop="editField" value="golgi:bind=value" golgi:on_blur="editingOff" golgi:on_keydown="testForEnd" />
+  <input type="text" class="edit hidden" golgi:prop="editField" golgi:on_blur="stopEditing" golgi:on_keydown="testForEnd" />
 </li>
 
       `;
@@ -179,13 +179,22 @@ input[type='text']:not(.edit) {
       this.name = componentName + '-' + count;
     }
 
-    applyMode(mode, completed) {
+    updateState(displayMode) {
+      let todo = this.context.getTodo(this.todoId);
+      this.itemText.textContent = todo.text;
 
-      if (mode === 'active' && completed) {
+      this.checkbox.checked = todo.completed;
+      this.strikethroughText(todo.completed);
+      this.applyDisplayMode(displayMode,todo);
+    }
+
+    applyDisplayMode(displayMode, todo) {
+
+      if (displayMode === 'active' && todo.completed) {
         this.hide();
         return;
       }
-      if (mode === 'completed' && !completed) {
+      if (displayMode === 'completed' && !todo.completed) {
         this.hide();
         return;
       }
@@ -203,118 +212,61 @@ input[type='text']:not(.edit) {
       }
     }
 
-    checkChange(check) {
-
-      // mutation observer controls footer values and
-      // updates persistent todo object
-      // based on checked attribute value after
-      // state change
-
-      let mode = this.context.getDisplayMode();
-
-      if (check === 'true') {
-        this.checkbox.checked = true;
-        this.strikethroughText(true);
-        this.context.footerComponent.decrementItemCount();
-        this.context.completeTodo(this.todoId);
-        this.applyMode(mode, true)
-      }
-      else {
-        this.checkbox.checked = false;
-        this.strikethroughText(false);
-        this.context.footerComponent.incrementItemCount();
-        this.context.uncompleteTodo(this.todoId);
-        this.applyMode(mode, false)
-      }
-    }
-
     taskCompleted() {
-
       if (this.checkbox.checked) {
-        this.completeTask();
+        this.context.completeTodo(this.todoId);
       }
       else {
-        this.uncompleteTask();
+        this.context.uncompleteTodo(this.todoId);
       }
-    }
-
-    completeTask() {
-      this.modifyState({
-        checked: true
-      });
-    }
-
-    uncompleteTask() {
-      this.modifyState({
-        checked: false
-      });
+      this.context.footerComponent.updateState();
     }
 
     editingOn() {
 
-      this.originalValue = this.editField.value;
-
       // turn on the edit field
 
+      this.editing = true;
       this.viewDiv.classList.add('hidden');
       this.editField.classList.remove('hidden');
+      this.editField.value = this.itemText.textContent;
       this.editField.focus();
     }
 
     testForEnd(e) {
-      if (e.key === 'Escape') {
-        this.editField.value = this.originalValue;
-      }
       if (e.key === 'Escape' || e.key === 'Enter') {
+        if (e.key === 'Enter') {
+          this.itemText.textContent = this.editField.value.trim();
+        }
+        this.editingOff();
+      }
+    }
+
+    stopEditing() {
+      if (this.editing) {
+        this.itemText.textContent = this.editField.value.trim();
         this.editingOff();
       }
     }
 
     editingOff() {
-
-      // turn off the edit field and transfer the new value to the UI and todos object
-
-      let text = this.editField.value.trim();
+      let text = this.itemText.textContent;
       if (text === '') {
         this.destroy();
-        return;
       }
-
-      this.viewDiv.classList.remove('hidden');
-      this.editField.classList.add('hidden');
-      this.modifyState({
-        value: text
-      });
-      this.context.editTodo(this.todoId, text);
+      else {
+        this.viewDiv.classList.remove('hidden');
+        this.editField.classList.add('hidden');
+        this.context.editTodo(this.todoId, text);
+        this.context.footerComponent.updateState();
+      }
+      this.editing = false;
     }
 
     destroy() {
-      let todo = this.context.getTodo(this.todoId);
-      let footerComponent = this.context.footerComponent;
-
-      //remove this item:
-
-      // from footer count if it had been active
-
-      if (!todo.completed) footerComponent.decrementItemCount();
-
-      // from persistent todos object
-
-      this.context.deleteTodoById(this.todoId);
-
-      // and hide the footer and toggle if no more items
-
-      if (!this.context.hasTodos()) {
-        footerComponent.hide();
-        this.context.mainComponent.showToggle(false);
-      }
-
-      footerComponent.showClearBtn(this.context.hasCompletedTasks());
-
-      // destroy this item component and its state proxy object
-
-      delete this.golgi_state[this.name];
+      this.context.deleteTodo(this.todoId);
       this.remove();
+      this.context.footerComponent.updateState();
     }
 
     show() {
@@ -323,21 +275,6 @@ input[type='text']:not(.edit) {
 
     hide() {
       this.rootElement.classList.add('hidden');
-    }
-
-    modifyState(obj) {
-      if (!this.golgi_state[this.name]) this.golgi_state[this.name] = {};
-      for (let prop in obj) {
-        this.golgi_state[this.name][prop] = obj[prop];
-      }
-    }
-
-    onBeforeState() {
-      this.addStateMap(this.name);
-
-      this.modifyState({
-        value: ''
-      });
     }
 
   });

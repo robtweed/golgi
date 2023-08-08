@@ -2,16 +2,21 @@ export function load() {
 
   let gx=`
 <todo-root>
-  <todo-header />
-  <todo-main golgi:hook="configure" />
+  <todo-header golgi:hook="configure" />
+  <todo-item-group golgi:hook="configure" />
   <todo-footer golgi:hook="configure" />
 </todo-root>
   `;
 
   let hooks = {
-    'todo-main': {
+    'todo-header': {
       configure: function(ctx) {
-        ctx.mainComponent = this;
+        ctx.headerComponent = this;
+      }
+    },
+    'todo-item-group': {
+      configure: function(ctx) {
+        ctx.itemGroupComponent = this;
       }
     },
     'todo-footer': {

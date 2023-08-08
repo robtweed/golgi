@@ -43,7 +43,7 @@ input:placeholder-shown {
 </style>
 
 <header class="base">
-  <input class="new-todo" placeholder="What needs to be done?" autofocus="" golgi:prop="input" golgi:on_change="addTodo">
+  <input class="new-todo" placeholder="What needs to be done?" golgi:prop="input" golgi:on_change="addTodo">
 </header>
       `;
       this.shadowRoot.innerHTML = `${html}`;
@@ -54,10 +54,13 @@ input:placeholder-shown {
       let value = this.input.value.trim();
       if (value !== '') {
         let id = this.context.createTodo(value);
-        let itemComponent = await this.context.mainComponent.addItem(id, value, false);
-        this.context.registerItemComponent(id, itemComponent);
         this.input.value = '';
+        await this.context.itemGroupComponent.renderTodo(id, true);
       }
+    }
+
+    onBeforeState() {
+      this.input.focus();
     }
 
   });

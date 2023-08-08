@@ -26,43 +26,19 @@ Just develop and go, edit and go!
 
 Run this [live ToDo application](https://robtweed.github.io/golgi/examples/todo/).
 
-The application is based on the UI design from the [ToDoMVC](https://todomvc.com/) examples,
-but without an MVC design focus.  
-
-Instead, this version uses all the key features
-that are built into *Golgi*, including its StateMap and Mutation Observer functionality to
-control the UI behaviour.  It also showcases the use of our 
-[DPP](https://github.com/robtweed/DPP) abstraction of the IndexedDB database, which 
-allows the persistent *todo* object to be treated in the *Golgi* application as if it was
-just a plain old JavaScript object.
-
 **NOTE:** You must use a modern browser that supports WebComponents to run this example!
 
-See the [*./examples/todo*](./examples/todo) folder for the actual *Golgi* source code
-files that implement this live example.
+For details about and source code for this application, see the [*./examples/todo*](./examples/todo) folder.
 
 ## SBAdmin Demo
 
 Run this [live example](https://robtweed.github.io/golgi/examples/sbadmin/), 
-demonstrating how *Golgi* turns the [SB Admin ](https://startbootstrap.com/template/sb-admin) 
-theme into an actual framework that you can quickly and
-easily customise to meet your needs.  The example uses 
-[*golgi-sbadmin*](https://github.com/robtweed/golgi-sbadmin/),
-a ready-made, Open Source library of Golgi Components that does all the hard work for you!
-
-This demo also showcases the very high performance of Golgi, without the need for 
-complex techniques such as server-side
-rendered (SSR) HTML and hydration, but just simply by applying some straightforward optimisations
-of the loading of resources and simple pre-optimisations of the WebComponents and Golgi Assemblies.
-Even on a slow network, you'll see how quickly the UI loads and is ready for use.
+demonstrating the use of a *Golgi* Component Library:  
+[*golgi-sbadmin*](https://github.com/robtweed/golgi-sbadmin/)
 
 **NOTE:** You must use a modern browser that supports WebComponents to run the example!
 
-See the [*./examples/sbadmin*](./examples/sbadmin) folder for the actual *Golgi* source code
-files that implement this live example.
-
-The [Optimisation Techniques are described here](./SERVER-SIDE-TOOLS.md).
-
+For details about and source code for this application, see the [*./examples/sbadmin*](./examples/sbadmin) folder
 
 # About Golgi
 
