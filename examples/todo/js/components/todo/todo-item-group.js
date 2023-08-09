@@ -68,12 +68,6 @@ export function load(ctx) {
       this.name = componentName + '-0';
     }
 
-    async renderTodo(id, updateFooterState) {
-      let itemComponent = await this.renderComponent('todo-item', this.itemHolder, this.context);
-      itemComponent.todoId = id;
-      if (updateFooterState) this.context.footerComponent.updateState();
-    }
-
     showToggle() {
       if (this.count > 0) {
         this.toggle.classList.remove('hidden');
@@ -84,62 +78,16 @@ export function load(ctx) {
     }
 
     toggleClicked() {
-      let allCompleted = true;
-      this.forEachItem((itemComponent) => {
-        if (!this.context.isTodoCompleted(itemComponent.todoId)) {
-          allCompleted = false;
-          return true;  // break the loop early
-        }
-      });
-     
-      if (!allCompleted) {
-        this.completeAll();
-      }
-      else {
-        this.uncompleteAll();
-      }
-    }
-
-    completeAll() {
-      this.forEachItem((itemComponent) => {
-        this.context.completeTodo(itemComponent.todoId);
-      });
-      this.context.footerComponent.updateState();
-    }
-
-    uncompleteAll() {
-      this.forEachItem((itemComponent) => {
-        this.context.uncompleteTodo(itemComponent.todoId);
-      });
-      this.context.footerComponent.updateState();
+      this.context.toggleCompletion();
     }
 
     clearCompletedItems() {
-      this.forEachItem((itemComponent) => {
-        if (this.context.isTodoCompleted(itemComponent.todoId)) {
-          itemComponent.destroy();
-        }
-      });
+      this.context.deleteAllTodos();
+
     }
 
     get count() {
       return [...this.itemHolder.children].length;
-    }
-
-    forEachItem(callback) {
-      for (let itemComponent of [...this.itemHolder.children]) {
-        let res;
-        if (callback) res = callback(itemComponent);
-        if (res) break;
-      }
-    }
-
-    async forEachItemAsync(callback) {
-      for (let itemComponent of [...this.itemHolder.children]) {
-        let res;
-        if (callback) res = await callback(itemComponent);
-        if (res) break;
-      }
     }
 
   });

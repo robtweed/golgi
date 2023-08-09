@@ -14,10 +14,15 @@ It also showcases the use of our
 allows the persistent *todo* object to be treated in the *Golgi* application as if it was
 just a plain old JavaScript object.
 
+Furthermore, DPP provides the basis for reactive control: any changes to the persistent
+*todo* object trigger events, and these are used to invoke state updates within the 
+application's *Golgi* WebComponents.
+
 # The Design in a Nutshell
 
 The application has a single Assembly that marshalls the main Components into place:
 
+- the Root Component
 - the Header Component, where new Tasks are entered
 - the Item-Group Component, which provides the parent target for each individual Task Item Component
 - the Footer Component, which displays the counter and filtering controls
@@ -40,21 +45,19 @@ It also holds the display mode (as determined by the Footor Component's buttons)
 - display only active tasks
 - display only completed tasks
 
-This information is used by each Item Component's *updateState()* method to correctly display
-the Item in the UI.
+The UI state is handled from within the Root Component.  It updates the state of each
+Item Component and removes any Item Components that no longer have a matching *todo* record.
+It also triggers a state update of the Footer Component.
 
-Most of the UI control is handled within the Footer Component: its *updateState()* method
-is triggered whenever any change is made to the *todos* object, and this, in turn,
-invokes a state update for each of the *Item* Components that are attached to the
-Item-Group Component.
+DPP *save* and *delete* events are used to trigger the Root Component state updates.
 
-You'll see, therefore, that the editing controls within the Item Component only directly
-update the *todos* Object, and then call to the Footer Component to refresh the display based
-on the new *todos* state.
+User interactions within the application itself only change the contents of the *todos* object, which,
+in turn, causes the UI state to be updated.
 
-The resulting logic is surprisingly simple and compact, demonstrating the benefits
+The resulting logic is surprisingly simple, clean and compact, demonstrating the benefits
 of Golgi's WebComponent-based design, and further simplified by the use of DPP to 
-transparently handle the persistent storage of the *todos* Object.
+transparently handle the persistent storage of the *todos* Object and to provide
+reactive control.
 
 **NOTE:** You must use a modern browser that supports WebComponents to run this example!
 

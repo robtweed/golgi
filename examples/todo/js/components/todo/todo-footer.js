@@ -146,44 +146,23 @@ button {
       this.name = componentName + '-0';
     }
 
-
-    updateState() {
-
-      // iterate through rendered item components and
-      //  update their state based on the display mode
-
-      //  count the active tasks along the way
-
-      let countActive = 0;
-      let showClearBtn = false;
-      let displayMode = this.context.getDisplayMode();
-      let itemGroupComponent = this.context.itemGroupComponent;
-
-      itemGroupComponent.forEachItem((itemComponent) => {
-        if (this.context.isTodoCompleted(itemComponent.todoId)) {
-          showClearBtn = true;
-        }
-        else {
-          countActive++;
-        }
-        itemComponent.updateState(displayMode);
-      });
-
-      // now update the appearance of the footer itself
-
-      itemGroupComponent.showToggle();
+    updateState(todos, countActive, showClearBtn) {
       this.displayFooter();
       this.counter.textContent = countActive;
       this.showPlural(countActive !== 1);
-      this.displayMode(displayMode);
+      this.displayMode(todos.mode);
       this.showClearBtn(showClearBtn);
     }
 
     displayFooter() {
       // hide the footer if there are no items
 
-      if (this.context.itemGroupComponent.count === 0) {
+      let itemGroupComponent = this.getComponentsByName('todo-item-group')[0];
+      let headerComponent = this.getComponentsByName('todo-header')[0];
+
+      if (itemGroupComponent.count === 0) {
         this.hide();
+        headerComponent.input.focus();
       }
       else {
         this.show();
@@ -216,17 +195,14 @@ button {
 
     showAll() {
       this.context.setDisplayMode('all');
-      this.updateState();
     }
 
     showActive() {
       this.context.setDisplayMode('active');
-      this.updateState();
     }
 
     showCompleted() {
       this.context.setDisplayMode('completed');
-      this.updateState();
     }
 
     show() {
@@ -283,21 +259,9 @@ button {
     }
 
     clearCompletedItems() {
-      this.context.itemGroupComponent.clearCompletedItems();
+      this.context.deleteAllCompletedTodos();
     }
 
-    onBeforeState() {
-
-      // Once the assembly has completed rendering,
-      // pre-populate using the persisent todos
-
-      this.onOwnerAssemblyRendered(async () => {
-        for (let id in this.context.getAllTodos()) {
-          await this.context.itemGroupComponent.renderTodo(id, false);
-        };
-        this.updateState();
-      });
-    }
 
   });
 };

@@ -39,5 +39,63 @@ h1 {
       this.shadowRoot.innerHTML = `${html}`;
       this.name = componentName + '-0';
     }
+
+    updateState(todos) {
+
+      // iterate through rendered item components and
+      //  update their state based on the display mode
+
+      //  count the active tasks along the way
+
+      let countActive = 0;
+      let showClearBtn = false;
+
+      let itemComponentArray = this.getComponentsByName('todo-item');
+
+      for (let itemComponent of itemComponentArray) {
+        let todo = todos.byId[itemComponent.todoId];
+        if (todo) {
+          if (todo.completed) {
+            showClearBtn = true;
+          }
+          else {
+            countActive++;
+          }
+          itemComponent.updateState(todos);
+        }
+        else {
+          itemComponent.remove();
+        }
+      }
+
+      // show or hide the toggle
+
+      this.itemGroupComponent.showToggle();
+
+      // now update the appearance of the footer
+
+      this.footerComponent.updateState(todos, countActive, showClearBtn);
+
+    }
+
+    async renderTodo(id) {
+      let parent =  this.itemGroupComponent.itemHolder;
+      let itemComponent = await this.renderComponent('todo-item', parent, this.context);
+      itemComponent.todoId = id;
+    }
+
+    async populate(todos) {
+      for (let id in todos.byId) {
+        await this.renderTodo(id);
+      }
+    }
+
+    onBeforeState() {
+      this.onOwnerAssemblyRendered( () => {
+        this.itemGroupComponent = this.getComponentsByName('todo-item-group')[0];
+        this.footerComponent = this.getComponentsByName('todo-footer')[0];
+      });
+    }
+
   });
 };

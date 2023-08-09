@@ -93,40 +93,84 @@
     },
 
     isTodoCompleted: function(id) {
+      let todo = todos.byId[id];
+      if (!todo) return false;
       return todos.byId[id].completed;
     },
 
-    completeTodo: function(id) {
-      todos.byId[id].completed = true;
+    deleteAllTodos: function() {
+      for (let id in todos.byId) {
+        delete todos.byId[id];
+      }
     },
 
-    uncompleteTodo: function(id) {
-      todos.byId[id].completed = false;
+    deleteAllCompletedTodos: function() {
+      for (let id in todos.byId) {
+        if (todos.byId[id].completed) delete todos.byId[id];
+      }
     },
 
-    getTodo: function(id) {
-      return todos.byId[id];
+    toggleCompletion: function() {
+      let allCompleted = true;
+      for (let id in todos.byId) {
+        if (!todos.byId[id].completed) {
+          allCompleted = false;
+          break;
+        }
+      }
+      context.completeAllTodos(!allCompleted);
+    },
+
+    completeAllTodos: function(completed) {
+      for (let id in todos.byId) {
+        todos.byId[id].completed = completed;
+      }
+    },
+
+    completedTodo: function(id, value) {
+      todos.byId[id].completed = value;
+    },
+
+    getTodoText: function(id) {
+      return todos.byId[id].text;
     },
 
     deleteTodo: function(id) {
       delete todos.byId[id];
     },
 
-    getDisplayMode: function() {
-      return todos.mode;
-    },
-
     setDisplayMode: function(value) {
       todos.mode = value;
-    },
-
-    getAllTodos: function() {
-      return todos.byId;
     }
   };
 
   //golgi.logging = true;
 
   await golgi.renderAssembly('root', 'body', context);
+
+  // populate with empty item components for each persistent todo
+
+  await context.rootComponent.populate(todos);
+
+  // Now add reactive control
+
+  // Update application state after every change to
+  //  the todos object
+
+  dpp.on('save', async (data) => {
+    if (data.key[0] === 'nextId') {
+      await context.rootComponent.renderTodo(data.value - 1);
+    }
+    context.rootComponent.updateState(todos);
+  });
+
+  dpp.on('delete', (path) => {
+    context.rootComponent.updateState(todos);
+  });
+
+  // force an initial state update
+
+  todos.start = true;
+
 
 })();

@@ -179,28 +179,21 @@ input[type='text']:not(.edit) {
       this.name = componentName + '-' + count;
     }
 
-    updateState(displayMode) {
-      let todo = this.context.getTodo(this.todoId);
+    updateState(todos) {
+      let todo = todos.byId[this.todoId];
       this.itemText.textContent = todo.text;
-
       this.checkbox.checked = todo.completed;
       this.strikethroughText(todo.completed);
-      this.applyDisplayMode(displayMode,todo);
+      this.applyDisplayMode(todo.completed, todos.mode);
     }
 
-    applyDisplayMode(displayMode, todo) {
-
-      if (displayMode === 'active' && todo.completed) {
+    applyDisplayMode(completed, displayMode) {
+      if ((displayMode === 'active' && completed) || (displayMode === 'completed' && !completed)) {
         this.hide();
-        return;
       }
-      if (displayMode === 'completed' && !todo.completed) {
-        this.hide();
-        return;
+      else {
+        this.show();
       }
-
-      this.show();
-
     }
 
     strikethroughText(status) {
@@ -213,13 +206,7 @@ input[type='text']:not(.edit) {
     }
 
     taskCompleted() {
-      if (this.checkbox.checked) {
-        this.context.completeTodo(this.todoId);
-      }
-      else {
-        this.context.uncompleteTodo(this.todoId);
-      }
-      this.context.footerComponent.updateState();
+      this.context.completedTodo(this.todoId, this.checkbox.checked);
     }
 
     editingOn() {
@@ -229,28 +216,35 @@ input[type='text']:not(.edit) {
       this.editing = true;
       this.viewDiv.classList.add('hidden');
       this.editField.classList.remove('hidden');
-      this.editField.value = this.itemText.textContent;
+      this.editField.value = this.context.getTodoText(this.todoId);
       this.editField.focus();
     }
 
     testForEnd(e) {
+
+      // Enter or Esc pressed
+
       if (e.key === 'Escape' || e.key === 'Enter') {
         if (e.key === 'Enter') {
-          this.itemText.textContent = this.editField.value.trim();
+          this.editingOff(this.editField.value.trim());
         }
-        this.editingOff();
+        else {
+          this.editingOff();
+        }
       }
     }
 
     stopEditing() {
+
+      // onblur
+
       if (this.editing) {
-        this.itemText.textContent = this.editField.value.trim();
-        this.editingOff();
+        this.editingOff(this.editField.value.trim());
       }
     }
 
-    editingOff() {
-      let text = this.itemText.textContent;
+    editingOff(newText) {
+      let text = newText || this.itemText.textContent;
       if (text === '') {
         this.destroy();
       }
@@ -258,16 +252,10 @@ input[type='text']:not(.edit) {
         this.viewDiv.classList.remove('hidden');
         this.editField.classList.add('hidden');
         this.context.editTodo(this.todoId, text);
-        this.context.footerComponent.updateState();
       }
       this.editing = false;
     }
 
-    destroy() {
-      this.context.deleteTodo(this.todoId);
-      this.remove();
-      this.context.footerComponent.updateState();
-    }
 
     show() {
       this.rootElement.classList.remove('hidden');
@@ -275,6 +263,10 @@ input[type='text']:not(.edit) {
 
     hide() {
       this.rootElement.classList.add('hidden');
+    }
+
+    destroy() {
+      this.context.deleteTodo(this.todoId);
     }
 
   });

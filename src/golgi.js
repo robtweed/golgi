@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 6 August 2023
+ 9 August 2023
 
  */
 
@@ -33,6 +33,7 @@ let count = 0;
 let golgi = {
   dataStore: {},
   components: [],
+  componentsByName: {},
   assemblies: new Map(),
   stateMap: new Map(),
   resourceLoaded: new Map(),
@@ -607,6 +608,7 @@ let golgi = {
     element.remove = this.remove.bind(element);
     element.removeAllByName = this.removeAllByName;
     element.getComponentByName = this.getComponentByName.bind(this); 
+    element.getComponentsByName = this.getComponentsByName; 
     element.addHandler = this.addHandler.bind(element);
     element.addMetaTag = this.addMetaTag;
     element.loadResources = this.loadResources;
@@ -642,6 +644,9 @@ let golgi = {
     }
     element.rootComponent = context.rootComponent;
     if (targetElement) element.parentComponent = targetElement.ownerComponent;
+
+    if (!golgi.componentsByName[element.tagName]) golgi.componentsByName[element.tagName] = [];
+    golgi.componentsByName[element.tagName].push(element);
 
     if (this.logging) {
       this.logMessage('Golgi Component instantiated and ready for use:');
@@ -832,6 +837,9 @@ let golgi = {
     }
     return findParent(this);
   },
+  getComponentsByName(name) {
+    return golgi.componentsByName[name.toUpperCase()] || [];
+  },
   getComponentByName(componentName, name, parentNode) {
     //let customComponentElement = this.getCustomComponentElement(componentName, name);
     //if (customComponentElement) return customComponentElement;
@@ -913,6 +921,13 @@ let golgi = {
     }
     getChildren(this);
     this.onUnload();
+    for (let index in golgi.componentsByName[this.tagName]) {
+      let comp = golgi.componentsByName[this.tagName][index];
+      if (comp.name === this.name) {
+        golgi.componentsByName[this.tagName].splice(index, 1);
+        break;
+      }
+    }
     this.parentNode.removeChild(this);
   },
 

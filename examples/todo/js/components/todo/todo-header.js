@@ -55,7 +55,6 @@ input:placeholder-shown {
       if (value !== '') {
         let id = this.context.createTodo(value);
         this.input.value = '';
-        await this.context.itemGroupComponent.renderTodo(id, true);
       }
     }
 
