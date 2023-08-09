@@ -3,8 +3,8 @@
   // load resources in parallel
 
   const [{golgi}, {DPP}, {QOper8}] = await Promise.all([
-    import('https://cdn.jsdelivr.net/gh/robtweed/golgi/src/golgi.min.js'),
-    import('https://cdn.jsdelivr.net/gh/robtweed/DPP/src/dpp.min.js'),
+    import('https://robtweed.github.io/golgi/src/golgi.min.js'),
+    import('https://robtweed.github.io/DPP/src/dpp.min.js'),
     import('https://robtweed.github.io/QOper8/src/QOper8.min.js')
   ]);
 
