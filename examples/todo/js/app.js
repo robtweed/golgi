@@ -146,11 +146,11 @@
 
   //golgi.logging = true;
 
-  await golgi.renderAssembly('root', 'body', context);
+  let rootComponent = await golgi.renderAssembly('root', 'body', context);
 
   // populate with empty item components for each persistent todo
 
-  await context.rootComponent.populate(todos);
+  await rootComponent.populate(todos);
 
   // Now add reactive control
 
@@ -159,13 +159,13 @@
 
   dpp.on('save', async (data) => {
     if (data.key[0] === 'nextId') {
-      await context.rootComponent.renderTodo(data.value - 1);
+      await rootComponent.renderTodo(data.value - 1);
     }
-    context.rootComponent.updateState(todos);
+    rootComponent.updateState(todos);
   });
 
   dpp.on('delete', (path) => {
-    context.rootComponent.updateState(todos);
+    rootComponent.updateState(todos);
   });
 
   // force an initial state update

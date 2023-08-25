@@ -70,17 +70,16 @@ h1 {
 
       // show or hide the toggle
 
-      this.itemGroupComponent.showToggle();
+      this.itemGroup.showToggle();
 
       // now update the appearance of the footer
 
-      this.footerComponent.updateState(todos, countActive, showClearBtn);
+      this.footer.updateState(todos, countActive, showClearBtn);
 
     }
 
     async renderTodo(id) {
-      let parent =  this.itemGroupComponent.itemHolder;
-      let itemComponent = await this.renderComponent('todo-item', parent, this.context);
+      let itemComponent = await this.renderComponent('todo-item', this.itemGroup.itemHolder, this.context);
       itemComponent.todoId = id;
     }
 
@@ -88,13 +87,6 @@ h1 {
       for (let id in todos.byId) {
         await this.renderTodo(id);
       }
-    }
-
-    onBeforeState() {
-      this.onOwnerAssemblyRendered( () => {
-        this.itemGroupComponent = this.getComponentsByName('todo-item-group')[0];
-        this.footerComponent = this.getComponentsByName('todo-footer')[0];
-      });
     }
 
   });

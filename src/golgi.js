@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 9 August 2023
+ 24 August 2023
 
  */
 
@@ -39,7 +39,7 @@ let golgi = {
   resourceLoaded: new Map(),
   listeners: new Map(),
   logging: false,
-  version: '1.4.2',
+  version: '1.5.0',
 
   setLog: function (state) {
     this.logging = state;
@@ -249,7 +249,7 @@ let golgi = {
     }
   },
 
-  loadGroup: async function(configArr, targetElement, context) {
+  loadGroup: async function(configArr, targetElement, context, refs) {
 
     // The array of child components share the same target and must be appended
     // in strict sequence, so this is enforced by this logic..
@@ -267,12 +267,12 @@ let golgi = {
     let assemblyName = configArr[0].assemblyName;
 
     for (const config of configArr) {
-      await this.processComponent(config, assemblyName, targetElement, context);
+      await this.processComponent(config, assemblyName, targetElement, context, refs);
     }
     return;
   },
 
-  processComponent: async function(component, assemblyName, targetElement, context) {
+  processComponent: async function(component, assemblyName, targetElement, context, refs) {
     //console.log('processComponent');
     //console.log(component);
 
@@ -322,7 +322,7 @@ let golgi = {
     // load and render the component,
     //  then process its children if it has any
 
-    let element = await this.loadComponent(component, assemblyName, targetEl, context);
+    let element = await this.loadComponent(component, assemblyName, targetEl, context, refs);
     if (component.children && component.children[0] && element.childrenTarget) {
       component.children.forEach(function(c, index) {
         component.children[index].assemblyName = assemblyName;
@@ -330,12 +330,12 @@ let golgi = {
 
       // load component's child components
 
-      await this.loadGroup(component.children, element.childrenTarget, context);
+      await this.loadGroup(component.children, element.childrenTarget, context, refs);
     }
     return;
   },
 
-  loadComponent: async function(component, assemblyName, targetElement, context) {
+  loadComponent: async function(component, assemblyName, targetElement, context, refs) {
 
     let config = Object.assign({}, component);
 
@@ -438,7 +438,7 @@ let golgi = {
       }
     }));
 
-    let element = await this.renderWebComponent(config, targetElement, context);
+    let element = await this.renderWebComponent(config, targetElement, context, refs);
     if (element.parentComponent && element.parentComponent.onChildComponentReady) {
       element.parentComponent.onChildComponentReady.call(element.parentComponent, element);
     }
@@ -447,9 +447,16 @@ let golgi = {
 
   },
 
-  renderWebComponent: async function(config, targetElement, context) {
+  renderWebComponent: async function(config, targetElement, context, refs) {
     let assemblyName = config.assemblyName;
     let element = await this.load(config.componentName, targetElement, context);
+
+    if (refs && config.state && config.state['golgi:ref']) {
+      let name = config.state['golgi:ref'];
+      refs[name] = element;
+      delete config.state['golgi:ref'];
+    }
+
     if (this.logging) {
       //console.log('load element: ' + config.componentName);
       //console.log(element);
@@ -747,6 +754,7 @@ let golgi = {
 
   renderAssembly: async function(args, targetElement, context) {
     let name;
+    let refs = {};
     if (!targetElement && !context && typeof args === 'object') {
       targetElement = args.targetElement;
       context = args.context;
@@ -782,14 +790,27 @@ let golgi = {
       if (!Array.isArray(json)) {
         json = [json];
       }
+      let rootFound = false;
       json.forEach(function(component, index) {
         json[index].assemblyName = name;
+        if (component.state && component.state['golgi:ref'] === 'root') rootFound = true;
       });
+      if (!rootFound) {
+        if (!json[0].state) json[0].state = {};
+        json[0].state['golgi:ref']='root';
+      }
     }
 
-    await this.loadGroup(json, targetElement, context);
+    await this.loadGroup(json, targetElement, context, refs);
     this.emit(name + '_rendered');
-    return;
+    let rootElement = refs['root'];
+    for (let name in refs) {
+      if (name !== 'root') {
+        rootElement[name] = refs[name];
+      }
+    }
+    rootElement.refs = refs;
+    return rootElement;
   },
 
   async renderComponent(componentName, targetElement, context) {

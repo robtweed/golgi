@@ -67,6 +67,7 @@
   - [Dynamically Adding Meta Tags to the DOM](#dynamically-adding-meta-tags-to-the-dom)
 - [*Golgi Component* Lifecycle Methods](#golgi-component-lifecycle-methods)
 - [*Golgi* Properties for Navigation between *Golgi Components*](#golgi-properties-for-navigation-between-golgi-components)
+- [Customising Navigation between *Golgi Components* within Assemblies](#customising-navigation-between-golgi-components-within-assemblies)
 - [*Golgi* Methods For Use Within *Golgi Components* and *Hook* Methods](#golgi-methods-for-use-within-golgi-components-and-hook-methods)
 - [State management and Data Binding in *Golgi*](#state-management-and-data-binding-in-golgi)
   - [Defining A State Map in an Assembly](#defining-a-state-map-in-an-assembly)
@@ -939,7 +940,7 @@ single *Golgi Component* we've been using so far:
         
         golgi.setLog(true);
        
-        await golgi.renderAssembly('demo_assembly', 'body', context);
+        let rootComponent = await golgi.renderAssembly('demo_assembly', 'body', context);
       })();
 
 <br/>
@@ -1029,17 +1030,20 @@ That *Assembly* or its logic within it may render other Assemblies, but your mai
 module should render the root *Assembly* using *Golgi*'s *renderAssembly()* method.  Here
 that is in our example:
 
-      await golgi.renderAssembly('demo_assembly', 'body', context);
+      let rootComponent = await golgi.renderAssembly('demo_assembly', 'body', context);
 
 You'll notice that this is almost identical to the *renderComponent()* method we used previously.  
-It doesn't return anything, but requires three similar arguments:
+It returns an object that represents the root component withing your Assembly.  By default that will
+be the first/outermost Component in the Assembly.
+
+The *renderAssembly()* method requires three arguments:
 
 - the name of the *Golgi Assembly*
 - the target element within your HTML page to which the root Component within the
 *Assembly* will be appended.  We want to append it to the *body* tag, so instead of 
 specifying it in full, ie:
 
-      await golgi.renderAssembly('demo_assembly', document.getElementsByTagName('body')[0], context);
+      let rootComponent = await golgi.renderAssembly('demo_assembly', document.getElementsByTagName('body')[0], context);
 
   ... and because the *body* tag is a very common one to use as a target, the *renderAssembly()*
 method allows you to simply specify it as the *string* value *'body'*.
@@ -1879,7 +1883,7 @@ The *sbadmin-carousel*'s Hook Method will then look something like this:
                 // render an instance of the carousel item for each person,
                 //  attaching it to the sbadmin-carousel's children target element
                
-                await this.renderAssembly('myCarouselItem', this.childrenTarget, ctx);
+                let itemComponent = await this.renderAssembly('myCarouselItem', this.childrenTarget, ctx);
   
               }
 
@@ -2170,6 +2174,73 @@ Component containing the Element
 </div>
 <br/>
 
+# Customising Navigation between *Golgi Components* within Assemblies
+
+You'll often want to be able to quickly and easily access the Components within an Assembly.
+
+As noted earlier, the *renderAssembly()* method will return the Assembly's *Root Component*, eg:
+
+
+        let itemComponent = await this.renderAssembly('myCarouselItem', this.childrenTarget, ctx);
+
+In this earlier example, the *myCarouselItem* Assembly's *gx* was:
+
+        let gx = `
+          <sbadmin-carousel-item>
+            <sbadmin-card bgColor="light" textColor="dark" width="75%" position="center">
+              <sbadmin-card-header text="golgi:context=personData.name" />
+              <sbadmin-card-body>
+                <sbadmin-card-text text="golgi:context=personData.city" />
+              </sbadmin-card-body>
+            </sbadmin-card>
+          </sbadmin-carousel-item>
+        `;
+
+The *renderAssembly()* method's return value - *itemComponent* - will be a Component object representing
+the outermost Component in the Assembly, ie *sbadmin-carousel-item* Component.
+
+If you want to be able to access the Carousel Item's *sbadmin-card-header* Component at a later stage, for
+example so that you can dynamically change its header text, you need to be able to locate.  You have several options:
+
+- use the *getComponentsByName()* method.  This returns an array of all Components anywhere within the DOM 
+that match the specified name, eg:
+
+        let headerComponents = itemComponent.getComponentsByName('sbadmin-card-header');
+
+  This is fine if there is only one instance of the specified Component, but gets more tricky to use if
+there are multiple instances.
+
+  Note that this method works even if you use ShadowDOM.
+
+- a better approach is to add the special *Golgi* attribute to the Component you want to be
+able to reference: *golgi:ref*, eg:
+
+        <sbadmin-card-header golgi:ref="header" text="golgi:context=personData.name" />
+
+  When the Assembly is rendered, the returned Component will now have an additional property - in this
+case *header* - that represents the specified reference Component, eg after rendering the assembly:
+
+        let itemComponent = await this.renderAssembly('myCarouselItem', this.childrenTarget, ctx);
+
+  You'll now be able to access the *sbadmin-card-header* Component's properties and methods using:
+
+        itemComponent.header
+
+
+  eg to change the header text:
+
+        itemComponent.header.text = 'New Header Text';
+
+You can specify as many reference Components as you wish within an Assembly.  Note that you must take
+care not to overwrite a reserved Component property name.
+
+
+<br/>
+<div align="right">
+  <b><a href="#index">back to top</a></b>
+</div>
+<br/>
+
 # *Golgi* Methods For Use Within *Golgi Components* and *Hook* Methods
 
 
@@ -2190,6 +2261,12 @@ to the Component's *rootElement*.
 
   If the third argument (*eventName*) is not specified, a 'click' event is assumed.
 
+- *this.getComponentsByName(componentName)*
+
+  This method is used to find and return one or more Components matching the
+specified name anywhere within the DOM (even if you use ShadowDOM within some
+of your Components).  It returns an array of matching Component objects.
+
 - *this.getComponentByName(componentName [, name_property_value] [, parentElement])*
 
   This method is used to find and return one or more Components matching the
@@ -2204,7 +2281,9 @@ to work you must make sure that such Components include a *setState()* condition
 the *name* property to be set.
 
   - if you specify a third argument (*parentElement), the search for matching Components
-is limited to descendant nodes of the specified parent Element.
+is limited to descendant nodes of the specified parent Element.  Note that this is of
+limited use if you use ShadowDOM within your Components, as it cannot cross the ShadowDOM
+boundary.
 
 
 - *this.getParentComponent(componentName)*
@@ -2225,11 +2304,15 @@ handlers that were added to the removed Components, provided those handlers were
 specified target Element (*append_target_element*).  The *Golgi* Context object, available
 within the current Component as *this.context*, should also be specified as the third argument).
 
+  It returns an Object representing the outermost Component within the Assembly.
+
 - *this.renderComponent(component_name, append_target_element, context)*
 
   This method will import and load the specified *Golgi Component* and, when ready, will append it to the
 specified target Element (*append_target_element*).  The *Golgi* Context object, available
 within the current Component as *this.context*, should also be specified as the third argument).
+
+  It returns an Object representing the instance of the specified Component.
 
 - *this.addStateMap(state_property_name)*
 
