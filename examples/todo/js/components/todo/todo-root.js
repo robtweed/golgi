@@ -52,6 +52,8 @@ h1 {
 
       let itemComponentArray = this.getComponentsByName('todo-item');
 
+      // update the count for the footer
+
       for (let itemComponent of itemComponentArray) {
         let todo = todos.byId[itemComponent.todoId];
         if (todo) {
@@ -63,7 +65,13 @@ h1 {
           }
           itemComponent.updateState(todos);
         }
-        else {
+      }
+
+      // now remove any missing item components
+
+      for (let itemComponent of itemComponentArray) {
+        let todo = todos.byId[itemComponent.todoId];
+        if (!todo) {
           itemComponent.remove();
         }
       }
@@ -79,7 +87,8 @@ h1 {
     }
 
     async renderTodo(id) {
-      let itemComponent = await this.renderComponent('todo-item', this.itemGroup.itemHolder, this.context);
+      let parent =  this.itemGroup.itemHolder;
+      let itemComponent = await this.renderComponent('todo-item', parent, this.context);
       itemComponent.todoId = id;
     }
 
