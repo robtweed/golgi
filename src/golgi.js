@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 24 August 2023
+ 30 December 2023
 
  */
 
@@ -39,7 +39,7 @@ let golgi = {
   resourceLoaded: new Map(),
   listeners: new Map(),
   logging: false,
-  version: '1.5.0',
+  version: '1.5.1',
 
   setLog: function (state) {
     this.logging = state;
@@ -351,10 +351,16 @@ let golgi = {
 
       //console.log('**** html tag: ****');
       //console.log(config);
+
       let element = document.createElement(config.componentName);
       element.textContent = config.textContent;
       for (let attr in config.attributes) {
-        element.setAttribute(attr, config.attributes[attr]);
+        if (attr === 'golgi:ref') {
+          refs[config.attributes[attr]] = element;
+        }
+        else {
+          element.setAttribute(attr, config.attributes[attr]);
+        }
       }
       element.childrenTarget = element;
       if (targetElement) targetElement.appendChild(element);
