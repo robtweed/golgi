@@ -6,7 +6,7 @@
     componentPaths: {
       productui: './components/productui/'
     },
-    assemblyPath: './productui_assemblies/'
+    assemblyPath: './assemblies/'
   };
   //golgi.logging = true;
 

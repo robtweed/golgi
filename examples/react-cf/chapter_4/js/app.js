@@ -1,12 +1,12 @@
 (async () => {
 
-  const {golgi} = await import('./golgi.js');
+  const {golgi} = await import('./golgi.min.js');
 
   let context = {
     componentPaths: {
       productui: './components/productui/'
     },
-    assemblyPath: './productui_assemblies/'
+    assemblyPath: './assemblies/'
   };
   //golgi.logging = true;
 

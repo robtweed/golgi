@@ -1,0 +1,22 @@
+{
+  "name": "golgi-ss-tools",
+  "version": "0.1.2",
+  "description": "Server-side Golgi Build/Optimisation Tools",
+  "author": "Rob Tweed <rob.tweed@gmail.com>",
+  "dependencies": {
+    "clean-css": "",
+    "fs-extra": "",
+    "golgi": "",
+    "html-minifier": "^4.0.0",
+    "jsdom": "^19.0.0",
+    "module-exists": "",
+    "qewd-transform-json": "",
+    "readline-sync": "",
+    "uglify-js": "^3.19.3"
+  },
+  "main": "index.js",
+  "scripts": {
+    "optimise_assemblies": "node optimiseAssemblies.js",
+    "build_components": "node buildComponents.js"
+  }
+}

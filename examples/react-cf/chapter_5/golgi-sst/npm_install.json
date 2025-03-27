@@ -1,0 +1,8 @@
+[
+  "uglify-js",
+  "jsdom",
+  "golgi",
+  "html-minifier",
+  "qewd-transform-json",
+  "clean-css"
+]

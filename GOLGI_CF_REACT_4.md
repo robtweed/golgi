@@ -52,7 +52,7 @@ This *golgi:observer* directive is saying:
 
 So, the next thing we'll do is to add that *setVisibility()* method to the Component:
 
-        applyStatus(value) {
+        setVisibility(value) {
           if (value === 'show') this.show();
           if (value === 'hide') this.hide();
         }
@@ -64,6 +64,13 @@ A *golgi:observer* method can take two arguments:
 
 So you can see that we're showing or hiding the entire *productui-row* Component, depending on the value of the *status* attribute which, in turn, is provided by Golgi's state-mapped object's *status* property.
 
+Next, we need to enable the use of Golgi's Mutation Observer functionality within the Component.  We do this by
+invoking the Component's *observerStart()* method within the *onBeforeState* lifecycle method, which ensures it's
+enabled before anything else we're doing within the Component:
+
+        onBeforeState() {
+          this.observerStart();
+        }
 
 Finally, we'll remove the previous *visibility()* method from the Component
 
@@ -92,6 +99,10 @@ In summary, the *productui-row* Component should now look like this:
               this.shadowRoot.innerHTML = `${html}`;
             }
 
+            onBeforeState() {
+              this.observerStart();
+            }
+
             setVisibility(value) {
               if (value === 'show') this.show();
               if (value === 'hide') this.hide();
@@ -111,7 +122,7 @@ In summary, the *productui-row* Component should now look like this:
 
 ## productui-table Component
 
-We now need to modify the logic of the *reformat()* method within this Component.
+We now need to modify the logic of the *reformat()* method within this Component to look like this:
 
         reformat(only_instock) {
 

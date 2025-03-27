@@ -2,8 +2,8 @@
   "name": "golgi",
   "version": "1.5.1",
   "description": "Dynamically-loading WebComponent Assembly Framework",
-  "main": "/src/golgi.mjs",
-  "browser": "/src/golgi.min.js",
+  "main": "./src/golgi.mjs",
+  "browser": "./src/golgi.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

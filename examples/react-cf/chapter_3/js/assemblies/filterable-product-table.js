@@ -1,4 +1,4 @@
-export function load(ctx) {
+export function load() {
 
   let gx=`
 <productui-searchbar />
@@ -8,7 +8,7 @@ export function load(ctx) {
   let hooks = {
     'productui-table': {
       initialise: function() {
-        ctx.PRODUCTS = [
+        this.context.PRODUCTS = [
           {category: 'Sporting Goods', price: '$49.99', stocked: true, name: 'Football'},
           {category: 'Sporting Goods', price: '$9.99', stocked: true, name: 'Baseball'},
           {category: 'Sporting Goods', price: '$29.99', stocked: false, name: 'Basketball'},

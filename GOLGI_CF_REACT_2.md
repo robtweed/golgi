@@ -29,13 +29,11 @@ For this example, I'm going to use the *Context* object.
 
 We need to make the following changes:
 
-- we can make the *Context* object available within an Assembly by adding it as an argument to the Assembly's *load()* method, ie:
+- Every Golgi Component automatically exposes the *Context* object via *this.context*, so we can modify it within
+any *hook* method.  So, in our case, we add the PRODUCTS array to the *Context* object instead of defining it as a local variable, 
+and by doing so, it's then available to other Components:
 
-        export function load(ctx) {
-
-- next, add the PRODUCTS array to the *Context* object instead of defining it as a local variable, so it's then available to other Components:
-
-        ctx.PRODUCTS = [
+        this.context.PRODUCTS = [
           {category: 'Sporting Goods', price: '$49.99', stocked: true, name: 'Football'},
           {category: 'Sporting Goods', price: '$9.99', stocked: true, name: 'Baseball'},
           {category: 'Sporting Goods', price: '$29.99', stocked: false, name: 'Basketball'},
@@ -50,7 +48,7 @@ We need to make the following changes:
 
 So the Assembly Module should now look like this:
 
-        export function load(ctx) {
+        export function load() {
 
           let gx=`
         <productui-searchbar />
@@ -60,7 +58,7 @@ So the Assembly Module should now look like this:
           let hooks = {
             'productui-table': {
               initialise: function() {
-                ctx.PRODUCTS = [
+                this.context.PRODUCTS = [
                   {category: 'Sporting Goods', price: '$49.99', stocked: true, name: 'Football'},
                   {category: 'Sporting Goods', price: '$9.99', stocked: true, name: 'Baseball'},
                   {category: 'Sporting Goods', price: '$29.99', stocked: false, name: 'Basketball'},

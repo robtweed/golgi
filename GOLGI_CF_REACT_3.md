@@ -138,7 +138,7 @@ We now need to modify the logic of this Component's *populate()* method to use G
 
 Within the Component's *populate()* method, define and record the state name at each iteration through the PRODUCTS array:
 
-        for (const [index, product] of this.ctx.PRODUCTS.entries()) {
+        for (const [index, product] of this.context.PRODUCTS.entries()) {
           let state_name = 'product' + index;
 
 Then, for each rendered *productui-category-row* Component, map this state name to the Component using Golgi's *addStateMap()* method:

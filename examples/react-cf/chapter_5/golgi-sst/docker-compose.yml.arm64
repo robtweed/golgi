@@ -1,0 +1,46 @@
+version: '3.3'
+
+services:
+  optimise_assemblies:
+    image: rtweed/node-runner-arm64
+    container_name: node-runner
+    network_mode: host
+    stdin_open: true
+    tty: true
+    environment:
+      node_script: optimise_all_assemblies
+    volumes:
+      - ./:/node
+
+  optimise_assemblies_subset:
+    image: rtweed/node-runner-arm64
+    container_name: node-runner
+    network_mode: host
+    stdin_open: true
+    tty: true
+    environment:
+      node_script: optimise_assemblies_subset
+    volumes:
+      - ./:/node
+
+  build_all_components:
+    image: rtweed/node-runner-arm64
+    container_name: node-runner
+    network_mode: host
+    stdin_open: true
+    tty: true
+    environment:
+      node_script: build_all_components
+    volumes:
+      - ./:/node
+
+  build_components_subset:
+    image: rtweed/node-runner-arm64
+    container_name: node-runner
+    network_mode: host
+    stdin_open: true
+    tty: true
+    environment:
+      node_script: build_components_subset
+    volumes:
+      - ./:/node

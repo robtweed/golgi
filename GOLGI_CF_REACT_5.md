@@ -333,7 +333,7 @@ Once again we'll use the *node-runner* Docker Container, but this time we'll use
 
 
         cd ~/golgi-sst
-        docker-compose run build_components
+        docker-compose run build_all_components
 
 
 It will ask you for the directory path containing your source versions of the Component files.  Simply accept the default path that it's suggesting (*/node/components_src*).
