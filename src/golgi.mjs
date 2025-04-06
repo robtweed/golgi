@@ -3,7 +3,7 @@
  ----------------------------------------------------------------------------
  | Golgi: Dynamically-loading WebComponent Assembly Framework                |
  |                                                                           |
- | Copyright (c) 2023 MGateway Ltd,                                          |
+ | Copyright (c) 2023-25 MGateway Ltd,                                       |
  | Redhill, Surrey UK.                                                       |
  | All rights reserved.                                                      |
  |                                                                           |
@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 30 December 2023
+ 6 April 2025
 
  */
 
@@ -144,7 +144,9 @@ let golgi = {
     //let filename = context.componentPaths[namespace] + componentFile;
     this.logMessage('fetching optimised file of all components: ' + filename);
 
-    const {golgi_components} = await import(filename);
+    let ver = '';
+    if (context.version && context.version !== '') ver = '?version=' + context.version;
+    const {golgi_components} = await import(filename + ver);
     let _this = this;
     golgi_components.forEach(function(comp) {
       if (!customElements.get(comp.n)) {
@@ -170,9 +172,11 @@ let golgi = {
     this.logMessage('fetching optimised file of all assemblies: ' + filename);
 
     let _this = this;
+    let ver = '';
+    if (context.version && context.version !== '') ver = '?version=' + context.version;
 
     try {
-      const {golgi_assemblies} = await import(filename);
+      const {golgi_assemblies} = await import(filename + ver);
       golgi_assemblies.forEach(function(obj) {
         _this.assemblies.set(obj.n, obj.c);
       });
@@ -222,7 +226,9 @@ let golgi = {
       return element;
     }
     else {
-      let _module = await import(jsPath + componentName + '.js');
+      let ver = '';
+      if (context.version && context.version !== '') ver = '?version=' + context.version;
+      let _module = await import(jsPath + componentName + '.js' + ver);
 
       if (!context.golgiLoadSequence) {
         context.golgiLoadSequence = [];
@@ -784,7 +790,9 @@ let golgi = {
       _module = {load: this.assemblies.get(name)};
     }
     else {
-      _module = await import(path + name + '.js');
+      let ver = '';
+      if (context.version && context.version !== '') ver = '?version=' + context.version;
+      _module = await import(path + name + '.js' + ver);
     }
     let assemblyObj = _module.load.call(this, context);
     let json = assemblyObj.gjson || {};
